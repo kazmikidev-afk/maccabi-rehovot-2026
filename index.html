@@ -282,7 +282,7 @@ const DATA = {
   },
   {
    "player": "גלעד קזולה",
-   "text": "🧤 רשת נקייה",
+   "text": "🧤 שער נקי",
    "gameId": null
   },
   {
@@ -477,7 +477,7 @@ function renderAdmin(){
    `<h2>משחקים</h2>`+gl.map(g=>`<div class="card"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span>${esc(g.opponent)}<div class="mut">${fd(g.date)} ${g.time||""} · ${played(g)?g.score[0]+" : "+g.score[1]:"טרם שוחק"} · ${(g.events||[]).length} אירועים</div></div><div><button class="btn sm" onclick="editGame(${g.id})">עריכה</button> <button class="btn sm red" onclick="delGame(${g.id})">מחק</button></div></div></div>`).join("")+
    `<h2>סגל</h2><div class="card">`+S.squad.map((p,i)=>`<div class="ev"><span style="flex:1">${p.num??"-"} · ${esc(p.name)} · ${esc(p.pos)}</span><button class="btn sm" onclick="editPlayer(${i})">עריכה</button><button class="btn sm red" onclick="delPlayer(${i})">מחק</button></div>`).join("")+`<div class="bar"><button class="btn" onclick="addPlayer()">+ שחקן</button></div></div>`+
    `<h2>תגי הצטיינות</h2><div class="card">`+S.badges.map((b,i)=>`<div class="ev"><span style="flex:1">${esc(b.text)} · ${esc(b.player)}</span><button class="btn sm red" onclick="delBadge(${i})">מחק</button></div>`).join("")+
-   `<div class="row"><select id="bp"><option value="">שחקן</option>${names.map(n=>`<option>${esc(n)}</option>`).join("")}</select><input id="bt" placeholder="למשל 🧤 רשת נקייה"></div><div class="bar"><button class="btn" onclick="addBadge()">+ תג</button></div></div>`+
+   `<div class="row"><select id="bp"><option value="">שחקן</option>${names.map(n=>`<option>${esc(n)}</option>`).join("")}</select><input id="bt" placeholder="למשל 🧤 שער נקי"></div><div class="bar"><button class="btn" onclick="addBadge()">+ תג</button></div></div>`+
    `<h2>ליגת ג'וניור</h2><div class="card"><label>קישור לאתר הליגה</label><input id="lu" value="${esc(S.leagueUrl)}"><label>עודכן (טקסט חופשי)</label><input id="lupd" value="${esc(S.leagueUpdated)}"><div class="bar"><button class="btn" onclick="saveSettings()">שמירה</button></div><div class="mut">טבלת ליגה ומלכי שערים: מעדכנים בבלוק הנתונים (leagueTable, leagueScorers) או שולחים לי.</div></div>`+
    `<h2>פרסום ישיר מהטלפון</h2><div class="card"><div class="mut">פעם אחת: יוצרים ב-GitHub token מסוג Fine-grained עם הרשאת Contents (קריאה וכתיבה) על ה-repo הזה בלבד, ומדביקים כאן. ה-token נשמר רק בטלפון.</div><div class="bar"><button class="btn" onclick="setToken()">${localStorage.getItem(TOK)?"החלפת token":"הגדרת token"}</button>${localStorage.getItem(TOK)?`<button class="btn red" onclick="localStorage.removeItem(TOK);renderAdmin()">הסרת token</button>`:""}</div></div>`;
 }
