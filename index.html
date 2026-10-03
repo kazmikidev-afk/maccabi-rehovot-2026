@@ -4,26 +4,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b5ed7">
-<title>מכבי רחובות - עונת 2026/27</title>
+<title>מכבי רחובות</title>
 <style>
-:root{--c:#0b5ed7;--bg:#f4f6fa;--card:#fff;--tx:#1b2430;--mut:#6b7686;--bd:#e1e6ee}
+:root{--c:#0b5ed7;--bg:#f4f6fa;--tx:#1b2430;--mut:#6b7686;--bd:#e1e6ee}
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--tx);line-height:1.45}
-header{background:var(--c);color:#fff;padding:16px 14px 10px;text-align:center}
-header h1{margin:0;font-size:1.4rem}header p{margin:2px 0 0;opacity:.85;font-size:.9rem}
+header{background:var(--c);color:#fff;padding:14px;text-align:center}
+header h1{margin:0;font-size:1.35rem}header p{margin:2px 0 0;opacity:.85;font-size:.9rem}
 nav{display:flex;position:sticky;top:0;background:#fff;border-bottom:1px solid var(--bd);overflow-x:auto;z-index:5}
-nav button{flex:1;min-width:max-content;border:0;background:none;padding:12px 14px;font:inherit;font-weight:600;color:var(--mut);border-bottom:3px solid transparent}
+nav button{flex:1;min-width:max-content;border:0;background:none;padding:12px 12px;font:inherit;font-weight:600;color:var(--mut);border-bottom:3px solid transparent}
 nav button.on{color:var(--c);border-color:var(--c)}
 main{max-width:720px;margin:0 auto;padding:12px}
 section{display:none}section.on{display:block}
 .chips{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.chips button{border:1px solid var(--bd);background:#fff;border-radius:99px;padding:6px 14px;font:inherit}
-.chips button.on{background:var(--c);color:#fff;border-color:var(--c)}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px}
+.chips button,.btn{border:1px solid var(--bd);background:#fff;border-radius:99px;padding:8px 16px;font:inherit;color:var(--tx)}
+.chips button.on,.btn.pri{background:var(--c);color:#fff;border-color:var(--c)}
+.btn.red{color:#d23;border-color:#d23}.btn.wa{background:#25d366;color:#fff;border-color:#25d366}
+.btn.sm{padding:4px 12px;font-size:.85rem}
+.card{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px}
 .game{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .tag{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:99px;color:#fff;margin-inline-end:6px}
 .t-league{background:#0b5ed7}.t-cup{background:#c98a00}.t-friendly{background:#2e9e5b}
-.score{font-size:1.3rem;font-weight:700;direction:ltr;white-space:nowrap}
+.score{font-size:1.3rem;font-weight:700;white-space:nowrap;text-align:center}
 .mut{color:var(--mut);font-size:.85rem}
 .W{color:#2e9e5b}.L{color:#d23}.D{color:#888}
 table{width:100%;border-collapse:collapse;font-size:.92rem}
@@ -32,8 +34,17 @@ th{color:var(--mut);font-weight:600}td:first-child,th:first-child{text-align:rig
 h2{font-size:1.05rem;margin:14px 0 8px}
 .empty{text-align:center;color:var(--mut);padding:18px}
 .note{background:#fff8e1;border:1px solid #f0d98a;border-radius:10px;padding:10px;font-size:.85rem;margin-bottom:10px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
-.num{display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;border-radius:50%;background:var(--c);color:#fff;font-weight:700;margin-inline-end:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.num{display:inline-block;min-width:28px;height:28px;line-height:28px;text-align:center;border-radius:50%;background:var(--c);color:#fff;font-weight:700;margin-inline-end:8px}
+.badge{display:inline-block;font-size:.75rem;background:#eef3ff;border-radius:99px;padding:1px 8px;margin:2px 0 0 4px}
+input,select,textarea{font:inherit;padding:8px;border:1px solid var(--bd);border-radius:8px;width:100%;background:#fff}
+label{display:block;font-size:.85rem;color:var(--mut);margin:8px 0 3px}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.ev{display:flex;gap:6px;align-items:center;margin:4px 0;font-size:.9rem}
+pre{white-space:pre-wrap;background:#fff;border:1px solid var(--bd);border-radius:10px;padding:12px;font:inherit;direction:rtl}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 18px;border-radius:99px;display:none;z-index:20}
+a{color:var(--c)}
 </style>
 </head>
 <body>
@@ -44,115 +55,438 @@ h2{font-size:1.05rem;margin:14px 0 8px}
 <section id="s-squad"></section>
 <section id="s-stats"></section>
 <section id="s-league"></section>
+<section id="s-share"></section>
+<section id="s-admin"></section>
 </main>
+<div class="toast" id="toast"></div>
 
 <script>
-/* ============================================================
-   בלוק הנתונים - כאן מעדכנים הכול. אין צורך לגעת בשאר הקובץ.
-   DATA BLOCK - edit only this part.
-   ============================================================ */
+/* ===================================================================
+   בלוק הנתונים. אפשר לערוך ידנית, או דרך לשונית "ניהול" באתר.
+   אל תשנו את שורות הסימון DATA_START / DATA_END.
+   type: friendly=אימון, league=ליגה, cup=גביע
+   score: [שערים שלנו, שערי היריב] או null אם עוד לא שוחק
+   events kind: goal / assist / yellow / red / note
+   =================================================================== */
+/*DATA_START*/
 const DATA = {
-  club: "מכבי רחובות",
-  season: "עונת 2026/27",
-  /* סוגי משחקים: friendly = אימון, league = ליגה, cup = גביע */
-
-  /* משחקים. score: null = עוד לא שוחק. home: true = בית.
-     scorers/assists: שמות שחקנים כפי שהם מופיעים ב-squad.
-     הדוגמאות למטה הן דוגמה בלבד - למחוק ולהחליף. */
-  games: [
-    { id:1, type:"friendly", date:"2026-10-10", time:"18:00", opponent:"(דוגמה) יריב לדוגמה", home:true,  venue:"", score:null, scorers:[], assists:[], note:"נתון לדוגמה" },
-    { id:2, type:"league",   date:"2026-10-24", time:"17:00", opponent:"(דוגמה) קבוצה ב'", home:false, venue:"", score:null, scorers:[], assists:[], note:"נתון לדוגמה" }
-    /* דוגמה למשחק שהסתיים:
-    { id:3, type:"cup", date:"2026-11-07", time:"17:00", opponent:"קבוצה ג'", home:true, score:[3,1], scorers:["שחקן א","שחקן א","שחקן ב"], assists:["שחקן ב"] },
-    */
-  ],
-
-  /* סגל. pos: שוער / מגן / קשר / חלוץ */
-  squad: [
-    { num:1,  name:"(דוגמה) שחקן 1", pos:"שוער" },
-    { num:4,  name:"(דוגמה) שחקן 2", pos:"מגן" },
-    { num:8,  name:"(דוגמה) שחקן 3", pos:"קשר" },
-    { num:9,  name:"(דוגמה) שחקן 4", pos:"חלוץ" }
-  ],
-  staff: [ /* { role:"מאמן", name:"..." } */ ],
-
-  /* סטטיסטיקות נוספות שאינן נגזרות אוטומטית מהמשחקים (כרטיסים, דקות וכו').
-     המערכת סופרת לבד שערים, בישולים והופעות מתוך games. */
-  extraStats: [ /* { name:"שחקן א", yellow:1, red:0 } */ ],
-
-  /* ליגת ג'וניור - טבלה וסטטיסטיקות כלליות. העונה טרם התחילה.
-     כשיפורסמו נתונים: להדביק שורות בטבלה ובמלך השערים.
-     leagueUrl: קישור לאתר הליגה. */
-  leagueUrl: "",
-  leagueUpdated: "",
-  leagueTable: [ /* { team:"מכבי רחובות", p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 } */ ],
-  leagueScorers: [ /* { name:"...", team:"...", goals:0 } */ ]
+ "rev": 1,
+ "club": "מכבי רחובות",
+ "season": "עונת 2026/27",
+ "adminHash": "e4cec22c7cbe6af5caa9b8eef11b47004c63473400087d0361fa7f898dbcde60",
+ "leagueUrl": "",
+ "leagueUpdated": "",
+ "leagueTable": [],
+ "leagueScorers": [],
+ "games": [
+  {
+   "id": 1,
+   "type": "friendly",
+   "date": "2026-09-11",
+   "time": "09:00",
+   "opponent": "הפועל לוד",
+   "home": false,
+   "venue": "אצטדיון עירוני לוד",
+   "score": [
+    14,
+    2
+   ],
+   "events": [
+    {
+     "min": 65,
+     "kind": "goal",
+     "player": "לא ידוע",
+     "text": ""
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": 2,
+   "type": "friendly",
+   "date": "2026-09-24",
+   "time": "14:00",
+   "opponent": "הפועל ירושלים",
+   "home": true,
+   "venue": "",
+   "score": [
+    3,
+    1
+   ],
+   "events": [
+    {
+     "min": 55,
+     "kind": "goal",
+     "player": "דניאל זריהון",
+     "text": ""
+    },
+    {
+     "min": 60,
+     "kind": "goal",
+     "player": "ליאב ביידה",
+     "text": ""
+    },
+    {
+     "min": 70,
+     "kind": "goal",
+     "player": "מתניה עדן",
+     "text": ""
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": 3,
+   "type": "friendly",
+   "date": "2026-10-02",
+   "time": "11:00",
+   "opponent": "מכבי קריית גת",
+   "home": true,
+   "venue": "",
+   "score": [
+    3,
+    0
+   ],
+   "events": [
+    {
+     "min": 32,
+     "kind": "goal",
+     "player": "רז דיין",
+     "text": ""
+    },
+    {
+     "min": 65,
+     "kind": "goal",
+     "player": "עידן בסר",
+     "text": ""
+    },
+    {
+     "min": 73,
+     "kind": "goal",
+     "player": "דניאל זריהון",
+     "text": ""
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": 4,
+   "type": "friendly",
+   "date": "2026-10-10",
+   "time": "20:15",
+   "opponent": "הפועל ירושלים",
+   "home": false,
+   "venue": "ספורטק עמק הארזים",
+   "score": null,
+   "events": [],
+   "note": ""
+  }
+ ],
+ "squad": [
+  {
+   "num": 1,
+   "name": "תום אברברוך",
+   "pos": "שוער"
+  },
+  {
+   "num": 5,
+   "name": "עומר אליהו",
+   "pos": "בלם"
+  },
+  {
+   "num": 6,
+   "name": "אוראל שמש",
+   "pos": "מגן שמאל"
+  },
+  {
+   "num": 8,
+   "name": "רוי מזרחי",
+   "pos": "כנף ימין"
+  },
+  {
+   "num": 9,
+   "name": "עידן בסר",
+   "pos": "קשר"
+  },
+  {
+   "num": 10,
+   "name": "מתניה עדן",
+   "pos": "כנף שמאל"
+  },
+  {
+   "num": 11,
+   "name": "רז דיין",
+   "pos": "כנף שמאל"
+  },
+  {
+   "num": 13,
+   "name": "איתן מזרחי",
+   "pos": "מגן ימין"
+  },
+  {
+   "num": 14,
+   "name": "אורי סוסן",
+   "pos": "מגן שמאל"
+  },
+  {
+   "num": 15,
+   "name": "דניאל זריהון",
+   "pos": "כנף ימין"
+  },
+  {
+   "num": 16,
+   "name": "ניתאי רחמים",
+   "pos": "קשר"
+  },
+  {
+   "num": 17,
+   "name": "אורי בוקעי",
+   "pos": "קשר"
+  },
+  {
+   "num": 19,
+   "name": "אביעד שיבשי",
+   "pos": "מגן ימין"
+  },
+  {
+   "num": 20,
+   "name": "שחר מעבי",
+   "pos": "חלוץ"
+  },
+  {
+   "num": 22,
+   "name": "גלעד קזולה",
+   "pos": "שוער"
+  },
+  {
+   "num": 23,
+   "name": "ליאב ביידה",
+   "pos": "חלוץ"
+  },
+  {
+   "num": null,
+   "name": "יואב רוזנבלום",
+   "pos": "חלוץ"
+  }
+ ],
+ "badges": [
+  {
+   "player": "איתן מזרחי",
+   "text": "🏆 שחקן המשחק",
+   "gameId": 2
+  },
+  {
+   "player": "איתן מזרחי",
+   "text": "🏆 שחקן המשחק",
+   "gameId": null
+  },
+  {
+   "player": "גלעד קזולה",
+   "text": "🧤 רשת נקייה",
+   "gameId": null
+  },
+  {
+   "player": "אורי סוסן",
+   "text": "🔥 מאמץ יוצא דופן",
+   "gameId": null
+  }
+ ]
 };
-/* ===================== סוף בלוק הנתונים ===================== */
+/*DATA_END*/
 
 const TYPES={friendly:"אימון",league:"ליגה",cup:"גביע"};
+const POS=["שוער","בלם","מגן ימין","מגן שמאל","קשר","כנף ימין","כנף שמאל","חלוץ"];
+const KINDS={goal:"⚽ שער",assist:"👟 בישול",yellow:"🟨 צהוב",red:"🟥 אדום",note:"📝 הערה"};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const fd=d=>{const x=new Date(d+"T00:00");return x.toLocaleDateString("he-IL",{weekday:"short",day:"numeric",month:"numeric"})};
+const toast=m=>{const t=$("#toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",2500)};
+const LS="mr_local",TOK="mr_token",ADM="mr_admin",REPO="kazmikidev-afk/maccabi-rehovot-2026";
+
+/* state = נתוני האתר, או שינויים מקומיים שטרם פורסמו מהמכשיר הזה */
+let S=JSON.parse(JSON.stringify(DATA)),dirty=false;
+try{const l=JSON.parse(localStorage.getItem(LS)||"null");if(l&&l.base===DATA.rev){S=l.data;dirty=true}}catch(e){}
+function persist(){dirty=true;localStorage.setItem(LS,JSON.stringify({base:DATA.rev,data:S}));renderAll()}
+
 const played=g=>Array.isArray(g.score);
+const fd=d=>new Date(d+"T00:00").toLocaleDateString("he-IL",{weekday:"short",day:"numeric",month:"numeric"});
+const fdl=d=>new Date(d+"T00:00").toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"});
+const res=g=>{if(!played(g))return"";const[a,b]=g.score;return a>b?"W":a<b?"L":"D"};
+const gname=g=>`${g.home?"בית":"חוץ"} נגד ${g.opponent}`;
 let filter="all",statFilter="all";
 
-function res(g){if(!played(g))return"";const[a,b]=g.score;return a>b?"W":a<b?"L":"D"}
 function gameCard(g){
   const r=res(g),rl={W:"ניצחון",L:"הפסד",D:"תיקו"}[r]||"";
-  const vs=g.home?`מכבי רחובות - ${esc(g.opponent)}`:`${esc(g.opponent)} - מכבי רחובות`;
-  const sc=played(g)?`<div class="score ${r}">${g.score[0]} : ${g.score[1]}<div class="mut" style="font-size:.75rem;text-align:center">${rl}</div></div>`:`<div class="mut">${esc(g.time||"")}</div>`;
-  const ex=played(g)&&(g.scorers?.length||g.assists?.length)?`<div class="mut" style="margin-top:6px">${g.scorers?.length?"⚽ "+g.scorers.map(esc).join(", "):""}${g.assists?.length?"<br>👟 "+g.assists.map(esc).join(", "):""}</div>`:"";
-  return `<div class="card"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span><b>${vs}</b><div class="mut">${fd(g.date)}${g.venue?" · "+esc(g.venue):""}${g.note?" · "+esc(g.note):""}</div></div>${sc}</div>${ex}</div>`;
+  const sc=played(g)?`<div class="score ${r}">${g.score[0]} : ${g.score[1]}<div class="mut" style="font-size:.75rem">${rl}</div></div>`:`<div class="mut">${esc(g.time||"")}</div>`;
+  const evs=(g.events||[]).filter(e=>e.kind!=="assist").sort((a,b)=>(a.min||0)-(b.min||0));
+  const ex=evs.length?`<div class="mut" style="margin-top:6px">`+evs.map(e=>`${KINDS[e.kind].split(" ")[0]} ${e.min?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}`).join("<br>")+`</div>`:"";
+  const mv=S.badges.filter(b=>b.gameId===g.id).map(b=>`<div class="mut">${esc(b.text)}: ${esc(b.player)}</div>`).join("");
+  return `<div class="card"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span><b>מכבי רחובות - ${esc(g.opponent)}</b><div class="mut">${fd(g.date)} · ${g.home?"בית":"חוץ"}${g.venue?" · "+esc(g.venue):""}${g.note?" · "+esc(g.note):""}</div></div>${sc}</div>${ex}${mv}</div>`;
 }
-function chips(cur,fn){return `<div class="chips">`+[["all","הכול"],["league","ליגה"],["cup","גביע"],["friendly","אימון"]].map(([k,l])=>`<button class="${cur===k?"on":""}" onclick="${fn}('${k}')">${l}</button>`).join("")+`</div>`}
+const chips=(cur,fn)=>`<div class="chips">`+[["all","הכול"],["league","ליגה"],["cup","גביע"],["friendly","אימון"]].map(([k,l])=>`<button class="${cur===k?"on":""}" onclick="${fn}('${k}')">${l}</button>`).join("")+`</div>`;
 function setF(k){filter=k;renderGames()}
 function setS(k){statFilter=k;renderStats()}
 
 function renderGames(){
-  const gs=DATA.games.filter(g=>filter==="all"||g.type===filter);
-  const up=gs.filter(g=>!played(g)).sort((a,b)=>a.date.localeCompare(b.date));
+  const gs=S.games.filter(g=>filter==="all"||g.type===filter);
+  const up=gs.filter(g=>!played(g)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
   const pl=gs.filter(played).sort((a,b)=>b.date.localeCompare(a.date));
   $("#s-games").innerHTML=chips(filter,"setF")+
    `<h2>משחקים קרובים</h2>`+(up.length?up.map(gameCard).join(""):`<div class="empty">אין כרגע משחק מתוכנן.</div>`)+
    `<h2>תוצאות אחרונות</h2>`+(pl.length?pl.map(gameCard).join(""):`<div class="empty">עדיין אין תוצאות.</div>`);
 }
+function playerStats(f){
+  const m={};S.squad.forEach(p=>m[p.name]={g:0,a:0,y:0,r:0});
+  S.games.filter(g=>played(g)&&(f==="all"||g.type===f)).forEach(g=>(g.events||[]).forEach(e=>{
+    const x=m[e.player]=m[e.player]||{g:0,a:0,y:0,r:0};
+    if(e.kind==="goal")x.g++;if(e.kind==="assist")x.a++;if(e.kind==="yellow")x.y++;if(e.kind==="red")x.r++}));
+  delete m["לא ידוע"];return m;
+}
+function teamStats(f){
+  const t={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};
+  S.games.filter(g=>played(g)&&(f==="all"||g.type===f)).forEach(g=>{const[a,b]=g.score;t.p++;t.gf+=a;t.ga+=b;if(a>b){t.w++;t.pts+=3}else if(a<b)t.l++;else{t.d++;t.pts++}});
+  return t;
+}
 function renderSquad(){
-  const order=["שוער","מגן","קשר","חלוץ"];
-  const ps=[...DATA.squad].sort((a,b)=>order.indexOf(a.pos)-order.indexOf(b.pos)||a.num-b.num);
-  let h="";
-  for(const pos of [...new Set(ps.map(p=>p.pos))]){
-    h+=`<h2>${esc(pos)}</h2><div class="grid">`+ps.filter(p=>p.pos===pos).map(p=>`<div class="card" style="margin:0"><span class="num">${esc(p.num)}</span>${esc(p.name)}</div>`).join("")+`</div>`;
-  }
-  if(DATA.staff.length)h+=`<h2>צוות</h2>`+DATA.staff.map(s=>`<div class="card"><b>${esc(s.role)}</b>: ${esc(s.name)}</div>`).join("");
-  $("#s-squad").innerHTML=h||`<div class="empty">הסגל ריק.</div>`;
+  const ps=[...S.squad].sort((a,b)=>(a.num??999)-(b.num??999));
+  const st=playerStats("all");
+  $("#s-squad").innerHTML=`<h2>סגל (${ps.length})</h2><div class="grid">`+ps.map(p=>{
+    const bs=S.badges.filter(b=>b.player===p.name).map(b=>`<span class="badge">${esc(b.text)}</span>`).join("");
+    const s=st[p.name]||{g:0};
+    return `<div class="card" style="margin:0"><span class="num">${p.num??"-"}</span><b>${esc(p.name)}</b><div class="mut">${esc(p.pos)} · ${s.g} שערים</div>${bs}</div>`}).join("")+`</div>`;
 }
 function renderStats(){
-  const gs=DATA.games.filter(g=>played(g)&&(statFilter==="all"||g.type===statFilter));
-  const t={p:gs.length,w:0,d:0,l:0,gf:0,ga:0};
-  gs.forEach(g=>{const[a,b]=g.score;t.gf+=a;t.ga+=b;a>b?t.w++:a<b?t.l++:t.d++});
-  const m={};
-  DATA.squad.forEach(p=>m[p.name]={g:0,a:0});
-  gs.forEach(g=>{(g.scorers||[]).forEach(n=>(m[n]=m[n]||{g:0,a:0}).g++);(g.assists||[]).forEach(n=>(m[n]=m[n]||{g:0,a:0}).a++)});
-  const rows=Object.entries(m).sort((x,y)=>y[1].g-x[1].g||y[1].a-x[1].a);
-  const ex=n=>DATA.extraStats.find(e=>e.name===n)||{};
+  const t=teamStats(statFilter),m=playerStats(statFilter);
+  const rows=Object.entries(m).filter(([n,v])=>v.g||v.a||v.y||v.r).sort((x,y)=>y[1].g-x[1].g||y[1].a-x[1].a);
   $("#s-stats").innerHTML=chips(statFilter,"setS")+
-   `<div class="card"><table><tr><th>משחקים</th><th>נצ'</th><th>תיקו</th><th>הפ'</th><th>שערים</th><th>ספיגות</th></tr><tr><td>${t.p}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td><td>${t.gf}</td><td>${t.ga}</td></tr></table></div>`+
-   `<h2>שחקנים</h2><div class="card"><table><tr><th>שחקן</th><th>שערים</th><th>בישולים</th><th>צהוב</th><th>אדום</th></tr>`+
-   rows.map(([n,v])=>`<tr><td>${esc(n)}</td><td>${v.g}</td><td>${v.a}</td><td>${ex(n).yellow||0}</td><td>${ex(n).red||0}</td></tr>`).join("")+`</table></div>`;
+   `<div class="card"><table><tr><th>מש'</th><th>נצ'</th><th>ת'</th><th>הפ'</th><th>זכות</th><th>חובה</th><th>נק'</th></tr><tr><td>${t.p}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td><td>${t.gf}</td><td>${t.ga}</td><td><b>${t.pts}</b></td></tr></table></div>`+
+   `<h2>שחקנים</h2><div class="card">`+(rows.length?`<table><tr><th>שחקן</th><th>שערים</th><th>בישולים</th><th>🟨</th><th>🟥</th></tr>`+rows.map(([n,v])=>`<tr><td>${esc(n)}</td><td>${v.g}</td><td>${v.a}</td><td>${v.y}</td><td>${v.r}</td></tr>`).join("")+`</table>`:`<div class="empty">אין עדיין נתונים.</div>`)+`</div>`+
+   `<div class="mut">שערים ללא שם שחקן נספרים בתוצאה אך לא בטבלת השחקנים.</div>`+
+   `<h2>🏅 תגי הצטיינות</h2><div class="card">`+(S.badges.length?S.badges.map(b=>`<div>${esc(b.text)} · ${esc(b.player)}</div>`).join(""):`<div class="empty">עדיין לא הוענקו תגים.</div>`)+`</div>`;
 }
 function renderLeague(){
-  const L=DATA.leagueTable,S=DATA.leagueScorers;
-  let h=`<div class="note">מקום לנתוני ליגת ג'וניור. העונה טרם התחילה והנתונים עוד לא פורסמו.${DATA.leagueUrl?` <a href="${esc(DATA.leagueUrl)}">לאתר הליגה</a>`:""}${DATA.leagueUpdated?`<br>עודכן: ${esc(DATA.leagueUpdated)}`:""}</div>`;
+  const L=S.leagueTable,P=S.leagueScorers;
+  let h=`<div class="note">מקום לנתוני ליגת ג'וניור. העונה טרם התחילה והנתונים עוד לא פורסמו.${S.leagueUrl?` <a href="${esc(S.leagueUrl)}">לאתר הליגה</a>`:""}${S.leagueUpdated?`<br>עודכן: ${esc(S.leagueUpdated)}`:""}</div>`;
   h+=`<h2>טבלה</h2>`+(L.length?`<div class="card"><table><tr><th>קבוצה</th><th>מש'</th><th>נצ'</th><th>ת'</th><th>הפ'</th><th>הפרש</th><th>נק'</th></tr>`+L.map(r=>`<tr><td>${esc(r.team)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gf-r.ga}</td><td><b>${r.pts}</b></td></tr>`).join("")+`</table></div>`:`<div class="empty">טרם פורסמה טבלה.</div>`);
-  h+=`<h2>מלכי שערים</h2>`+(S.length?`<div class="card"><table><tr><th>שחקן</th><th>קבוצה</th><th>שערים</th></tr>`+S.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.team)}</td><td>${r.goals}</td></tr>`).join("")+`</table></div>`:`<div class="empty">טרם פורסמו נתונים.</div>`);
+  h+=`<h2>מלכי שערים</h2>`+(P.length?`<div class="card"><table><tr><th>שחקן</th><th>קבוצה</th><th>שערים</th></tr>`+P.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.team)}</td><td>${r.goals}</td></tr>`).join("")+`</table></div>`:`<div class="empty">טרם פורסמו נתונים.</div>`);
   $("#s-league").innerHTML=h;
 }
-const TABS=[["games","משחקים"],["squad","סגל"],["stats","סטטיסטיקות"],["league","ליגת ג'וניור"]];
-function tab(k){TABS.forEach(([x])=>{$("#s-"+x).classList.toggle("on",x===k)});[...$("#nav").children].forEach((b,i)=>b.classList.toggle("on",TABS[i][0]===k));location.hash=k}
-$("#club").textContent=DATA.club;$("#season").textContent=DATA.season;document.title=DATA.club+" - "+DATA.season;
+
+/* ---------- עדכון לקבוצת ההורים ---------- */
+let sh={last:true,next:true,stats:true,badges:true,type:"all"};
+function shareText(){
+  const gs=S.games.filter(g=>sh.type==="all"||g.type===sh.type);
+  const pl=gs.filter(played).sort((a,b)=>b.date.localeCompare(a.date));
+  const up=gs.filter(g=>!played(g)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  let o=`⚽ *${S.club} - ${S.season}*\n`;
+  if(sh.last&&pl[0]){const g=pl[0];
+    o+=`\n*תוצאה אחרונה* (${TYPES[g.type]})\n${g.home?"בית":"חוץ"}, ${fdl(g.date)}\nמכבי רחובות ${g.score[0]} : ${g.score[1]} ${g.opponent}\n`;
+    const goals=(g.events||[]).filter(e=>e.kind==="goal"&&e.player&&e.player!=="לא ידוע").sort((a,b)=>(a.min||0)-(b.min||0));
+    if(goals.length)o+=`שערים: `+goals.map(e=>e.player+(e.min?` (${e.min}')`:"")).join(", ")+`\n`;
+    S.badges.filter(b=>b.gameId===g.id).forEach(b=>o+=`${b.text}: ${b.player}\n`);
+    (g.events||[]).filter(e=>e.kind==="note").forEach(e=>o+=`📝 ${e.min?e.min+"' ":""}${e.text}\n`);
+  }
+  if(sh.stats){const t=teamStats(sh.type);const m=Object.entries(playerStats(sh.type)).filter(([n,v])=>v.g).sort((a,b)=>b[1].g-a[1].g).slice(0,5);
+    o+=`\n*סטטיסטיקה*\n${t.p} משחקים: ${t.w} ניצחונות, ${t.d} תיקו, ${t.l} הפסדים. שערים ${t.gf}:${t.ga}\n`;
+    if(m.length)o+=`מלכי שערים: `+m.map(([n,v])=>`${n} ${v.g}`).join(", ")+`\n`;}
+  if(sh.badges&&S.badges.length)o+=`\n*תגי הצטיינות*\n`+S.badges.map(b=>`${b.text} ${b.player}`).join("\n")+`\n`;
+  if(sh.next){o+=`\n*המשחקים הקרובים*\n`+(up.length?up.slice(0,3).map(g=>`${fdl(g.date)} ${g.time||""} - ${TYPES[g.type]}, ${g.home?"בית":"חוץ"} נגד ${g.opponent}${g.venue?" ("+g.venue+")":""}`).join("\n"):"אין משחק מתוכנן כרגע")+`\n`;}
+  return o.trim();
+}
+function renderShare(){
+  const cb=(k,l)=>`<label style="display:flex;gap:8px;align-items:center;color:var(--tx);font-size:1rem"><input type="checkbox" style="width:auto" ${sh[k]?"checked":""} onchange="sh.${k}=this.checked;renderShare()">${l}</label>`;
+  const txt=shareText();
+  $("#s-share").innerHTML=`<div class="note">טקסט מוכן להדבקה בקבוצת הוואטסאפ של ההורים. בוחרים מה לכלול, ולוחצים שיתוף.</div>`+
+   `<div class="card">${cb("last","תוצאה אחרונה")}${cb("stats","סטטיסטיקות")}${cb("badges","תגי הצטיינות")}${cb("next","משחקים קרובים")}
+   <label>סוג משחקים</label><select onchange="sh.type=this.value;renderShare()">${[["all","הכול"],["league","ליגה"],["cup","גביע"],["friendly","אימון"]].map(([k,l])=>`<option value="${k}" ${sh.type===k?"selected":""}>${l}</option>`).join("")}</select></div>`+
+   `<pre id="sharetxt">${esc(txt)}</pre><div class="bar"><a class="btn wa" style="text-decoration:none" target="_blank" href="https://wa.me/?text=${encodeURIComponent(txt)}">שיתוף בוואטסאפ</a><button class="btn" onclick="copyShare()">העתקה</button></div>`;
+}
+function copyShare(){const t=shareText();(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("הועתק"),()=>{const r=document.createRange();r.selectNodeContents($("#sharetxt"));getSelection().removeAllRanges();getSelection().addRange(r);toast("סמנו והעתיקו")})}
+
+/* ---------- ניהול ---------- */
+const sha=async s=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,"0")).join("");
+let edit=null; // {id|null, g:{}}
+const isAdmin=()=>sessionStorage.getItem(ADM)==="1";
+async function login(){const v=$("#pw").value.trim();if(await sha(v)===DATA.adminHash){sessionStorage.setItem(ADM,"1");renderAdmin()}else toast("קוד שגוי")}
+function logout(){sessionStorage.removeItem(ADM);renderAdmin()}
+const nextId=()=>Math.max(0,...S.games.map(g=>g.id))+1;
+function newGame(){edit={g:{id:nextId(),type:"friendly",date:new Date().toISOString().slice(0,10),time:"18:00",opponent:"",home:true,venue:"",score:null,events:[],note:""}};renderAdmin()}
+function editGame(id){edit={g:JSON.parse(JSON.stringify(S.games.find(g=>g.id===id)))};renderAdmin()}
+function delGame(id){if(confirm("למחוק את המשחק?")){S.games=S.games.filter(g=>g.id!==id);S.badges=S.badges.filter(b=>b.gameId!==id);persist()}}
+function fld(k,v){edit.g[k]=v}
+function setScore(){const a=$("#sa").value,b=$("#sb").value;edit.g.score=(a===""||b==="")?null:[+a,+b]}
+function addEv(){const e={min:+$("#em").value||null,kind:$("#ek").value,player:$("#ep").value,text:$("#et").value};if(e.kind!=="note"&&!e.player){toast("בחרו שחקן");return}
+  setScore();Object.assign(edit.g,{});edit.g.events.push(e);renderAdmin()}
+function delEv(i){setScore();edit.g.events.splice(i,1);renderAdmin()}
+function saveGame(){setScore();const g=edit.g;g.opponent=$("#eo").value.trim();if(!g.opponent){toast("חסר שם יריב");return}
+  g.date=$("#ed").value;g.time=$("#etm").value;g.venue=$("#ev").value;g.note=$("#en").value;g.type=$("#et2").value;g.home=$("#eh").value==="1";
+  const i=S.games.findIndex(x=>x.id===g.id);if(i<0)S.games.push(g);else S.games[i]=g;
+  S.badges=S.badges.filter(b=>!(b.gameId===g.id&&b._m));const mv=$("#emvp").value;
+  if(mv)S.badges.push({player:mv,text:"🏆 שחקן המשחק",gameId:g.id,_m:1});
+  edit=null;persist()}
+function addPlayer(){const n=prompt("שם השחקן");if(!n)return;const num=prompt("מספר חולצה (אפשר להשאיר ריק)");const pos=prompt("תפקיד ("+POS.join(", ")+")","קשר");S.squad.push({num:num?+num:null,name:n,pos:pos||""});persist()}
+function editPlayer(i){const p=S.squad[i];const n=prompt("שם",p.name);if(n===null)return;const num=prompt("מספר חולצה",p.num??"");const pos=prompt("תפקיד",p.pos);
+  if(n!==p.name){S.games.forEach(g=>g.events.forEach(e=>{if(e.player===p.name)e.player=n}));S.badges.forEach(b=>{if(b.player===p.name)b.player=n})}
+  S.squad[i]={num:num===""?null:+num,name:n,pos:pos||""};persist()}
+function delPlayer(i){if(confirm("להסיר מהסגל?")){S.squad.splice(i,1);persist()}}
+function addBadge(){const p=$("#bp").value,t=$("#bt").value.trim();if(!p||!t)return;S.badges.push({player:p,text:t,gameId:null});persist()}
+function delBadge(i){S.badges.splice(i,1);persist()}
+function resetLocal(){if(confirm("לבטל שינויים שלא פורסמו ולחזור לנתוני האתר?")){localStorage.removeItem(LS);S=JSON.parse(JSON.stringify(DATA));dirty=false;renderAll()}}
+function saveSettings(){const u=$("#lu").value.trim();S.leagueUrl=u;S.leagueUpdated=$("#lupd").value.trim();persist()}
+function b64(s){return btoa(String.fromCharCode(...new TextEncoder().encode(s)))}
+function unb64(s){const b=atob(s.replace(/\n/g,""));return new TextDecoder().decode(Uint8Array.from(b,c=>c.charCodeAt(0)))}
+function setToken(){const t=prompt("הדביקו GitHub token (Fine-grained, הרשאת Contents: Read and write על ה-repo בלבד)");if(t){localStorage.setItem(TOK,t.trim());renderAdmin()}}
+async function publish(){
+  const tok=localStorage.getItem(TOK);if(!tok){toast("חסר token");return}
+  const api=`https://api.github.com/repos/${REPO}/contents/index.html`,h={Authorization:"Bearer "+tok,Accept:"application/vnd.github+json"};
+  try{
+    toast("מפרסם...");
+    const r=await fetch(api,{headers:h});if(!r.ok)throw new Error("קריאה נכשלה "+r.status);
+    const f=await r.json(),src=unb64(f.content);
+    const clean=JSON.parse(JSON.stringify(S));clean.rev=Date.now();clean.badges.forEach(b=>delete b._m);
+    const a=src.indexOf("/*DATA_START*/"),z=src.indexOf("/*DATA_END*/");if(a<0||z<0)throw new Error("סימוני נתונים חסרים");
+    const out=src.slice(0,a)+"/*DATA_START*/\nconst DATA = "+JSON.stringify(clean,null,1)+";\n"+src.slice(z);
+    const p=await fetch(api,{method:"PUT",headers:h,body:JSON.stringify({message:"עדכון נתונים מהאתר",content:b64(out),sha:f.sha})});
+    if(!p.ok)throw new Error("שמירה נכשלה "+p.status);
+    localStorage.removeItem(LS);dirty=false;toast("פורסם. יופיע לכולם בעוד כדקה");
+  }catch(e){toast("שגיאה: "+e.message)}
+}
+function exportData(){const clean=JSON.parse(JSON.stringify(S));navigator.clipboard.writeText(JSON.stringify(clean,null,1)).then(()=>toast("הנתונים הועתקו"),()=>toast("ההעתקה נכשלה"))}
+const opts=(arr,sel)=>arr.map(x=>`<option ${x===sel?"selected":""}>${esc(x)}</option>`).join("");
+function renderAdmin(){
+  const el=$("#s-admin");
+  if(!isAdmin()){el.innerHTML=`<div class="card"><b>כניסת מנהל</b><label>קוד גישה</label><input id="pw" type="password" inputmode="numeric" onkeydown="if(event.key==='Enter')login()"><div class="bar"><button class="btn pri" onclick="login()">כניסה</button></div></div>`;return}
+  const names=S.squad.map(p=>p.name);
+  if(edit){const g=edit.g,mv=S.badges.find(b=>b.gameId===g.id&&b.text.includes("שחקן המשחק"));
+    el.innerHTML=`<div class="card"><b>${S.games.some(x=>x.id===g.id)?"עריכת משחק":"משחק חדש"}</b>
+    <label>סוג</label><select id="et2">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}" ${g.type===k?"selected":""}>${v}</option>`).join("")}</select>
+    <label>יריב</label><input id="eo" value="${esc(g.opponent)}">
+    <div class="row"><div><label>תאריך</label><input id="ed" type="date" value="${g.date}"></div><div><label>שעה</label><input id="etm" type="time" value="${g.time||""}"></div></div>
+    <div class="row"><div><label>בית / חוץ</label><select id="eh"><option value="1" ${g.home?"selected":""}>בית</option><option value="0" ${!g.home?"selected":""}>חוץ</option></select></div><div><label>מגרש</label><input id="ev" value="${esc(g.venue)}"></div></div>
+    <label>תוצאה (שלנו : יריב). ריק = עוד לא שוחק</label><div class="row"><input id="sa" type="number" inputmode="numeric" value="${g.score?g.score[0]:""}" placeholder="שלנו"><input id="sb" type="number" inputmode="numeric" value="${g.score?g.score[1]:""}" placeholder="יריב"></div>
+    <label>שחקן המשחק</label><select id="emvp"><option value="">-</option>${names.map(n=>`<option ${mv&&mv.player===n?"selected":""}>${esc(n)}</option>`).join("")}</select>
+    <label>הערה</label><input id="en" value="${esc(g.note)}">
+    <h2>אירועים מעניינים</h2>${g.events.map((e,i)=>`<div class="ev"><span style="flex:1">${KINDS[e.kind]} ${e.min?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}</span><button class="btn sm red" onclick="delEv(${i})">מחק</button></div>`).join("")||`<div class="mut">אין אירועים</div>`}
+    <div class="card" style="background:#fafbfd"><div class="row"><div><label>דקה</label><input id="em" type="number" inputmode="numeric"></div><div><label>סוג</label><select id="ek">${Object.entries(KINDS).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></div></div>
+    <label>שחקן</label><select id="ep"><option value="">-</option><option>לא ידוע</option>${names.map(n=>`<option>${esc(n)}</option>`).join("")}</select><label>טקסט (לא חובה)</label><input id="et"><div class="bar"><button class="btn" onclick="addEv()">הוסף אירוע</button></div></div>
+    <div class="bar"><button class="btn pri" onclick="saveGame()">שמירה</button><button class="btn" onclick="edit=null;renderAdmin()">ביטול</button></div></div>`;
+    return}
+  const gl=[...S.games].sort((a,b)=>b.date.localeCompare(a.date));
+  el.innerHTML=`<div class="bar"><button class="btn pri" onclick="newGame()">+ משחק חדש</button><button class="btn" onclick="logout()">יציאה</button></div>`+
+   `<div class="note" style="${dirty?"":"background:#eefaf1;border-color:#b8e2c4"}">${dirty?"יש שינויים במכשיר הזה שטרם פורסמו לכולם.":"אין שינויים שלא פורסמו."} שינויים נשמרים במכשיר הזה. כדי שההורים יראו אותם צריך לפרסם.</div>`+
+   `<div class="bar"><button class="btn wa" style="background:var(--c);border-color:var(--c)" onclick="publish()">פרסום לאתר</button><button class="btn" onclick="exportData()">העתקת נתונים</button>${dirty?`<button class="btn red" onclick="resetLocal()">ביטול שינויים</button>`:""}</div>`+
+   `<h2>משחקים</h2>`+gl.map(g=>`<div class="card"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span>${esc(g.opponent)}<div class="mut">${fd(g.date)} ${g.time||""} · ${played(g)?g.score[0]+" : "+g.score[1]:"טרם שוחק"} · ${(g.events||[]).length} אירועים</div></div><div><button class="btn sm" onclick="editGame(${g.id})">עריכה</button> <button class="btn sm red" onclick="delGame(${g.id})">מחק</button></div></div></div>`).join("")+
+   `<h2>סגל</h2><div class="card">`+S.squad.map((p,i)=>`<div class="ev"><span style="flex:1">${p.num??"-"} · ${esc(p.name)} · ${esc(p.pos)}</span><button class="btn sm" onclick="editPlayer(${i})">עריכה</button><button class="btn sm red" onclick="delPlayer(${i})">מחק</button></div>`).join("")+`<div class="bar"><button class="btn" onclick="addPlayer()">+ שחקן</button></div></div>`+
+   `<h2>תגי הצטיינות</h2><div class="card">`+S.badges.map((b,i)=>`<div class="ev"><span style="flex:1">${esc(b.text)} · ${esc(b.player)}</span><button class="btn sm red" onclick="delBadge(${i})">מחק</button></div>`).join("")+
+   `<div class="row"><select id="bp"><option value="">שחקן</option>${names.map(n=>`<option>${esc(n)}</option>`).join("")}</select><input id="bt" placeholder="למשל 🧤 רשת נקייה"></div><div class="bar"><button class="btn" onclick="addBadge()">+ תג</button></div></div>`+
+   `<h2>ליגת ג'וניור</h2><div class="card"><label>קישור לאתר הליגה</label><input id="lu" value="${esc(S.leagueUrl)}"><label>עודכן (טקסט חופשי)</label><input id="lupd" value="${esc(S.leagueUpdated)}"><div class="bar"><button class="btn" onclick="saveSettings()">שמירה</button></div><div class="mut">טבלת ליגה ומלכי שערים: מעדכנים בבלוק הנתונים (leagueTable, leagueScorers) או שולחים לי.</div></div>`+
+   `<h2>פרסום ישיר מהטלפון</h2><div class="card"><div class="mut">פעם אחת: יוצרים ב-GitHub token מסוג Fine-grained עם הרשאת Contents (קריאה וכתיבה) על ה-repo הזה בלבד, ומדביקים כאן. ה-token נשמר רק בטלפון.</div><div class="bar"><button class="btn" onclick="setToken()">${localStorage.getItem(TOK)?"החלפת token":"הגדרת token"}</button>${localStorage.getItem(TOK)?`<button class="btn red" onclick="localStorage.removeItem(TOK);renderAdmin()">הסרת token</button>`:""}</div></div>`;
+}
+
+const TABS=[["games","משחקים"],["squad","סגל"],["stats","סטטיסטיקות"],["league","ליגת ג'וניור"],["share","עדכון להורים"],["admin","ניהול"]];
+function tab(k){TABS.forEach(([x])=>$("#s-"+x).classList.toggle("on",x===k));[...$("#nav").children].forEach((b,i)=>b.classList.toggle("on",TABS[i][0]===k));history.replaceState(null,"","#"+k)}
+function renderAll(){$("#club").textContent=S.club;$("#season").textContent=S.season;document.title=S.club+" - "+S.season;renderGames();renderSquad();renderStats();renderLeague();renderShare();renderAdmin()}
 $("#nav").innerHTML=TABS.map(([k,l])=>`<button onclick="tab('${k}')">${l}</button>`).join("");
-renderGames();renderSquad();renderStats();renderLeague();
+renderAll();
 tab(TABS.some(t=>t[0]===location.hash.slice(1))?location.hash.slice(1):"games");
 </script>
 </body>
