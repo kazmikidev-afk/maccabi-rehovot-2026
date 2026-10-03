@@ -70,7 +70,7 @@ a{color:var(--c)}
    =================================================================== */
 /*DATA_START*/
 const DATA = {
- "rev": 1791031145726,
+ "rev": 2,
  "club": "מכבי רחובות",
  "season": "עונת 2026/27",
  "adminHash": "e4cec22c7cbe6af5caa9b8eef11b47004c63473400087d0361fa7f898dbcde60",
@@ -173,13 +173,13 @@ const DATA = {
    "id": 4,
    "type": "cup",
    "date": "2026-10-10",
-   "time": "20:15",
-   "opponent": "הפועל ירושלים",
+   "time": "",
+   "opponent": "בית\"ר ע. מעלה אדומים",
    "home": false,
-   "venue": "ספורטק עמק הארזים",
+   "venue": "",
    "score": null,
    "events": [],
-   "note": ""
+   "note": "גביע ילדים ג', מחזור א'. שעה ומגרש טרם נקבעו"
   }
  ],
  "squad": [
@@ -290,6 +290,12 @@ const DATA = {
    "text": "🔥 מאמץ יוצא דופן",
    "gameId": null
   }
+ ],
+ "links": [
+  {
+   "label": "גביע ילדים ג' - משחקים ותוצאות (אתר ההתאחדות)",
+   "url": "https://www.football.org.il/national-cup/?national_cup_id=592&season_id=28"
+  }
  ]
 };
 /*DATA_END*/
@@ -316,7 +322,7 @@ let filter="all",statFilter="all";
 
 function gameCard(g){
   const r=res(g),rl={W:"ניצחון",L:"הפסד",D:"תיקו"}[r]||"";
-  const sc=played(g)?`<div class="score ${r}">${g.score[0]} : ${g.score[1]}<div class="mut" style="font-size:.75rem">${rl}</div></div>`:`<div class="mut">${esc(g.time||"")}</div>`;
+  const sc=played(g)?`<div class="score ${r}">${g.score[0]} : ${g.score[1]}<div class="mut" style="font-size:.75rem">${rl}</div></div>`:`<div class="mut">${esc(g.time||"שעה תפורסם")}</div>`;
   const evs=(g.events||[]).filter(e=>e.kind!=="assist").sort((a,b)=>(a.min||0)-(b.min||0));
   const ex=evs.length?`<div class="mut" style="margin-top:6px">`+evs.map(e=>`${KINDS[e.kind].split(" ")[0]} ${e.min?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}`).join("<br>")+`</div>`:"";
   const mv=S.badges.filter(b=>b.gameId===g.id).map(b=>`<div class="mut">${esc(b.text)}: ${esc(b.player)}</div>`).join("");
@@ -366,6 +372,7 @@ function renderStats(){
 function renderLeague(){
   const L=S.leagueTable,P=S.leagueScorers;
   let h=`<div class="note">מקום לנתוני ליגת ג'וניור. העונה טרם התחילה והנתונים עוד לא פורסמו.${S.leagueUrl?` <a href="${esc(S.leagueUrl)}">לאתר הליגה</a>`:""}${S.leagueUpdated?`<br>עודכן: ${esc(S.leagueUpdated)}`:""}</div>`;
+  h+=`<h2>קישורים</h2><div class="card">`+((S.links||[]).length?(S.links||[]).map(l=>`<div><a target="_blank" href="${esc(l.url)}">${esc(l.label)}</a></div>`).join(""):`<div class="mut">אין קישורים</div>`)+`</div>`;
   h+=`<h2>טבלה</h2>`+(L.length?`<div class="card"><table><tr><th>קבוצה</th><th>מש'</th><th>נצ'</th><th>ת'</th><th>הפ'</th><th>הפרש</th><th>נק'</th></tr>`+L.map(r=>`<tr><td>${esc(r.team)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gf-r.ga}</td><td><b>${r.pts}</b></td></tr>`).join("")+`</table></div>`:`<div class="empty">טרם פורסמה טבלה.</div>`);
   h+=`<h2>מלכי שערים</h2>`+(P.length?`<div class="card"><table><tr><th>שחקן</th><th>קבוצה</th><th>שערים</th></tr>`+P.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.team)}</td><td>${r.goals}</td></tr>`).join("")+`</table></div>`:`<div class="empty">טרם פורסמו נתונים.</div>`);
   $("#s-league").innerHTML=h;
