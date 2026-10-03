@@ -70,12 +70,12 @@ a{color:var(--c)}
    =================================================================== */
 /*DATA_START*/
 const DATA = {
- "rev": 2,
+ "rev": 3,
  "club": "מכבי רחובות",
  "season": "עונת 2026/27",
  "adminHash": "e4cec22c7cbe6af5caa9b8eef11b47004c63473400087d0361fa7f898dbcde60",
- "leagueUrl": "",
- "leagueUpdated": "",
+ "leagueUrl": "https://www.football.org.il/leagues/league/?league_id=173&season_id=28",
+ "leagueUpdated": "ליגת ילדים ג' מרכז 2026/27 - הטבלה והמשחקים טרם פורסמו",
  "leagueTable": [],
  "leagueScorers": [],
  "games": [
@@ -296,6 +296,12 @@ const DATA = {
    "label": "גביע ילדים ג' - משחקים ותוצאות (אתר ההתאחדות)",
    "url": "https://www.football.org.il/national-cup/?national_cup_id=592&season_id=28"
   }
+ ],
+ "staff": [
+  {
+   "role": "מאמן",
+   "name": "סהר יצחקי"
+  }
  ]
 };
 /*DATA_END*/
@@ -358,7 +364,7 @@ function renderSquad(){
   $("#s-squad").innerHTML=`<h2>סגל (${ps.length})</h2><div class="grid">`+ps.map(p=>{
     const bs=S.badges.filter(b=>b.player===p.name).map(b=>`<span class="badge">${esc(b.text)}</span>`).join("");
     const s=st[p.name]||{g:0};
-    return `<div class="card" style="margin:0"><span class="num">${p.num??"-"}</span><b>${esc(p.name)}</b><div class="mut">${esc(p.pos)} · ${s.g} שערים</div>${bs}</div>`}).join("")+`</div>`;
+    return `<div class="card" style="margin:0"><span class="num">${p.num??"-"}</span><b>${esc(p.name)}</b><div class="mut">${esc(p.pos)} · ${s.g} שערים</div>${bs}</div>`}).join("")+`</div>`+((S.staff||[]).length?`<h2>צוות</h2>`+S.staff.map(s=>`<div class="card"><b>${esc(s.role)}</b>: ${esc(s.name)}</div>`).join(""):"");
 }
 function renderStats(){
   const t=teamStats(statFilter),m=playerStats(statFilter);
