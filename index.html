@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b5ed7">
+<title>מכבי רחובות - עונת 2026/27</title>
+<style>
+:root{--c:#0b5ed7;--bg:#f4f6fa;--card:#fff;--tx:#1b2430;--mut:#6b7686;--bd:#e1e6ee}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--tx);line-height:1.45}
+header{background:var(--c);color:#fff;padding:16px 14px 10px;text-align:center}
+header h1{margin:0;font-size:1.4rem}header p{margin:2px 0 0;opacity:.85;font-size:.9rem}
+nav{display:flex;position:sticky;top:0;background:#fff;border-bottom:1px solid var(--bd);overflow-x:auto;z-index:5}
+nav button{flex:1;min-width:max-content;border:0;background:none;padding:12px 14px;font:inherit;font-weight:600;color:var(--mut);border-bottom:3px solid transparent}
+nav button.on{color:var(--c);border-color:var(--c)}
+main{max-width:720px;margin:0 auto;padding:12px}
+section{display:none}section.on{display:block}
+.chips{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.chips button{border:1px solid var(--bd);background:#fff;border-radius:99px;padding:6px 14px;font:inherit}
+.chips button.on{background:var(--c);color:#fff;border-color:var(--c)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px}
+.game{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tag{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:99px;color:#fff;margin-inline-end:6px}
+.t-league{background:#0b5ed7}.t-cup{background:#c98a00}.t-friendly{background:#2e9e5b}
+.score{font-size:1.3rem;font-weight:700;direction:ltr;white-space:nowrap}
+.mut{color:var(--mut);font-size:.85rem}
+.W{color:#2e9e5b}.L{color:#d23}.D{color:#888}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{padding:7px 4px;text-align:center;border-bottom:1px solid var(--bd)}
+th{color:var(--mut);font-weight:600}td:first-child,th:first-child{text-align:right}
+h2{font-size:1.05rem;margin:14px 0 8px}
+.empty{text-align:center;color:var(--mut);padding:18px}
+.note{background:#fff8e1;border:1px solid #f0d98a;border-radius:10px;padding:10px;font-size:.85rem;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.num{display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;border-radius:50%;background:var(--c);color:#fff;font-weight:700;margin-inline-end:8px}
+</style>
+</head>
+<body>
+<header><h1 id="club"></h1><p id="season"></p></header>
+<nav id="nav"></nav>
+<main>
+<section id="s-games"></section>
+<section id="s-squad"></section>
+<section id="s-stats"></section>
+<section id="s-league"></section>
+</main>
+
+<script>
+/* ============================================================
+   בלוק הנתונים - כאן מעדכנים הכול. אין צורך לגעת בשאר הקובץ.
+   DATA BLOCK - edit only this part.
+   ============================================================ */
+const DATA = {
+  club: "מכבי רחובות",
+  season: "עונת 2026/27",
+  /* סוגי משחקים: friendly = אימון, league = ליגה, cup = גביע */
+
+  /* משחקים. score: null = עוד לא שוחק. home: true = בית.
+     scorers/assists: שמות שחקנים כפי שהם מופיעים ב-squad.
+     הדוגמאות למטה הן דוגמה בלבד - למחוק ולהחליף. */
+  games: [
+    { id:1, type:"friendly", date:"2026-10-10", time:"18:00", opponent:"(דוגמה) יריב לדוגמה", home:true,  venue:"", score:null, scorers:[], assists:[], note:"נתון לדוגמה" },
+    { id:2, type:"league",   date:"2026-10-24", time:"17:00", opponent:"(דוגמה) קבוצה ב'", home:false, venue:"", score:null, scorers:[], assists:[], note:"נתון לדוגמה" }
+    /* דוגמה למשחק שהסתיים:
+    { id:3, type:"cup", date:"2026-11-07", time:"17:00", opponent:"קבוצה ג'", home:true, score:[3,1], scorers:["שחקן א","שחקן א","שחקן ב"], assists:["שחקן ב"] },
+    */
+  ],
+
+  /* סגל. pos: שוער / מגן / קשר / חלוץ */
+  squad: [
+    { num:1,  name:"(דוגמה) שחקן 1", pos:"שוער" },
+    { num:4,  name:"(דוגמה) שחקן 2", pos:"מגן" },
+    { num:8,  name:"(דוגמה) שחקן 3", pos:"קשר" },
+    { num:9,  name:"(דוגמה) שחקן 4", pos:"חלוץ" }
+  ],
+  staff: [ /* { role:"מאמן", name:"..." } */ ],
+
+  /* סטטיסטיקות נוספות שאינן נגזרות אוטומטית מהמשחקים (כרטיסים, דקות וכו').
+     המערכת סופרת לבד שערים, בישולים והופעות מתוך games. */
+  extraStats: [ /* { name:"שחקן א", yellow:1, red:0 } */ ],
+
+  /* ליגת ג'וניור - טבלה וסטטיסטיקות כלליות. העונה טרם התחילה.
+     כשיפורסמו נתונים: להדביק שורות בטבלה ובמלך השערים.
+     leagueUrl: קישור לאתר הליגה. */
+  leagueUrl: "",
+  leagueUpdated: "",
+  leagueTable: [ /* { team:"מכבי רחובות", p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 } */ ],
+  leagueScorers: [ /* { name:"...", team:"...", goals:0 } */ ]
+};
+/* ===================== סוף בלוק הנתונים ===================== */
+
+const TYPES={friendly:"אימון",league:"ליגה",cup:"גביע"};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fd=d=>{const x=new Date(d+"T00:00");return x.toLocaleDateString("he-IL",{weekday:"short",day:"numeric",month:"numeric"})};
+const played=g=>Array.isArray(g.score);
+let filter="all",statFilter="all";
+
+function res(g){if(!played(g))return"";const[a,b]=g.score;return a>b?"W":a<b?"L":"D"}
+function gameCard(g){
+  const r=res(g),rl={W:"ניצחון",L:"הפסד",D:"תיקו"}[r]||"";
+  const vs=g.home?`מכבי רחובות - ${esc(g.opponent)}`:`${esc(g.opponent)} - מכבי רחובות`;
+  const sc=played(g)?`<div class="score ${r}">${g.score[0]} : ${g.score[1]}<div class="mut" style="font-size:.75rem;text-align:center">${rl}</div></div>`:`<div class="mut">${esc(g.time||"")}</div>`;
+  const ex=played(g)&&(g.scorers?.length||g.assists?.length)?`<div class="mut" style="margin-top:6px">${g.scorers?.length?"⚽ "+g.scorers.map(esc).join(", "):""}${g.assists?.length?"<br>👟 "+g.assists.map(esc).join(", "):""}</div>`:"";
+  return `<div class="card"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span><b>${vs}</b><div class="mut">${fd(g.date)}${g.venue?" · "+esc(g.venue):""}${g.note?" · "+esc(g.note):""}</div></div>${sc}</div>${ex}</div>`;
+}
+function chips(cur,fn){return `<div class="chips">`+[["all","הכול"],["league","ליגה"],["cup","גביע"],["friendly","אימון"]].map(([k,l])=>`<button class="${cur===k?"on":""}" onclick="${fn}('${k}')">${l}</button>`).join("")+`</div>`}
+function setF(k){filter=k;renderGames()}
+function setS(k){statFilter=k;renderStats()}
+
+function renderGames(){
+  const gs=DATA.games.filter(g=>filter==="all"||g.type===filter);
+  const up=gs.filter(g=>!played(g)).sort((a,b)=>a.date.localeCompare(b.date));
+  const pl=gs.filter(played).sort((a,b)=>b.date.localeCompare(a.date));
+  $("#s-games").innerHTML=chips(filter,"setF")+
+   `<h2>משחקים קרובים</h2>`+(up.length?up.map(gameCard).join(""):`<div class="empty">אין כרגע משחק מתוכנן.</div>`)+
+   `<h2>תוצאות אחרונות</h2>`+(pl.length?pl.map(gameCard).join(""):`<div class="empty">עדיין אין תוצאות.</div>`);
+}
+function renderSquad(){
+  const order=["שוער","מגן","קשר","חלוץ"];
+  const ps=[...DATA.squad].sort((a,b)=>order.indexOf(a.pos)-order.indexOf(b.pos)||a.num-b.num);
+  let h="";
+  for(const pos of [...new Set(ps.map(p=>p.pos))]){
+    h+=`<h2>${esc(pos)}</h2><div class="grid">`+ps.filter(p=>p.pos===pos).map(p=>`<div class="card" style="margin:0"><span class="num">${esc(p.num)}</span>${esc(p.name)}</div>`).join("")+`</div>`;
+  }
+  if(DATA.staff.length)h+=`<h2>צוות</h2>`+DATA.staff.map(s=>`<div class="card"><b>${esc(s.role)}</b>: ${esc(s.name)}</div>`).join("");
+  $("#s-squad").innerHTML=h||`<div class="empty">הסגל ריק.</div>`;
+}
+function renderStats(){
+  const gs=DATA.games.filter(g=>played(g)&&(statFilter==="all"||g.type===statFilter));
+  const t={p:gs.length,w:0,d:0,l:0,gf:0,ga:0};
+  gs.forEach(g=>{const[a,b]=g.score;t.gf+=a;t.ga+=b;a>b?t.w++:a<b?t.l++:t.d++});
+  const m={};
+  DATA.squad.forEach(p=>m[p.name]={g:0,a:0});
+  gs.forEach(g=>{(g.scorers||[]).forEach(n=>(m[n]=m[n]||{g:0,a:0}).g++);(g.assists||[]).forEach(n=>(m[n]=m[n]||{g:0,a:0}).a++)});
+  const rows=Object.entries(m).sort((x,y)=>y[1].g-x[1].g||y[1].a-x[1].a);
+  const ex=n=>DATA.extraStats.find(e=>e.name===n)||{};
+  $("#s-stats").innerHTML=chips(statFilter,"setS")+
+   `<div class="card"><table><tr><th>משחקים</th><th>נצ'</th><th>תיקו</th><th>הפ'</th><th>שערים</th><th>ספיגות</th></tr><tr><td>${t.p}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td><td>${t.gf}</td><td>${t.ga}</td></tr></table></div>`+
+   `<h2>שחקנים</h2><div class="card"><table><tr><th>שחקן</th><th>שערים</th><th>בישולים</th><th>צהוב</th><th>אדום</th></tr>`+
+   rows.map(([n,v])=>`<tr><td>${esc(n)}</td><td>${v.g}</td><td>${v.a}</td><td>${ex(n).yellow||0}</td><td>${ex(n).red||0}</td></tr>`).join("")+`</table></div>`;
+}
+function renderLeague(){
+  const L=DATA.leagueTable,S=DATA.leagueScorers;
+  let h=`<div class="note">מקום לנתוני ליגת ג'וניור. העונה טרם התחילה והנתונים עוד לא פורסמו.${DATA.leagueUrl?` <a href="${esc(DATA.leagueUrl)}">לאתר הליגה</a>`:""}${DATA.leagueUpdated?`<br>עודכן: ${esc(DATA.leagueUpdated)}`:""}</div>`;
+  h+=`<h2>טבלה</h2>`+(L.length?`<div class="card"><table><tr><th>קבוצה</th><th>מש'</th><th>נצ'</th><th>ת'</th><th>הפ'</th><th>הפרש</th><th>נק'</th></tr>`+L.map(r=>`<tr><td>${esc(r.team)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gf-r.ga}</td><td><b>${r.pts}</b></td></tr>`).join("")+`</table></div>`:`<div class="empty">טרם פורסמה טבלה.</div>`);
+  h+=`<h2>מלכי שערים</h2>`+(S.length?`<div class="card"><table><tr><th>שחקן</th><th>קבוצה</th><th>שערים</th></tr>`+S.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.team)}</td><td>${r.goals}</td></tr>`).join("")+`</table></div>`:`<div class="empty">טרם פורסמו נתונים.</div>`);
+  $("#s-league").innerHTML=h;
+}
+const TABS=[["games","משחקים"],["squad","סגל"],["stats","סטטיסטיקות"],["league","ליגת ג'וניור"]];
+function tab(k){TABS.forEach(([x])=>{$("#s-"+x).classList.toggle("on",x===k)});[...$("#nav").children].forEach((b,i)=>b.classList.toggle("on",TABS[i][0]===k));location.hash=k}
+$("#club").textContent=DATA.club;$("#season").textContent=DATA.season;document.title=DATA.club+" - "+DATA.season;
+$("#nav").innerHTML=TABS.map(([k,l])=>`<button onclick="tab('${k}')">${l}</button>`).join("");
+renderGames();renderSquad();renderStats();renderLeague();
+tab(TABS.some(t=>t[0]===location.hash.slice(1))?location.hash.slice(1):"games");
+</script>
+</body>
+</html>
