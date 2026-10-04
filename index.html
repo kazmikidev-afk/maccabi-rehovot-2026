@@ -46,6 +46,9 @@ pre{white-space:pre-wrap;background:#fff;border:1px solid var(--bd);border-radiu
 .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 18px;border-radius:99px;display:none;z-index:20}
 a{color:var(--c)}
 </style>
+<style>
+.v-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0 16px}.v-heading h2{margin:0;font-size:1.3rem}.v-empty{text-align:center;padding:24px 16px}.v-mark{display:grid;place-items:center;margin:0 auto 14px;background:#e9f1ff;color:var(--c);border-radius:50%;width:64px;height:64px;font-size:26px}.v-empty p{max-width:460px;margin:12px auto}.v-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.v-card{padding:0;overflow:hidden}.v-card h3{font-size:1rem;margin:10px 12px 4px;overflow-wrap:anywhere}.v-card .mut,.v-card .badge,.v-card .bar{margin:8px 12px}.v-preview{border:0;width:100%;height:145px;background:linear-gradient(135deg,#143c72,#0b5ed7);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:inherit;cursor:pointer}.v-preview:disabled{opacity:.55;cursor:default}.v-playicon{display:grid;place-items:center;width:46px;height:46px;border:1px solid #ffffff80;border-radius:50%;padding-left:3px}.v-check{display:flex;align-items:flex-start;gap:10px;color:var(--tx);line-height:1.6}.v-check input{width:20px;height:20px;flex:none;margin-top:3px}.v-tags{margin-top:16px}.v-fieldset{border:1px solid var(--bd);border-radius:10px;margin:16px 0;padding:8px 12px}.v-fieldset legend{font-size:.9rem;color:var(--mut)}#v-player{display:block;width:100%;max-height:65vh;background:#111;border-radius:8px}#v-google{display:flex;justify-content:center;margin:20px 0}#v-progress{width:100%;height:18px;margin:12px 0}#s-videos button:focus-visible{outline:3px solid #8cbbff;outline-offset:2px}#s-videos .note{overflow-wrap:anywhere}#v-uploadstatus{overflow-wrap:anywhere}#v-playarea{scroll-margin-top:65px}@media(max-width:400px){.v-grid{gap:8px}.v-preview{height:120px}.v-heading h2{font-size:1.15rem}.v-heading .mut{font-size:.78rem}.v-card h3{font-size:.92rem}.v-tags button{padding:7px 12px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
 </head>
 <body>
 <header><h1 id="club"></h1><p id="season"></p></header>
@@ -56,6 +59,7 @@ a{color:var(--c)}
 <section id="s-stats"></section>
 <section id="s-league"></section>
 <section id="s-share"></section>
+<section id="s-videos"></section>
 <section id="s-admin"></section>
 </main>
 <div class="toast" id="toast"></div>
@@ -70,7 +74,7 @@ a{color:var(--c)}
    =================================================================== */
 /*DATA_START*/
 const DATA = {
- "rev": 3,
+ "rev": 4,
  "club": "מכבי רחובות",
  "season": "עונת 2026/27",
  "adminHash": "31d4f5f8af22211e6387f51657eecf5ee8b37d55d13bae3c6266ff2909369ad9",
@@ -99,7 +103,8 @@ const DATA = {
      "text": ""
     }
    ],
-   "note": ""
+   "note": "",
+   "uid": "game-2026-1"
   },
   {
    "id": 2,
@@ -133,7 +138,8 @@ const DATA = {
      "text": ""
     }
    ],
-   "note": ""
+   "note": "",
+   "uid": "game-2026-2"
   },
   {
    "id": 3,
@@ -167,7 +173,8 @@ const DATA = {
      "text": ""
     }
    ],
-   "note": ""
+   "note": "",
+   "uid": "game-2026-3"
   },
   {
    "id": 4,
@@ -179,7 +186,8 @@ const DATA = {
    "venue": "",
    "score": null,
    "events": [],
-   "note": "גביע ילדים ג', מחזור א'. שעה ומגרש טרם נקבעו"
+   "note": "גביע ילדים ג', מחזור א'. שעה ומגרש טרם נקבעו",
+   "uid": "game-2026-4"
   }
  ],
  "squad": [
@@ -332,7 +340,7 @@ function gameCard(g){
   const evs=(g.events||[]).filter(e=>e.kind!=="assist").sort((a,b)=>(a.min||0)-(b.min||0));
   const ex=evs.length?`<div class="mut" style="margin-top:6px">`+evs.map(e=>`${KINDS[e.kind].split(" ")[0]} ${e.min?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}`).join("<br>")+`</div>`:"";
   const mv=S.badges.filter(b=>b.gameId===g.id).map(b=>`<div class="mut">${esc(b.text)}: ${esc(b.player)}</div>`).join("");
-  return `<div class="card"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span><b>מכבי רחובות - ${esc(g.opponent)}</b><div class="mut">${fd(g.date)} · ${g.home?"בית":"חוץ"}${g.venue?" · "+esc(g.venue):""}${g.note?" · "+esc(g.note):""}</div></div>${sc}</div>${ex}${mv}</div>`;
+  return `<div class="card"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span><b>מכבי רחובות - ${esc(g.opponent)}</b><div class="mut">${fd(g.date)} · ${g.home?"בית":"חוץ"}${g.venue?" · "+esc(g.venue):""}${g.note?" · "+esc(g.note):""}</div></div>${sc}</div>${ex}${mv}<div class="bar"><button class="btn sm" onclick="TeamVideos.open('${esc(g.uid||("legacy-"+g.id))}')">▶ סרטוני המשחק</button></div></div>`;
 }
 const chips=(cur,fn)=>`<div class="chips">`+[["all","הכול"],["league","ליגה"],["cup","גביע"],["friendly","אימון"]].map(([k,l])=>`<button class="${cur===k?"on":""}" onclick="${fn}('${k}')">${l}</button>`).join("")+`</div>`;
 function setF(k){filter=k;renderGames()}
@@ -422,7 +430,7 @@ const isAdmin=()=>sessionStorage.getItem(ADM)==="1";
 async function login(){const v=$("#pw").value.trim();if(await sha(v)===DATA.adminHash){sessionStorage.setItem(ADM,"1");renderAdmin()}else toast("קוד שגוי")}
 function logout(){sessionStorage.removeItem(ADM);renderAdmin()}
 const nextId=()=>Math.max(0,...S.games.map(g=>g.id))+1;
-function newGame(){edit={g:{id:nextId(),type:"friendly",date:new Date().toISOString().slice(0,10),time:"18:00",opponent:"",home:true,venue:"",score:null,events:[],note:""}};renderAdmin()}
+function newGame(){edit={g:{id:nextId(),uid:"game-"+crypto.randomUUID(),type:"friendly",date:new Date().toISOString().slice(0,10),time:"18:00",opponent:"",home:true,venue:"",score:null,events:[],note:""}};renderAdmin()}
 function editGame(id){edit={g:JSON.parse(JSON.stringify(S.games.find(g=>g.id===id)))};renderAdmin()}
 function delGame(id){if(confirm("למחוק את המשחק?")){S.games=S.games.filter(g=>g.id!==id);S.badges=S.badges.filter(b=>b.gameId!==id);persist()}}
 function fld(k,v){edit.g[k]=v}
@@ -495,12 +503,82 @@ function renderAdmin(){
    `<h2>פרסום ישיר מהטלפון</h2><div class="card"><div class="mut">פעם אחת: יוצרים ב-GitHub token מסוג Fine-grained עם הרשאת Contents (קריאה וכתיבה) על ה-repo הזה בלבד, ומדביקים כאן. ה-token נשמר רק בטלפון.</div><div class="bar"><button class="btn" onclick="setToken()">${localStorage.getItem(TOK)?"החלפת token":"הגדרת token"}</button>${localStorage.getItem(TOK)?`<button class="btn red" onclick="localStorage.removeItem(TOK);renderAdmin()">הסרת token</button>`:""}</div></div>`;
 }
 
-const TABS=[["games","משחקים"],["squad","סגל"],["stats","סטטיסטיקות"],["league","ליגת ג'וניור"],["share","עדכון להורים"],["admin","ניהול"]];
-function tab(k){TABS.forEach(([x])=>$("#s-"+x).classList.toggle("on",x===k));[...$("#nav").children].forEach((b,i)=>b.classList.toggle("on",TABS[i][0]===k));history.replaceState(null,"","#"+k)}
+const TABS=[["games","משחקים"],["squad","סגל"],["stats","סטטיסטיקות"],["league","ליגת ג'וניור"],["share","עדכון להורים"],["videos","סרטונים"],["admin","ניהול"]];
+function tab(k){TABS.forEach(([x])=>$("#s-"+x).classList.toggle("on",x===k));[...$("#nav").children].forEach((b,i)=>b.classList.toggle("on",TABS[i][0]===k));history.replaceState(null,"","#"+k);const active=$("#nav button.on");active?.scrollIntoView({block:"nearest",inline:"center"})}
 function renderAll(){$("#club").textContent=S.club;$("#season").textContent=S.season;document.title=S.club+" - "+S.season;renderGames();renderSquad();renderStats();renderLeague();renderShare();renderAdmin()}
 $("#nav").innerHTML=TABS.map(([k,l])=>`<button onclick="tab('${k}')">${l}</button>`).join("");
 renderAll();
 tab(TABS.some(t=>t[0]===location.hash.slice(1))?location.hash.slice(1):"games");
+</script>
+<script>
+// Public configuration only. Never put a B2 application key or access token here.
+window.TEAM_VIDEOS_CONFIG = Object.freeze({ apiBase: "", googleClientId: "" });
+</script>
+<script>
+/* Private highlights. Public frontend contains no membership list or video URLs. */
+(()=>{
+'use strict';
+const C=window.TEAM_VIDEOS_CONFIG||{}, E=s=>document.querySelector(s), h=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const tags=['שער','הצלה','בישול','מהלך קבוצתי','רגע מהמשחק'];
+const messages={not_configured:'אזור הסרטונים עדיין לא מחובר לאחסון.',login_required:'נדרשת כניסה עם Google.',login_expired:'הכניסה פגה. היכנסו שוב.',family_not_approved:'החשבון הזה עדיין לא ברשימת המשפחות המאושרות. פנו למיקי.',account_changed:'נדרש אישור מחדש לחשבון. פנו למיקי.',consent_required:'יש לאשר את כללי אזור הסרטונים.',storage_full:'האחסון מלא. העלאות חדשות נעצרו; הסרטונים הקיימים נשארים.',provider_quota_reached:'מכסת הספק מוצתה כרגע. נסו שוב מאוחר יותר.',viewing_paused:'הצפייה מושהית כדי לשמור על המכסה החינמית. הסרטונים לא נמחקו.',mp4_required:'נדרש קובץ MP4 שניתן לנגן במכשיר. MOV או קובץ לא תואם צריך להמיר לפני ההעלאה.',file_too_large:'הקליפ צריך להיות עד 100MB.',clip_too_long:'הקליפ צריך להיות עד 90 שניות.',upload_uncertain:'לא ברור אם ההעלאה הסתיימה. אין להעלות שוב כרגע; פנו למיקי לבדיקה.',upload_failed:'נדרש לבדוק את ההעלאה לפני ניסיון נוסף. פנו למיקי.',upload_in_progress:'ההעלאה עדיין בטיפול. נסו שוב מאוחר יותר.',upload_expired:'זמן ההעלאה פג. פנו למיקי.',review_required:'יש לצפות בקליפ לפני האישור.',permission_required:'נדרש לאשר את הרשאת שיתוף הקליפ.',games_unavailable:'רשימת המשחקים אינה זמינה כרגע.',upload_limit:'הגעתם למספר ההעלאות המותר היום.',service_unavailable:'השירות אינו זמין כרגע. נסו שוב מאוחר יותר.'};
+let token='',me=null,list=[],games=[],filter={game:'',tag:'',from:'',to:'',view:'approved'},view='gallery',loading=false,current=null,reviewed=false,xhr=null;
+const sec=()=>E('#s-videos');
+const ready=()=>C.apiBase&&C.googleClientId;
+const button=(id,label,cls='')=>`<button type="button" id="${id}" class="btn ${cls}">${label}</button>`;
+function errorText(e){return messages[e.message]||'לא ניתן להשלים את הפעולה. נסו שוב או פנו למיקי.';}
+async function api(path,method='GET',body){const r=await fetch(C.apiBase.replace(/\/$/,'')+path,{method,headers:{Authorization:'Bearer '+token,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'service_unavailable');return d;}
+function notice(text){E('#v-notice')?.remove();const n=document.createElement('div');n.id='v-notice';n.className='note';n.setAttribute('role','status');n.textContent=text;sec().prepend(n);}
+const base=()=>`<div class="v-heading"><div><h2>סרטוני משחקים</h2><div class="mut">רגעים מהמשחק, רק למשפחות המאושרות</div></div>${me?button('v-logout','יציאה'):''}</div>`;
+function bindLogout(){E('#v-logout')?.addEventListener('click',()=>{if(xhr)xhr.abort();E('#v-player')?.pause();token='';me=null;list=[];games=[];current=null;render();});}
+function render(){
+ const el=sec();if(!el)return;
+ if(!ready()){el.innerHTML=base()+`<div class="card v-empty"><div class="v-mark" aria-hidden="true">▶</div><h2>בקרוב: ההייליטס של הקבוצה</h2><p>כאן נצפה ברגעים מהמשחק לפי משחק, תאריך ותיוג.</p><div class="note">האזור עדיין לא מחובר לאחסון הפרטי. אי אפשר להעלות או לצפות בסרטונים עדיין.</div><p class="mut">הכניסה תהיה למשפחות מאושרות בלבד, עם הסכמת הורה ואישור כל קליפ לפני הצגתו.</p></div>`;return;}
+ if(!me){el.innerHTML=base()+`<div class="card v-empty"><div class="v-mark" aria-hidden="true">▶</div><h2>כניסה לאזור המשפחות</h2><p>סרטוני הילדים אינם פתוחים לציבור.</p><div id="v-google"></div><p class="mut">היכנסו בחשבון ההורה שמיקי אישר. אין צורך בחשבון Google לילד.</p></div>`;googleButton();return;}
+ if(!me.consented){el.innerHTML=base()+`<div class="card"><h2>לפני שנכנסים</h2><p>אזור זה מיועד לצפייה משפחתית בסרטוני הקבוצה. ילדים צופים באחריות הורה, דרך החשבון המאושר שלו.</p><ul><li>לא מעבירים קישורים, לא מפרסמים ולא משתפים הקלטות או צילומים מתוך האזור מחוץ לקבוצה.</li><li>מעלים רק קליפ שיש לנו רשות לשתף, כולל הסכמות הנדרשות מהורי הילדים המצולמים.</li><li>כל קליפ ממתין לבדיקה ואישור של מיקי.</li><li>אפשר לבקש הסרה דרך כפתור "בקשת הסרה" ליד הקליפ או לפנות למיקי.</li></ul><p class="mut">ההסכמה שלכם אינה מחליפה אישור של הורה אחר. צפייה פרטית אינה מונעת צילום מסך או שמירת הקלטה.</p><label class="v-check"><input id="v-consent" type="checkbox">אני הורה/אפוטרופוס, קראתי ואני מסכים/ה לכללים</label><div class="bar">${button('v-accept','אישור וכניסה','pri')}</div><div class="mut">גרסת הסכמה: ${h(me.consentVersion)}</div></div>`;bindLogout();E('#v-accept').onclick=async()=>{if(!E('#v-consent').checked)return notice('סמנו את אישור ההורה כדי להיכנס.');try{await api('/consent','POST',{version:me.consentVersion,accepted:true});me.consented=true;await load();}catch(e){notice(errorText(e));}};return;}
+ if(view==='upload'){renderUpload();return;}
+ if(view==='families'){renderFamilies();return;}
+ renderGallery();
+}
+function googleButton(){if(window.google?.accounts?.id){google.accounts.id.initialize({client_id:C.googleClientId,callback:async r=>{token=r.credential;try{me=await api('/me');render();if(me.consented)await load();}catch(e){token='';me=null;render();notice(errorText(e));}}});google.accounts.id.renderButton(E('#v-google'),{theme:'outline',size:'large',text:'signin_with',locale:'he'});}else{const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;s.onload=googleButton;s.onerror=()=>notice('לא ניתן לטעון את כניסת Google. בדקו את החיבור.');document.head.appendChild(s);}}
+async function load(){loading=true;render();try{const [v,g]=await Promise.all([api('/videos'),api('/games')]);list=v.videos;games=g.games;loading=false;render();if(v.warning)notice('האחסון מתקרב למכסה: יותר מ-6GB בשימוש.');}catch(e){loading=false;render();notice(errorText(e));}}
+function filtered(){return list.filter(v=>(filter.view==='mine'?v.status!=='approved':filter.view==='pending'?v.status==='pending':v.status==='approved')&&(!filter.game||v.gameId===filter.game)&&(!filter.tag||v.tags.includes(filter.tag))&&(!filter.from||v.date>=filter.from)&&(!filter.to||v.date<=filter.to));}
+const duration=d=>`${Math.floor(d/60)}:${String(Math.round(d%60)).padStart(2,'0')}`;
+function renderGallery(){
+ const rows=filtered();current=null;sec().innerHTML=base()+`<div class="bar">${button('v-upload','+ העלאת הייליט','pri')}${button('v-refresh','רענון')}${me.role==='admin'?button('v-families','ניהול משפחות'):''}</div><div class="card"><label for="v-game">משחק</label><select id="v-game"><option value="">כל המשחקים</option>${games.map(g=>`<option value="${h(g.id)}" ${filter.game===g.id?'selected':''}>${h(g.date)} · ${h(g.opponent)}</option>`).join('')}</select><div class="row"><div><label for="v-from">מתאריך</label><input id="v-from" type="date" value="${h(filter.from)}"></div><div><label for="v-to">עד תאריך</label><input id="v-to" type="date" value="${h(filter.to)}"></div></div><div class="chips v-tags">${['',...tags].map(t=>`<button class="${filter.tag===t?'on':''}" data-tag="${h(t)}">${h(t||'הכול')}</button>`).join('')}</div><div class="chips">${[['approved','לצפייה'],['mine','ההעלאות שלי'],...(me.role==='admin'?[['pending','ממתינים לאישור']]:[])].map(([k,t])=>`<button data-view="${k}" class="${filter.view===k?'on':''}">${t}</button>`).join('')}</div></div><div id="v-playarea"></div>${loading?'<div class="empty" role="status">טוענים את הסרטונים...</div>':rows.length?groupCards(rows):`<div class="card v-empty"><h2>${filter.view==='approved'?'אין עדיין קליפים לצפייה':'אין קליפים ברשימה הזו'}</h2><p class="mut">אפשר להעלות רגע מהמשחק. הוא יופיע למשפחות רק אחרי אישור.</p></div>`}`;
+ bindLogout();E('#v-upload').onclick=()=>{view='upload';render();};E('#v-refresh').onclick=load;E('#v-families')&&(E('#v-families').onclick=()=>{view='families';render();});
+ ['game','from','to'].forEach(k=>{E('#v-'+k).onchange=e=>{filter[k]=e.target.value;render();};});sec().querySelectorAll('[data-tag]').forEach(b=>b.onclick=()=>{filter.tag=b.dataset.tag;render();});sec().querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{filter.view=b.dataset.view;render();});sec().querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>play(b.dataset.play));sec().querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>remove(b.dataset.remove));
+}
+function groupCards(rows){const groups=new Map();rows.forEach(v=>{if(!groups.has(v.gameId))groups.set(v.gameId,[]);groups.get(v.gameId).push(v);});return [...groups.values()].map(a=>`<h2>${h(a[0].date)} · נגד ${h(a[0].opponent)}</h2><div class="v-grid">${a.map(v=>`<article class="card v-card"><button class="v-preview" data-play="${h(v.id)}" ${['uploading','receiving','deleting'].includes(v.status)?'disabled':''} aria-label="צפייה: ${h(v.title)}"><span class="v-playicon">▶</span><span>${duration(v.duration)}</span></button><h3>${h(v.title)}</h3><div class="mut">${v.minute!=null?'דקה '+v.minute+' · ':''}${h(v.tags.join(' · '))}</div>${v.status!=='approved'?`<div class="badge">${({pending:'ממתין לאישור',uploading:'העלאה לא הושלמה',receiving:'בטיפול - לא להעלות שוב',deleting:'בתהליך הסרה'})[v.status]||''}</div>`:''}${filter.view==='mine'?`<div class="bar"><button class="btn sm red" data-remove="${v.id}">הסרת ההעלאה</button></div>`:''}</article>`).join('')}</div>`).join('');}
+async function play(id){
+ const v=list.find(v=>v.id===id);if(!v)return;current=v;reviewed=false;const area=E('#v-playarea');area.innerHTML=`<div class="card"><div class="bar"><b>${h(v.title)}</b>${button('v-close','סגירה')}</div><div class="empty" role="status">מכינים את הקליפ...</div></div>`;E('#v-close').onclick=()=>{area.innerHTML='';current=null;};area.scrollIntoView({behavior:'smooth',block:'start'});
+ try{const p=await api('/videos/'+id+'/play','POST');if(current?.id!==id)return;area.innerHTML=`<div class="card"><div class="bar"><b>${h(v.title)}</b>${button('v-close','סגירה')}</div><video id="v-player" controls playsinline preload="metadata" referrerpolicy="no-referrer" controlslist="nodownload" src="${h(p.url)}"></video><div class="mut">${h(v.date)} · ${h(v.opponent)} · ${h(v.tags.join(' · '))}</div><div class="bar">${button('v-prev','הקודם')}${button('v-next','הבא')}${button('v-full','מסך מלא')}${button('v-report','בקשת הסרה')}${me.role==='admin'?button('v-adminremove','הסרה מהאחסון','red'):''}</div><div id="v-player-error" role="status"></div>${me.role==='admin'&&v.status==='pending'?`<hr><h2>בדיקת קליפ</h2><p class="mut">בדקו שהקליפ קצר, מתאים לשיתוף וניתן לנגן אותו. האורך המדווח בזמן העלאה אינו בדיקת אורך עצמאית.</p><label for="v-title-edit">כותרת</label><input id="v-title-edit" maxlength="80" value="${h(v.title)}"><label class="v-check"><input id="v-reviewed" type="checkbox">צפיתי בקליפ ובדקתי אותו</label><div class="bar">${button('v-approve','אישור למשפחות','pri')}${button('v-reject','דחייה והסרה','red')}</div>`:''}</div>`;
+ E('#v-close').onclick=()=>{E('#v-player').pause();area.innerHTML='';current=null;};E('#v-player').onerror=()=>{E('#v-player-error').textContent='לא ניתן לנגן את הקליפ. ייתכן שהקישור פג, שהמכסה מוצתה או שפורמט הקליפ אינו תואם. פתחו שוב; אם זה חוזר, פנו למיקי.';};
+ E('#v-full').onclick=async()=>{const player=E('#v-player');try{if(player.webkitEnterFullscreen)player.webkitEnterFullscreen();else await player.requestFullscreen();}catch{notice('אפשר להשתמש בכפתור המסך המלא של הנגן.');}};
+ const inGame=filtered().filter(x=>x.gameId===v.gameId&&['approved','pending'].includes(x.status)),i=inGame.findIndex(x=>x.id===id);E('#v-prev').disabled=i<=0;E('#v-next').disabled=i>=inGame.length-1;E('#v-prev').onclick=()=>play(inGame[i-1].id);E('#v-next').onclick=()=>play(inGame[i+1].id);
+ E('#v-adminremove')&&(E('#v-adminremove').onclick=()=>remove(id));
+ E('#v-report').onclick=async()=>{const reason=prompt('מה תרצו להסיר או לבדוק? אין לציין מידע אישי שאינו נחוץ.');if(!reason)return;try{await api('/videos/'+id+'/report','POST',{reason});notice('בקשת ההסרה נשלחה למיקי.');}catch(e){notice(errorText(e));}};
+ E('#v-approve')&&(E('#v-approve').onclick=async()=>{try{await api('/videos/'+id+'/moderate','POST',{action:'approve',title:E('#v-title-edit').value,reviewedClip:E('#v-reviewed').checked});current=null;await load();notice('הקליפ אושר למשפחות.');}catch(e){notice(errorText(e));}});
+ E('#v-reject')&&(E('#v-reject').onclick=async()=>{if(!confirm('לדחות ולמחוק את הקליפ מהאחסון?'))return;try{await api('/videos/'+id+'/moderate','POST',{action:'reject'});current=null;await load();}catch(e){notice(errorText(e));}});
+ }catch(e){area.innerHTML=`<div class="note" role="status">${h(errorText(e))}</div>`;}
+}
+async function remove(id){if(!confirm('למחוק את ההעלאה מהאחסון?'))return;try{await api('/videos/'+id,'DELETE');await load();}catch(e){notice(errorText(e));}}
+function renderUpload(){sec().innerHTML=base()+`<div class="card"><div class="bar">${button('v-back','חזרה לסרטונים')}</div><h2>מעלים רגע מהמשחק</h2><p class="mut">הייליטס בלבד: עד 90 שניות ועד 100MB. קובץ MP4 שניתן לנגן במכשיר. אין המרה אוטומטית.</p><form id="v-form"><label for="v-uploadgame">משחק</label><select id="v-uploadgame" required><option value="">בחירת משחק</option>${games.map(g=>`<option value="${h(g.id)}" ${g.id===filter.game?'selected':''}>${h(g.date)} · ${h(g.opponent)}</option>`).join('')}</select><label for="v-file">בחירת קליפ מהטלפון</label><input id="v-file" type="file" accept="video/mp4,.mp4" required><label for="v-title">כותרת קצרה</label><input id="v-title" required maxlength="80" placeholder="למשל: ההצלה בדקה 24"><label for="v-minute">דקה במשחק (לא חובה)</label><input id="v-minute" type="number" min="0" max="120" inputmode="numeric"><fieldset class="v-fieldset"><legend>תיוג האירוע</legend>${tags.map(t=>`<label class="v-check"><input name="v-tag" type="checkbox" value="${h(t)}">${h(t)}</label>`).join('')}</fieldset><label class="v-check"><input id="v-permission" type="checkbox" required>יש לי רשות לשתף את הקליפ עם המשפחות, כולל הסכמות הנדרשות מהורי המצולמים</label><div class="bar">${button('v-submit','העלאה לאישור','pri')}${button('v-cancel','ביטול העלאה')}</div><progress id="v-progress" max="100" value="0" hidden></progress><div id="v-uploadstatus" role="status"></div></form></div>`;bindLogout();E('#v-back').onclick=()=>{if(xhr)return notice('בטלו או סיימו את ההעלאה לפני החזרה.');view='gallery';render();};E('#v-cancel').onclick=()=>{xhr?.abort();};E('#v-submit').onclick=submitUpload;E('#v-form').onsubmit=e=>{e.preventDefault();submitUpload();};}
+async function probe(file){return new Promise((resolve,reject)=>{const v=document.createElement('video'),url=URL.createObjectURL(file);v.preload='metadata';v.onloadedmetadata=()=>{const d=v.duration;URL.revokeObjectURL(url);resolve(d);};v.onerror=()=>{URL.revokeObjectURL(url);reject(Error('mp4_required'));};v.src=url;});}
+async function submitUpload(){
+ if(xhr)return;if(!E('#v-form').reportValidity())return;const file=E('#v-file').files[0],chosen=[...sec().querySelectorAll('input[name="v-tag"]:checked')].map(x=>x.value);if(!chosen.length)return notice('בחרו לפחות תיוג אחד.');
+ let id;E('#v-submit').disabled=true;
+ try{if(file.size>100000000)throw Error('file_too_large');if(!/\.mp4$/i.test(file.name))throw Error('mp4_required');const d=await probe(file);if(!Number.isFinite(d)||d>90||d<=0)throw Error('clip_too_long');
+  const r=await api('/uploads','POST',{gameId:E('#v-uploadgame').value,title:E('#v-title').value,tags:chosen,minute:E('#v-minute').value===''?null:Number(E('#v-minute').value),bytes:file.size,duration:d,contentType:'video/mp4',permissionConfirmed:E('#v-permission').checked});id=r.id;
+  E('#v-progress').hidden=false;E('#v-uploadstatus').textContent='מעלים... השאירו את המסך פתוח. אין לעלות שוב אם החיבור נקטע.';
+  await new Promise((resolve,reject)=>{xhr=new XMLHttpRequest();xhr.open('PUT',C.apiBase.replace(/\/$/,'')+'/videos/'+id+'/upload');xhr.setRequestHeader('Authorization','Bearer '+token);xhr.setRequestHeader('Content-Type','video/mp4');xhr.upload.onprogress=e=>{if(e.lengthComputable)E('#v-progress').value=Math.round(e.loaded/e.total*100);};xhr.onload=()=>{if(xhr.status>=200&&xhr.status<300)resolve();else{let msg='upload_uncertain';try{msg=JSON.parse(xhr.responseText).error||msg;}catch{}reject(Error(msg));}};xhr.onerror=()=>reject(Error('upload_uncertain'));xhr.onabort=()=>reject(Error('upload_uncertain'));xhr.send(file);});
+  xhr=null;view='gallery';filter.view='mine';await load();notice('הקליפ נשלח לאישור. רק אתם ומיקי יכולים לצפות בו עד האישור.');
+ }catch(e){xhr=null;notice(errorText(e));E('#v-submit')&&(E('#v-submit').disabled=false);if(id){E('#v-uploadstatus').textContent='מספר בדיקה: '+id+'. פנו למיקי לפני העלאה חוזרת.';E('#v-submit').disabled=true;}}
+}
+async function renderFamilies(){sec().innerHTML=base()+`<div class="card"><div class="bar">${button('v-back','חזרה לסרטונים')}</div><h2>משפחות מאושרות</h2><p class="mut">כתובות נשמרות רק בשירות הפרטי, לא באתר הציבורי. הוספה מאפשרת כניסה; היא אינה שולחת הזמנה.</p><label for="v-email">חשבון Google של ההורה</label><input id="v-email" type="email" dir="ltr" placeholder="parent@example.com"><div class="bar">${button('v-addfamily','הוספת משפחה','pri')}</div><div id="v-familylist"></div><h2>בקשות הסרה</h2><div id="v-reports"></div></div>`;bindLogout();E('#v-back').onclick=()=>{view='gallery';render();};E('#v-addfamily').onclick=async()=>{try{await api('/admin/members','POST',{email:E('#v-email').value});renderFamilies();}catch(e){notice(errorText(e));}};try{const [d,r]=await Promise.all([api('/admin/members'),api('/admin/reports')]);if(view!=='families')return;E('#v-familylist').innerHTML=d.members.map(m=>`<div class="card"><b dir="ltr">${h(m.email)}</b><div class="mut">${m.role==='admin'?'מנהל':m.enabled?'משפחה מאושרת':'גישה בוטלה'}</div>${m.role!=='admin'&&m.enabled?`<button class="btn sm red" data-revoke="${h(m.email)}">ביטול גישה</button>`:''}</div>`).join('');sec().querySelectorAll('[data-revoke]').forEach(b=>b.onclick=async()=>{if(!confirm('לבטל גישה לחשבון '+b.dataset.revoke+'?'))return;try{await api('/admin/members','POST',{email:b.dataset.revoke,enabled:false});renderFamilies();}catch(e){notice(errorText(e));}});E('#v-reports').innerHTML=r.reports.length?r.reports.map(r=>`<div class="card"><div>${h(r.reason)}</div><div class="mut">${h(r.created_at)}</div><button class="btn sm" data-reportvideo="${h(r.video_id)}">פתיחת הקליפ</button></div>`).join(''):'<div class="mut">אין בקשות הסרה.</div>';sec().querySelectorAll('[data-reportvideo]').forEach(b=>b.onclick=()=>{view='gallery';render();play(b.dataset.reportvideo);});}catch(e){notice(errorText(e));}}
+window.TeamVideos={open(gameId){filter.game=gameId||'';view='gallery';tab('videos');render();},render};
+document.addEventListener('visibilitychange',()=>{if(document.hidden)E('#v-player')?.pause();});
+render();
+})();
 </script>
 </body>
 </html>
