@@ -379,13 +379,14 @@ function teamStats(f){
   S.games.filter(g=>played(g)&&(f==="all"||g.type===f)).forEach(g=>{const[a,b]=g.score;t.p++;t.gf+=a;t.ga+=b;if(a>b){t.w++;t.pts+=3}else if(a<b)t.l++;else{t.d++;t.pts++}});
   return t;
 }
+const OFFICIAL_PLAYER_LINKS={"גלעד קזולה": "https://www.football.org.il/players/player/?player_id=322700&season_id=28", "תום אברברוך": "https://www.football.org.il/players/player/?player_id=291955&season_id=28", "עומר אליהו": "https://www.football.org.il/players/player/?player_id=286682&season_id=28", "אורי בוקעי": "https://www.football.org.il/players/player/?player_id=273548&season_id=28", "ליאב ביידה": "https://www.football.org.il/players/player/?player_id=276664&season_id=28", "עידן בסר": "https://www.football.org.il/players/player/?player_id=290024&season_id=28", "רז דיין": "https://www.football.org.il/players/player/?player_id=294465&season_id=28", "דניאל זריהון": "https://www.football.org.il/players/player/?player_id=278764&season_id=28", "איתן מזרחי": "https://www.football.org.il/players/player/?player_id=289746&season_id=28", "רוי מזרחי": "https://www.football.org.il/players/player/?player_id=290025&season_id=28", "שחר מעבי": "https://www.football.org.il/players/player/?player_id=293436&season_id=28", "אורי סוסן": "https://www.football.org.il/players/player/?player_id=278744&season_id=28", "מתניה עדן": "https://www.football.org.il/players/player/?player_id=270195&season_id=28", "יואב רוזנבלום": "https://www.football.org.il/players/player/?player_id=289740&season_id=28", "ניתאי רחמים": "https://www.football.org.il/players/player/?player_id=278555&season_id=28", "אביעד שיבשי": "https://www.football.org.il/players/player/?player_id=259702&season_id=28", "אוראל שמש": "https://www.football.org.il/players/player/?player_id=290384&season_id=28"};
 function renderSquad(){
   const ps=[...S.squad].sort((a,b)=>(a.num??999)-(b.num??999));
   const st=playerStats("all");
-  $("#s-squad").innerHTML=`<h2>סגל (${ps.length})</h2><div class="grid">`+ps.map(p=>{
+  $("#s-squad").innerHTML=`<h2>סגל (${ps.length})</h2><p class="mut">לחיצה על שם שחקן פותחת את דף השחקן הרשמי בהתאחדות בלשונית חדשה. הנתונים באתר שלנו נשארים נפרדים.</p><div class="grid">`+ps.map(p=>{
     const bs=S.badges.filter(b=>b.player===p.name).map(b=>`<span class="badge">${esc(b.text)}</span>`).join("");
     const s=st[p.name]||{g:0};
-    return `<div class="card" style="margin:0"><span class="num">${p.num??"-"}</span><b>${esc(p.name)}</b><div class="mut">${esc(p.pos)} · ${s.g} שערים</div>${bs}</div>`}).join("")+`</div>`+((S.staff||[]).length?`<h2>צוות</h2>`+S.staff.map(s=>`<div class="card"><b>${esc(s.role)}</b>: ${esc(s.name)}</div>`).join(""):"");
+    return `<div class="card" style="margin:0"><span class="num">${p.num??"-"}</span><b>${OFFICIAL_PLAYER_LINKS[p.name]?`<a href="${esc(OFFICIAL_PLAYER_LINKS[p.name])}" target="_blank" rel="noopener noreferrer" aria-label="${esc(p.name)} - דף השחקן בהתאחדות, נפתח בלשונית חדשה">${esc(p.name)}</a>`:esc(p.name)}</b><div class="mut">${esc(p.pos)} · ${s.g} שערים</div>${bs}</div>`}).join("")+`</div>`+((S.staff||[]).length?`<h2>צוות</h2>`+S.staff.map(s=>`<div class="card"><b>${esc(s.role)}</b>: ${esc(s.name)}</div>`).join(""):"");
 }
 function renderStats(){
   const t=teamStats(statFilter),m=playerStats(statFilter);
