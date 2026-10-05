@@ -184,13 +184,13 @@ const DATA = {
    "id": 4,
    "type": "cup",
    "date": "2026-10-10",
-   "time": "",
-   "opponent": "בית\"ר ע. מעלה אדומים",
+   "time": "20:15",
+   "opponent": "הפועל ירושלים מזרח",
    "home": false,
-   "venue": "",
+   "venue": "ספורטק עמק הארזים",
    "score": null,
    "events": [],
-   "note": "גביע ילדים ג', מחזור א'. שעה ומגרש טרם נקבעו",
+   "note": "גביע ילדים ג', סיבוב א'. שעה ומגרש לפי עדכון הקבוצה",
    "uid": "game-2026-4"
   }
  ],
@@ -329,6 +329,9 @@ const LS="mr_local",TOK="mr_token",ADM="mr_admin",REPO="kazmikidev-afk/maccabi-r
 /* state = נתוני האתר, או שינויים מקומיים שטרם פורסמו מהמכשיר הזה */
 let S=JSON.parse(JSON.stringify(DATA)),dirty=false;
 try{const l=JSON.parse(localStorage.getItem(LS)||"null");if(l&&l.base===DATA.rev){S=l.data;dirty=true}}catch(e){}
+// Approved correction for the known imported cup fixture, without dropping local game events.
+const oldCup=S.games.find(g=>g.id===4&&g.date==='2026-10-10'&&g.opponent==='בית\"ר ע. מעלה אדומים'&&!g.time&&!g.venue);
+if(oldCup){const corrected=DATA.games.find(g=>g.id===4);for(const k of ['opponent','time','venue','home','note'])oldCup[k]=corrected[k];if(dirty)try{localStorage.setItem(LS,JSON.stringify({base:DATA.rev,data:S}));}catch{}}
 function persist(){dirty=true;localStorage.setItem(LS,JSON.stringify({base:DATA.rev,data:S}));renderAll()}
 
 const played=g=>Array.isArray(g.score);
@@ -414,11 +417,11 @@ function feedGames(gs,kind){
   const opponent=g.home.id===FOOTBALL.teamId?g.away.name:g.home.name;
   const manual=ours?S.games.filter(m=>((m.opponent.includes('ירושלים')&&opponent.includes('ירושלים'))||m.opponent===opponent||(m.type===kind&&m.date===new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jerusalem',year:'numeric',month:'2-digit',day:'2-digit'}).format(date)))).sort((a,b)=>Math.abs(new Date(a.date)-date)-Math.abs(new Date(b.date)-date))[0]:null;
   const relevantManual=manual&&valid&&Math.abs(new Date(manual.date)-date)<7*86400000?manual:null;
-  const manualAt=relevantManual?.date?new Date(manual.date+'T'+(manual.time||'00:00')+':00+03:00'):null;
-  const sourceDay=valid?new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jerusalem',year:'numeric',month:'2-digit',day:'2-digit'}).format(date):'';const sourceTime=valid?new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Jerusalem',hour:'2-digit',minute:'2-digit'}).format(date):'';const clash=relevantManual&&valid&&(manual.date!==sourceDay||(manual.time&&manual.time!==sourceTime)||!(manual.opponent===opponent||(manual.opponent.includes('ירושלים')&&opponent.includes('ירושלים'))));
+  
+  const sourceDay=valid?new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jerusalem',year:'numeric',month:'2-digit',day:'2-digit'}).format(date):'';const sourceTime=valid?new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Jerusalem',hour:'2-digit',minute:'2-digit'}).format(date):'';const clash=relevantManual&&valid&&(manual.date!==sourceDay||(manual.time&&sourceTime!=='00:00'&&manual.time!==sourceTime)||!(manual.opponent===opponent||(manual.opponent.includes('ירושלים')&&opponent.includes('ירושלים'))));
   const unknownTime=valid&&sourceTime==='00:00';
   const score=Array.isArray(g.score)?`<b>${g.score[0]} : ${g.score[1]}</b>`:'טרם שוחק';
-  return `<div class="card" ${ours?'style="border-color:#42c979"':''}><strong>${esc(g.home.name)} - ${esc(g.away.name)}</strong><div class="mut">${esc(g.round||'')} · ${esc(dated)} · ${score}</div>${unknownTime?'<div class="mut">00:00 בפיד עשוי להיות זמן ברירת מחדל, לא שעת בעיטה מאומתת.</div>':''}${clash?`<div class="note">פרטי הפיד שונים מעדכון הקבוצה: ${esc(manual.opponent)} · ${esc(manual.date)} ${esc(manual.time||'')} ${esc(manual.venue||'')}. פרטי המשחק בלשונית משחקים נשארו ללא שינוי.</div>`:''}${relevantManual&&Array.isArray(manual.score)&&g.score&&JSON.stringify(manual.score)!==JSON.stringify(g.home.id===FOOTBALL.teamId?g.score:[g.score[1],g.score[0]])?'<div class="note">התוצאה בפיד שונה מהתוצאה הידנית של הקבוצה. התוצאה שלנו לא שונתה.</div>':''}</div>`;
+  return `<div class="card" ${ours?'style="border-color:#42c979"':''}><strong>${esc(g.home.name)} - ${esc(g.away.name)}</strong><div class="mut">${esc(g.round||'')} · ${esc(dated)} · ${score}</div>${relevantManual&&manual.time&&sourceTime==='00:00'?`<div class="note">לפי עדכון הקבוצה: ${esc(manual.time)} · ${esc(manual.venue||'')}. השעה בפיד אינה מאומתת.</div>`:''}${unknownTime?'<div class="mut">00:00 בפיד עשוי להיות זמן ברירת מחדל, לא שעת בעיטה מאומתת.</div>':''}${clash?`<div class="note">פרטי הפיד שונים מעדכון הקבוצה: ${esc(manual.opponent)} · ${esc(manual.date)} ${esc(manual.time||'')} ${esc(manual.venue||'')}. פרטי המשחק בלשונית משחקים נשארו ללא שינוי.</div>`:''}${relevantManual&&Array.isArray(manual.score)&&g.score&&JSON.stringify(manual.score)!==JSON.stringify(g.home.id===FOOTBALL.teamId?g.score:[g.score[1],g.score[0]])?'<div class="note">התוצאה בפיד שונה מהתוצאה הידנית של הקבוצה. התוצאה שלנו לא שונתה.</div>':''}</div>`;
  }).join('');
 }
 function renderLeague(){
