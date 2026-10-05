@@ -82,8 +82,8 @@ const DATA = {
  "club": "מכבי רחובות",
  "season": "עונת 2026/27",
  "adminHash": "31d4f5f8af22211e6387f51657eecf5ee8b37d55d13bae3c6266ff2909369ad9",
- "leagueUrl": "https://www.football.org.il/leagues/league/?league_id=173&season_id=28",
- "leagueUpdated": "ליגת ילדים ג' מרכז 2026/27 - הטבלה והמשחקים טרם פורסמו",
+ "leagueUrl": "https://vole.one.co.il/league/1284",
+ "leagueUpdated": "ליגת ילדים ג' שפלה 2026/27 - משיכה אוטומטית מ-Vole/ONE",
  "leagueTable": [],
  "leagueScorers": [],
  "games": [
@@ -387,13 +387,55 @@ function renderStats(){
    `<div class="mut">שערים ללא שם שחקן נספרים בתוצאה אך לא בטבלת השחקנים.</div>`+
    `<h2>🏅 תגי הצטיינות</h2><div class="card">`+(S.badges.length?S.badges.map(b=>`<div>${esc(b.text)} · ${esc(b.player)}</div>`).join(""):`<div class="empty">עדיין לא הוענקו תגים.</div>`)+`</div>`;
 }
+const FOOTBALL={endpoint:'https://maccabi-rehovot-api.pages.dev/football',leagueUrl:'https://vole.one.co.il/league/1284',cupUrl:'https://www.football.org.il/national-cup/?national_cup_id=592&season_id=28',teamId:2902};
+setInterval(()=>{if(document.visibilityState==='visible'&&location.hash==='#league')loadFootball();},3600000);
+let footballRound=0,footballCupRound=0,footballData=null,footballLoading=false,footballError=false;
+const footballCacheKey=()=>`mr_football_28_1284_${footballRound}_${footballCupRound}`;
+function footballCached(){try{const x=JSON.parse(localStorage.getItem(footballCacheKey())||'null');if(x?.season===28&&x.teamId===2902&&Array.isArray(x.standings))return x;}catch{}return null;}
+async function loadFootball(force=false){
+ if(footballLoading)return;
+ footballData=footballCached();footballError=false;
+ if(!force&&footballData&&Date.now()-Date.parse(footballData.updatedAt)<3600000){renderLeague();return;}
+ footballLoading=true;renderLeague();
+ const c=new AbortController(),timer=setTimeout(()=>c.abort(),20000);
+ try{
+  const r=await fetch(FOOTBALL.endpoint+`?round=${footballRound}&cupRound=${footballCupRound}`,{signal:c.signal});if(!r.ok)throw Error('source');
+  const d=await r.json();if(d.season!==28||d.teamId!==2902||d.leagueId!==1284||!Array.isArray(d.standings)||!Array.isArray(d.leagueGames)||!Array.isArray(d.cupGames))throw Error('schema');
+  footballData=d;try{localStorage.setItem(footballCacheKey(),JSON.stringify(d));}catch{}
+ }catch{footballError=true;}finally{clearTimeout(timer);footballLoading=false;renderLeague();}
+}
+function selectFootballRound(value,cup=false){if(footballLoading)return;if(cup)footballCupRound=Number(value);else footballRound=Number(value);footballData=null;loadFootball();}
+function feedGames(gs,kind){
+ if(!gs?.length)return `<div class="empty">${kind==='cup'?'טרם פורסמו משחקי הקבוצה בסיבוב זה.':'טרם פורסם לוח משחקים למחזור זה.'}</div>`;
+ return gs.map(g=>{
+  const ours=g.home.id===FOOTBALL.teamId||g.away.id===FOOTBALL.teamId;
+  const date=new Date(g.date),valid=Number.isFinite(date.getTime());
+  const dated=valid?date.toLocaleString('he-IL',{timeZone:'Asia/Jerusalem',day:'numeric',month:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}):'מועד טרם פורסם';
+  const opponent=g.home.id===FOOTBALL.teamId?g.away.name:g.home.name;
+  const manual=ours?S.games.filter(m=>((m.opponent.includes('ירושלים')&&opponent.includes('ירושלים'))||m.opponent===opponent||(m.type===kind&&m.date===new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jerusalem',year:'numeric',month:'2-digit',day:'2-digit'}).format(date)))).sort((a,b)=>Math.abs(new Date(a.date)-date)-Math.abs(new Date(b.date)-date))[0]:null;
+  const relevantManual=manual&&valid&&Math.abs(new Date(manual.date)-date)<7*86400000?manual:null;
+  const manualAt=relevantManual?.date?new Date(manual.date+'T'+(manual.time||'00:00')+':00+03:00'):null;
+  const sourceDay=valid?new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jerusalem',year:'numeric',month:'2-digit',day:'2-digit'}).format(date):'';const sourceTime=valid?new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Jerusalem',hour:'2-digit',minute:'2-digit'}).format(date):'';const clash=relevantManual&&valid&&(manual.date!==sourceDay||(manual.time&&manual.time!==sourceTime)||!(manual.opponent===opponent||(manual.opponent.includes('ירושלים')&&opponent.includes('ירושלים'))));
+  const unknownTime=valid&&sourceTime==='00:00';
+  const score=Array.isArray(g.score)?`<b>${g.score[0]} : ${g.score[1]}</b>`:'טרם שוחק';
+  return `<div class="card" ${ours?'style="border-color:#42c979"':''}><strong>${esc(g.home.name)} - ${esc(g.away.name)}</strong><div class="mut">${esc(g.round||'')} · ${esc(dated)} · ${score}</div>${unknownTime?'<div class="mut">00:00 בפיד עשוי להיות זמן ברירת מחדל, לא שעת בעיטה מאומתת.</div>':''}${clash?`<div class="note">פרטי הפיד שונים מעדכון הקבוצה: ${esc(manual.opponent)} · ${esc(manual.date)} ${esc(manual.time||'')} ${esc(manual.venue||'')}. פרטי המשחק בלשונית משחקים נשארו ללא שינוי.</div>`:''}${relevantManual&&Array.isArray(manual.score)&&g.score&&JSON.stringify(manual.score)!==JSON.stringify(g.home.id===FOOTBALL.teamId?g.score:[g.score[1],g.score[0]])?'<div class="note">התוצאה בפיד שונה מהתוצאה הידנית של הקבוצה. התוצאה שלנו לא שונתה.</div>':''}</div>`;
+ }).join('');
+}
 function renderLeague(){
-  const L=S.leagueTable,P=S.leagueScorers;
-  let h=`<div class="note">מקום לנתוני ליגת ג'וניור. העונה טרם התחילה והנתונים עוד לא פורסמו.${S.leagueUrl?` <a href="${esc(S.leagueUrl)}">לאתר הליגה</a>`:""}${S.leagueUpdated?`<br>עודכן: ${esc(S.leagueUpdated)}`:""}</div>`;
-  h+=`<h2>קישורים</h2><div class="card">`+((S.links||[]).length?(S.links||[]).map(l=>`<div><a target="_blank" href="${esc(l.url)}">${esc(l.label)}</a></div>`).join(""):`<div class="mut">אין קישורים</div>`)+`</div>`;
-  h+=`<h2>טבלה</h2>`+(L.length?`<div class="card"><table><tr><th>קבוצה</th><th>מש'</th><th>נצ'</th><th>ת'</th><th>הפ'</th><th>הפרש</th><th>נק'</th></tr>`+L.map(r=>`<tr><td>${esc(r.team)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gf-r.ga}</td><td><b>${r.pts}</b></td></tr>`).join("")+`</table></div>`:`<div class="empty">טרם פורסמה טבלה.</div>`);
-  h+=`<h2>מלכי שערים</h2>`+(P.length?`<div class="card"><table><tr><th>שחקן</th><th>קבוצה</th><th>שערים</th></tr>`+P.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.team)}</td><td>${r.goals}</td></tr>`).join("")+`</table></div>`:`<div class="empty">טרם פורסמו נתונים.</div>`);
-  $("#s-league").innerHTML=h;
+ const d=footballData,L=d?.standings||[];
+ let h=`<div class="note">ליגת ילדים ג' שפלה · 2026/27<br>הקבוצה רשומה בהתאחדות בשם הפועל מרמורק רחובות "צו פיוס".<br>נתונים אוטומטיים מ-Vole/ONE, מקור משני ולא רשמי. פרטי המשחקים והתוצאות של הקבוצה נשארים ידניים.</div>`;
+ h+=`<div class="bar"><button class="btn" onclick="loadFootball(true)" ${footballLoading?'disabled':''}>${footballLoading?'טוען…':'רענון נתונים'}</button><span class="mut">${d?'משיכה אחרונה: '+esc(new Date(d.updatedAt).toLocaleString('he-IL',{timeZone:'Asia/Jerusalem'})):'טרם התקבלו נתונים'}</span></div>`;
+ if(footballError)h+=`<div class="note">המקור לא זמין כרגע. ${d?'מוצגים הנתונים האחרונים שנשמרו; ייתכן שאינם עדכניים.':'אפשר לנסות שוב או לפתוח את המקור.'}</div>`;
+ h+=`<div class="card"><a target="_blank" rel="noopener" href="${FOOTBALL.leagueUrl}">טבלה ומשחקים ב-Vole/ONE</a><br><a target="_blank" rel="noopener" href="${FOOTBALL.cupUrl}">גביע ילדים ג' בהתאחדות</a></div>`;
+ h+='<h2>טבלת הליגה</h2>';
+ if(L.length){
+  if(L.every(r=>r.p===0))h+='<div class="note">כל הקבוצות עם 0 משחקים בפיד. הסדר בטבלה אינו דירוג מקצועי.</div>';
+  h+=`<div class="card" style="overflow-x:auto"><table><tr><th>קבוצה</th><th>מש'</th><th>נצ'</th><th>ת'</th><th>הפ'</th><th>הפרש</th><th>נק'</th></tr>${L.map(r=>`<tr ${r.team.includes('מרמורק')&&r.team.includes('רחובות')?'style="background:#e6f4e9"':''}><td>${esc(r.team)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gf-r.ga}</td><td><b>${r.pts}</b></td></tr>`).join('')}</table></div>`;
+ }else h+=`<div class="empty">${footballLoading?'הטבלה נטענת…':'טרם התקבלה טבלה מהמקור.'}</div>`;
+ h+=`<h2>משחקי הליגה</h2><label>מחזור</label><select onchange="selectFootballRound(this.value)" ${footballLoading?'disabled':''}>${Array.from({length:30},(_,i)=>`<option value="${i}" ${i===footballRound?'selected':''}>מחזור ${i+1}</option>`).join('')}</select>`+feedGames(d?.leagueGames,'league');
+ h+=`<h2>גביע - משחקי הקבוצה</h2><label>סיבוב בפיד</label><select onchange="selectFootballRound(this.value,true)" ${footballLoading?'disabled':''}>${Array.from({length:10},(_,i)=>`<option value="${i}" ${i===footballCupRound?'selected':''}>${i===0?'סיבוב א':('סיבוב '+(i+1))}</option>`).join('')}</select>`+feedGames(d?.cupGames?.filter(g=>g.home.id===FOOTBALL.teamId||g.away.id===FOOTBALL.teamId),'cup');
+ h+='<div class="mut">השעות בפיד מוצגות לפי שעון ישראל. מועד ושעה עשויים להשתנות; אם יש סתירה לעדכון הקבוצה, מוצגת אזהרה. אין משיכה אוטומטית של כובשים או מצטיינים.</div>';
+ $('#s-league').innerHTML=h;
 }
 
 /* ---------- עדכון לקבוצת ההורים ---------- */
@@ -514,7 +556,7 @@ function renderAdmin(){
 }
 
 const TABS=[["games","משחקים"],["squad","סגל"],["stats","סטטיסטיקות"],["league","ליגת ג'וניור"],["share","עדכון להורים"],["videos","סרטונים"],["admin","ניהול"]];
-function tab(k){TABS.forEach(([x])=>$("#s-"+x).classList.toggle("on",x===k));[...$("#nav").children].forEach((b,i)=>b.classList.toggle("on",TABS[i][0]===k));history.replaceState(null,"","#"+k);const active=$("#nav button.on");active?.scrollIntoView({block:"nearest",inline:"center"})}
+function tab(k){TABS.forEach(([x])=>$("#s-"+x).classList.toggle("on",x===k));[...$("#nav").children].forEach((b,i)=>b.classList.toggle("on",TABS[i][0]===k));history.replaceState(null,"","#"+k);if(k==="league")loadFootball();const active=$("#nav button.on");active?.scrollIntoView({block:"nearest",inline:"center"})}
 function renderAll(){$("#club").textContent=S.club;$("#season").textContent=S.season;document.title=S.club+" - "+S.season;renderGames();renderSquad();renderStats();renderLeague();renderShare();renderAdmin()}
 $("#nav").innerHTML=TABS.map(([k,l])=>`<button onclick="tab('${k}')">${l}</button>`).join("");
 renderAll();
