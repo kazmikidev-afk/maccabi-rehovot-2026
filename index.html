@@ -45,6 +45,8 @@ pre{white-space:pre-wrap;background:#fff;border:1px solid var(--bd);border-radiu
 .bar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
 .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 18px;border-radius:99px;display:none;z-index:20}
 a{color:var(--c)}
+
+[data-match]{cursor:pointer}[data-match]:focus-visible{outline:3px solid #8cbbff;outline-offset:2px}#match-share{width:min(700px,calc(100vw - 28px));max-height:85vh;overflow:auto;border:1px solid #dbe3ef;border-radius:16px;padding:20px;color:#172337}#match-share::backdrop{background:#17233799}#match-share textarea{width:100%;font:inherit;line-height:1.6}#s-admin{scroll-margin-top:70px}
 </style>
 <style>
 .v-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0 16px}.v-heading h2{margin:0;font-size:1.3rem}.v-empty{text-align:center;padding:24px 16px}.v-mark{display:grid;place-items:center;margin:0 auto 14px;background:#e9f1ff;color:var(--c);border-radius:50%;width:64px;height:64px;font-size:26px}.v-empty p{max-width:460px;margin:12px auto}.v-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.v-card{padding:0;overflow:hidden}.v-card h3{font-size:1rem;margin:10px 12px 4px;overflow-wrap:anywhere}.v-card .mut,.v-card .badge,.v-card .bar{margin:8px 12px}.v-preview{border:0;width:100%;height:145px;background:linear-gradient(135deg,#143c72,#0b5ed7);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:inherit;cursor:pointer}.v-preview:disabled{opacity:.55;cursor:default}.v-playicon{display:grid;place-items:center;width:46px;height:46px;border:1px solid #ffffff80;border-radius:50%;padding-left:3px}.v-check{display:flex;align-items:flex-start;gap:10px;color:var(--tx);line-height:1.6}.v-check input{width:20px;height:20px;flex:none;margin-top:3px}.v-tags{margin-top:16px}.v-fieldset{border:1px solid var(--bd);border-radius:10px;margin:16px 0;padding:8px 12px}.v-fieldset legend{font-size:.9rem;color:var(--mut)}#v-player{display:block;width:100%;max-height:65vh;background:#111;border-radius:8px}#v-google{display:flex;justify-content:center;margin:20px 0}#v-progress{width:100%;height:18px;margin:12px 0}#s-videos button:focus-visible{outline:3px solid #8cbbff;outline-offset:2px}#s-videos .note{overflow-wrap:anywhere}#v-uploadstatus{overflow-wrap:anywhere}#v-playarea{scroll-margin-top:65px}@media(max-width:400px){.v-grid{gap:8px}.v-preview{height:120px}.v-heading h2{font-size:1.15rem}.v-heading .mut{font-size:.78rem}.v-card h3{font-size:.92rem}.v-tags button{padding:7px 12px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
@@ -342,7 +344,7 @@ function gameCard(g){
   const evs=(g.events||[]).filter(e=>e.kind!=="assist").sort((a,b)=>(a.min||0)-(b.min||0));
   const ex=evs.length?`<div class="mut" style="margin-top:6px">`+evs.map(e=>`${KINDS[e.kind].split(" ")[0]} ${e.min?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}`).join("<br>")+`</div>`:"";
   const mv=S.badges.filter(b=>b.gameId===g.id).map(b=>`<div class="mut">${esc(b.text)}: ${esc(b.player)}</div>`).join("");
-  return `<div class="card"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span><b>מכבי רחובות - ${esc(g.opponent)}</b><div class="mut">${fd(g.date)} · ${g.home?"בית":"חוץ"}${g.venue?" · "+esc(g.venue):""}${g.note?" · "+esc(g.note):""}</div></div>${sc}</div>${ex}${mv}<div class="bar"><button class="btn sm" onclick="TeamVideos.open('${esc(g.uid||("legacy-"+g.id))}')">▶ סרטוני המשחק</button></div></div>`;
+  return `<div class="card" data-match="${g.id}" role="button" tabindex="0" aria-label="פתיחת משחק: ${esc(g.opponent)}" onclick="if(!event.target.closest('button,a'))openMatch(${g.id})" onkeydown="if(event.key==='Enter'&&event.target===this)openMatch(${g.id})"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span><b>מכבי רחובות - ${esc(g.opponent)}</b><div class="mut">${fd(g.date)} · ${g.home?"בית":"חוץ"}${g.venue?" · "+esc(g.venue):""}${g.note?" · "+esc(g.note):""}</div></div>${sc}</div>${ex}${mv}<div class="bar"><button class="btn sm" onclick="TeamVideos.open('${esc(g.uid||("legacy-"+g.id))}')">▶ סרטוני המשחק</button></div></div>`;
 }
 const chips=(cur,fn)=>`<div class="chips">`+[["all","הכול"],["league","ליגה"],["cup","גביע"],["friendly","אימון"]].map(([k,l])=>`<button class="${cur===k?"on":""}" onclick="${fn}('${k}')">${l}</button>`).join("")+`</div>`;
 function setF(k){filter=k;renderGames()}
@@ -427,25 +429,31 @@ function copyShare(){const t=shareText();(navigator.clipboard?navigator.clipboar
 
 /* ---------- ניהול ---------- */
 const sha=async s=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,"0")).join("");
-let edit=null; // {id|null, g:{}}
-const isAdmin=()=>sessionStorage.getItem(ADM)==="1";
-async function login(){const v=$("#pw").value.trim();if(await sha(v)===DATA.adminHash){sessionStorage.setItem(ADM,"1");renderAdmin()}else toast("קוד שגוי")}
-function logout(){sessionStorage.removeItem(ADM);renderAdmin()}
+let edit=null,pendingMatch=null;
+const ADMIN_SESSION=ADM+"_session",ADMIN_DAYS=30;
+function isAdmin(){try{const a=JSON.parse(localStorage.getItem(ADMIN_SESSION)||"null");if(a&&a.hash===DATA.adminHash&&a.expires>Date.now())return true;if(a)localStorage.removeItem(ADMIN_SESSION);}catch{localStorage.removeItem(ADMIN_SESSION);}return sessionStorage.getItem(ADM)==="1";}
+async function login(){const v=$("#pw").value.trim();if(await sha(v)===DATA.adminHash){if($("#remember-admin").checked){sessionStorage.removeItem(ADM);}else{sessionStorage.setItem(ADM,"1");}if($("#remember-admin").checked)localStorage.setItem(ADMIN_SESSION,JSON.stringify({hash:DATA.adminHash,expires:Date.now()+ADMIN_DAYS*86400000}));else localStorage.removeItem(ADMIN_SESSION);if(pendingMatch!=null){const id=pendingMatch;pendingMatch=null;editGame(id);}renderAll();if(edit)$("#s-admin").scrollIntoView({block:"start"});}else toast("קוד שגוי");}
+function logout(){sessionStorage.removeItem(ADM);localStorage.removeItem(ADMIN_SESSION);pendingMatch=null;edit=null;renderAll();}
+function openMatch(id){pendingMatch=id;tab("admin");if(isAdmin()){pendingMatch=null;editGame(id);}else renderAdmin();$("#s-admin").scrollIntoView({block:"start",behavior:"smooth"});}
+function matchResultText(g){let t=`⚽ *${S.club} - עדכון תוצאה*\n${TYPES[g.type]} · ${fdl(g.date)} · ${g.home?"בית":"חוץ"}\n`;t+=played(g)?`${S.club} ${g.score[0]} : ${g.score[1]} ${g.opponent}\n`:`נגד ${g.opponent} - טרם עודכנה תוצאה\n`;const evs=[...(g.events||[])].sort((a,b)=>(a.min||0)-(b.min||0));for(const e of evs)t+=`${KINDS[e.kind]||"אירוע"}${e.min?" · דקה "+e.min:""}${e.player?" · "+e.player:""}${e.text?" · "+e.text:""}\n`;S.badges.filter(b=>b.gameId===g.id).forEach(b=>t+=`${b.text}: ${b.player}\n`);if(g.note)t+=`📝 ${g.note}\n`;return t.trim();}
+function showMatchResult(g){$("#match-share")?.remove();const dialog=document.createElement("dialog");dialog.id="match-share";dialog.innerHTML=`<h2>עדכון תוצאה לקבוצת הוואטסאפ</h2><p class="mut">טקסט למשחק שבחרת. לא נשלח אוטומטית. השמירה מקומית; לפרסום באתר השתמשו בכפתור הפרסום.</p><textarea id="match-share-text" readonly rows="12" dir="rtl"></textarea><div class="bar"><button id="match-copy" class="btn pri">העתקת עדכון</button><button id="match-share-device" class="btn">שיתוף דרך המכשיר</button><button id="match-share-close" class="btn">סגירה</button></div>`;document.body.append(dialog);$("#match-share-text").value=matchResultText(g);$("#match-copy").onclick=async()=>{try{await navigator.clipboard.writeText($("#match-share-text").value);toast("העדכון הועתק להדבקה בוואטסאפ");}catch{$("#match-share-text").select();toast("סמנו והעתיקו את הטקסט");}};$("#match-share-device").onclick=async()=>{if(!navigator.share){$("#match-share-text").select();return toast("העתיקו והדביקו בוואטסאפ");}try{await navigator.share({text:$("#match-share-text").value});}catch{}};$("#match-share-close").onclick=()=>{dialog.close();dialog.remove();};dialog.showModal();}
+
 const nextId=()=>Math.max(0,...S.games.map(g=>g.id))+1;
 function newGame(){edit={g:{id:nextId(),uid:"game-"+crypto.randomUUID(),type:"friendly",date:new Date().toISOString().slice(0,10),time:"18:00",opponent:"",home:true,venue:"",score:null,events:[],note:""}};renderAdmin()}
-function editGame(id){edit={g:JSON.parse(JSON.stringify(S.games.find(g=>g.id===id)))};renderAdmin()}
+function editGame(id){if(!isAdmin())return;edit={g:JSON.parse(JSON.stringify(S.games.find(g=>g.id===id)))};renderAdmin()}
 function delGame(id){if(confirm("למחוק את המשחק?")){S.games=S.games.filter(g=>g.id!==id);S.badges=S.badges.filter(b=>b.gameId!==id);persist()}}
 function fld(k,v){edit.g[k]=v}
-function setScore(){const a=$("#sa").value,b=$("#sb").value;edit.g.score=(a===""||b==="")?null:[+a,+b]}
+function setScore(){const a=$("#sa").value,b=$("#sb").value;if([a,b].some(x=>x!==""&&(!Number.isInteger(+x)||+x<0||+x>99))){toast("תוצאה צריכה להיות מספר שלם בין 0 ל-99");return false;}edit.g.score=(a===""||b==="")?null:[+a,+b];return true;}
+function captureGame(){if(!setScore())return false;for(const [key,id] of [["opponent","eo"],["date","ed"],["time","etm"],["venue","ev"],["note","en"],["type","et2"]])edit.g[key]=$("#"+id).value;edit.g.home=$("#eh").value==="1";edit.mvp=$("#emvp").value;return true;}
 function addEv(){const e={min:+$("#em").value||null,kind:$("#ek").value,player:$("#ep").value,text:$("#et").value};if(e.kind!=="note"&&!e.player){toast("בחרו שחקן");return}
-  setScore();Object.assign(edit.g,{});edit.g.events.push(e);renderAdmin()}
-function delEv(i){setScore();edit.g.events.splice(i,1);renderAdmin()}
-function saveGame(){setScore();const g=edit.g;g.opponent=$("#eo").value.trim();if(!g.opponent){toast("חסר שם יריב");return}
+  if(!captureGame())return;if(e.min!=null&&(!Number.isInteger(e.min)||e.min<0||e.min>120)){toast("דקה צריכה להיות בין 0 ל-120");return;}if(e.kind==="note"&&!e.text.trim()){toast("כתבו את האירוע המיוחד");return;}edit.g.events.push(e);renderAdmin()}
+function delEv(i){if(!captureGame())return;edit.g.events.splice(i,1);renderAdmin()}
+function saveGame(withUpdate=false){if(!isAdmin()||!captureGame())return;const g=edit.g;g.opponent=$("#eo").value.trim();if(!g.opponent){toast("חסר שם יריב");return}
   g.date=$("#ed").value;g.time=$("#etm").value;g.venue=$("#ev").value;g.note=$("#en").value;g.type=$("#et2").value;g.home=$("#eh").value==="1";
   const i=S.games.findIndex(x=>x.id===g.id);if(i<0)S.games.push(g);else S.games[i]=g;
   S.badges=S.badges.filter(b=>!(b.gameId===g.id&&b._m));const mv=$("#emvp").value;
   if(mv)S.badges.push({player:mv,text:"🏆 שחקן המשחק",gameId:g.id,_m:1});
-  edit=null;persist()}
+  edit=null;persist();if(withUpdate)showMatchResult(g);}
 function addPlayer(){const n=prompt("שם השחקן");if(!n)return;const num=prompt("מספר חולצה (אפשר להשאיר ריק)");const pos=prompt("תפקיד ("+POS.join(", ")+")","קשר");S.squad.push({num:num?+num:null,name:n,pos:pos||""});persist()}
 function editPlayer(i){const p=S.squad[i];const n=prompt("שם",p.name);if(n===null)return;const num=prompt("מספר חולצה",p.num??"");const pos=prompt("תפקיד",p.pos);
   if(n!==p.name){S.games.forEach(g=>g.events.forEach(e=>{if(e.player===p.name)e.player=n}));S.badges.forEach(b=>{if(b.player===p.name)b.player=n})}
@@ -477,24 +485,24 @@ function exportData(){const clean=JSON.parse(JSON.stringify(S));navigator.clipbo
 const opts=(arr,sel)=>arr.map(x=>`<option ${x===sel?"selected":""}>${esc(x)}</option>`).join("");
 function renderAdmin(){
   const el=$("#s-admin");
-  if(!isAdmin()){el.innerHTML=`<div class="card"><b>כניסת מנהל</b><label>קוד גישה</label><input id="pw" type="password" inputmode="numeric" onkeydown="if(event.key==='Enter')login()"><div class="bar"><button class="btn pri" onclick="login()">כניסה</button></div></div>`;return}
+  if(!isAdmin()){el.innerHTML=`<div class="card"><b>כניסת מנהל</b><label>קוד גישה</label><p class="mut">${pendingMatch!=null?"כניסה נדרשת כדי לערוך את המשחק שבחרת.":""}</p><input id="pw" type="password" inputmode="numeric" onkeydown="if(event.key==='Enter')login()"><label class="v-check"><input id="remember-admin" type="checkbox" checked>זכור אותי במכשיר הזה ל-30 יום (לא במכשיר משותף)</label><div class="bar"><button class="btn pri" onclick="login()">כניסה</button></div></div>`;return}
   const names=S.squad.map(p=>p.name);
-  if(edit){const g=edit.g,mv=S.badges.find(b=>b.gameId===g.id&&b.text.includes("שחקן המשחק"));
-    el.innerHTML=`<div class="card"><b>${S.games.some(x=>x.id===g.id)?"עריכת משחק":"משחק חדש"}</b>
+  if(edit){const g=edit.g,mv=edit.mvp!==undefined?{player:edit.mvp}:S.badges.find(b=>b.gameId===g.id&&b.text.includes("שחקן המשחק"));
+    el.innerHTML=`<div class="card"><div class="bar"><b>${S.games.some(x=>x.id===g.id)?"עריכת משחק":"משחק חדש"}</b><button class="btn sm" onclick="edit=null;tab('games');renderAll()">חזרה למשחקים</button></div><p class="mut">עדכון תוצאה, כובשים ואירועים מיוחדים במקום אחד.</p>
     <label>סוג</label><select id="et2">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}" ${g.type===k?"selected":""}>${v}</option>`).join("")}</select>
     <label>יריב</label><input id="eo" value="${esc(g.opponent)}">
     <div class="row"><div><label>תאריך</label><input id="ed" type="date" value="${g.date}"></div><div><label>שעה</label><input id="etm" type="time" value="${g.time||""}"></div></div>
     <div class="row"><div><label>בית / חוץ</label><select id="eh"><option value="1" ${g.home?"selected":""}>בית</option><option value="0" ${!g.home?"selected":""}>חוץ</option></select></div><div><label>מגרש</label><input id="ev" value="${esc(g.venue)}"></div></div>
-    <label>תוצאה (שלנו : יריב). ריק = עוד לא שוחק</label><div class="row"><input id="sa" type="number" inputmode="numeric" value="${g.score?g.score[0]:""}" placeholder="שלנו"><input id="sb" type="number" inputmode="numeric" value="${g.score?g.score[1]:""}" placeholder="יריב"></div>
+    <label>תוצאה (שלנו : יריב). ריק = עוד לא שוחק</label><div class="row"><input id="sa" min="0" max="99" type="number" inputmode="numeric" value="${g.score?g.score[0]:""}" placeholder="שלנו"><input id="sb" min="0" max="99" type="number" inputmode="numeric" value="${g.score?g.score[1]:""}" placeholder="יריב"></div>
     <label>שחקן המשחק</label><select id="emvp"><option value="">-</option>${names.map(n=>`<option ${mv&&mv.player===n?"selected":""}>${esc(n)}</option>`).join("")}</select>
     <label>הערה</label><input id="en" value="${esc(g.note)}">
     <h2>אירועים מעניינים</h2>${g.events.map((e,i)=>`<div class="ev"><span style="flex:1">${KINDS[e.kind]} ${e.min?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}</span><button class="btn sm red" onclick="delEv(${i})">מחק</button></div>`).join("")||`<div class="mut">אין אירועים</div>`}
     <div class="card" style="background:#fafbfd"><div class="row"><div><label>דקה</label><input id="em" type="number" inputmode="numeric"></div><div><label>סוג</label><select id="ek">${Object.entries(KINDS).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></div></div>
     <label>שחקן</label><select id="ep"><option value="">-</option><option>לא ידוע</option>${names.map(n=>`<option>${esc(n)}</option>`).join("")}</select><label>טקסט (לא חובה)</label><input id="et"><div class="bar"><button class="btn" onclick="addEv()">הוסף אירוע</button></div></div>
-    <div class="bar"><button class="btn pri" onclick="saveGame()">שמירה</button><button class="btn" onclick="edit=null;renderAdmin()">ביטול</button></div></div>`;
+    <div class="bar"><button class="btn pri" onclick="saveGame()">שמירה</button><button class="btn wa" onclick="saveGame(true)">עדכון תוצאה לוואטסאפ</button><button class="btn" onclick="edit=null;renderAdmin()">ביטול</button></div></div>`;
     return}
   const gl=[...S.games].sort((a,b)=>b.date.localeCompare(a.date));
-  el.innerHTML=`<div class="bar"><button class="btn pri" onclick="newGame()">+ משחק חדש</button><button class="btn" onclick="logout()">יציאה</button></div>`+
+  el.innerHTML=`<div class="bar"><button class="btn pri" onclick="newGame()">+ משחק חדש</button><button class="btn" onclick="logout()">יציאה ושכח אותי</button></div><p class="mut">${localStorage.getItem(ADMIN_SESSION)?"הכניסה זכורה במכשיר הזה עד 30 יום. יציאה מוחקת אותה.":"כניסה למפגש הנוכחי בלבד."}</p>`+
    `<div class="note" style="${dirty?"":"background:#eefaf1;border-color:#b8e2c4"}">${dirty?"יש שינויים במכשיר הזה שטרם פורסמו לכולם.":"אין שינויים שלא פורסמו."} שינויים נשמרים במכשיר הזה. כדי שההורים יראו אותם צריך לפרסם.</div>`+
    `<div class="bar"><button class="btn wa" style="background:var(--c);border-color:var(--c)" onclick="publish()">פרסום לאתר</button><button class="btn" onclick="exportData()">העתקת נתונים</button>${dirty?`<button class="btn red" onclick="resetLocal()">ביטול שינויים</button>`:""}</div>`+
    `<h2>משחקים</h2>`+gl.map(g=>`<div class="card"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span>${esc(g.opponent)}<div class="mut">${fd(g.date)} ${g.time||""} · ${played(g)?g.score[0]+" : "+g.score[1]:"טרם שוחק"} · ${(g.events||[]).length} אירועים</div></div><div><button class="btn sm" onclick="editGame(${g.id})">עריכה</button> <button class="btn sm red" onclick="delGame(${g.id})">מחק</button></div></div></div>`).join("")+
