@@ -22,6 +22,7 @@ section{display:none}section.on{display:block}
 .btn.red{color:#d23;border-color:#d23}.btn.wa{background:#25d366;color:#fff;border-color:#25d366}
 .btn.sm{padding:4px 12px;font-size:.85rem}
 .card{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px}
+.game>div{min-width:0;overflow-wrap:anywhere}
 .game{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .tag{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:99px;color:#fff;margin-inline-end:6px}
 .t-league{background:#0b5ed7}.t-cup{background:#c98a00}.t-friendly{background:#2e9e5b}
@@ -82,8 +83,8 @@ const DATA = {
  "club": "מכבי רחובות",
  "season": "עונת 2026/27",
  "adminHash": "31d4f5f8af22211e6387f51657eecf5ee8b37d55d13bae3c6266ff2909369ad9",
- "leagueUrl": "https://vole.one.co.il/league/1284",
- "leagueUpdated": "ליגת ילדים ג' שפלה 2026/27 - משיכה אוטומטית מ-Vole/ONE",
+ "leagueUrl": "",
+ "leagueUpdated": "ליגת ילדים ג' מרכז 2026/27 - בהמתנה למקור אוטומטי מאומת",
  "leagueTable": [],
  "leagueScorers": [],
  "games": [
@@ -196,6 +197,428 @@ const DATA = {
     "previousDate": "2026-10-10",
     "source": "עדכון מיקי ב-5.10.2026"
    }
+  },
+  {
+   "id": 5,
+   "uid": "ifa-2026-27-round-1",
+   "type": "league",
+   "date": "2026-10-17",
+   "time": "",
+   "opponent": "הפועל רעננה",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 1",
+   "round": 1
+  },
+  {
+   "id": 6,
+   "uid": "ifa-2026-27-round-2",
+   "type": "league",
+   "date": "2026-10-28",
+   "time": "",
+   "opponent": "הפועל ראשל\"צ",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 2",
+   "round": 2
+  },
+  {
+   "id": 7,
+   "uid": "ifa-2026-27-round-3",
+   "type": "league",
+   "date": "2026-10-31",
+   "time": "",
+   "opponent": "הפועל ירושלים מזרח",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 3",
+   "round": 3
+  },
+  {
+   "id": 8,
+   "uid": "ifa-2026-27-round-4",
+   "type": "league",
+   "date": "2026-11-14",
+   "time": "",
+   "opponent": "בני יהודה ת\"א",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 4",
+   "round": 4
+  },
+  {
+   "id": 9,
+   "uid": "ifa-2026-27-round-5",
+   "type": "league",
+   "date": "2026-11-28",
+   "time": "",
+   "opponent": "מ.ס. קדימה צורן",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 5",
+   "round": 5
+  },
+  {
+   "id": 10,
+   "uid": "ifa-2026-27-round-6",
+   "type": "league",
+   "date": "2026-12-05",
+   "time": "",
+   "opponent": "ס. נס ציונה",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 6",
+   "round": 6
+  },
+  {
+   "id": 11,
+   "uid": "ifa-2026-27-round-7",
+   "type": "league",
+   "date": "2026-12-19",
+   "time": "",
+   "opponent": "מכבי אשקלון צפון",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 7",
+   "round": 7
+  },
+  {
+   "id": 12,
+   "uid": "ifa-2026-27-round-8",
+   "type": "league",
+   "date": "2026-12-26",
+   "time": "",
+   "opponent": "מ.כ. גני תקווה מרכז",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 8",
+   "round": 8
+  },
+  {
+   "id": 13,
+   "uid": "ifa-2026-27-round-9",
+   "type": "league",
+   "date": "2027-01-09",
+   "time": "",
+   "opponent": "הפ' ת\"א יאיר לרמן",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 9",
+   "round": 9
+  },
+  {
+   "id": 14,
+   "uid": "ifa-2026-27-round-10",
+   "type": "league",
+   "date": "2027-01-16",
+   "time": "",
+   "opponent": "הפ' פ\"ת שמואל בייגל",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 10",
+   "round": 10
+  },
+  {
+   "id": 15,
+   "uid": "ifa-2026-27-round-11",
+   "type": "league",
+   "date": "2027-01-23",
+   "time": "",
+   "opponent": "הפ' כפ\"ס שמעון",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 11",
+   "round": 11
+  },
+  {
+   "id": 16,
+   "uid": "ifa-2026-27-round-12",
+   "type": "league",
+   "date": "2027-01-30",
+   "time": "",
+   "opponent": "בית\"ר י-ם 1",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 12",
+   "round": 12
+  },
+  {
+   "id": 17,
+   "uid": "ifa-2026-27-round-13",
+   "type": "league",
+   "date": "2027-02-06",
+   "time": "",
+   "opponent": "מכבי חיפה עודד",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 13",
+   "round": 13
+  },
+  {
+   "id": 18,
+   "uid": "ifa-2026-27-round-14",
+   "type": "league",
+   "date": "2027-02-13",
+   "time": "",
+   "opponent": "הפועל ב\"ש \"לבן\"",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 14",
+   "round": 14
+  },
+  {
+   "id": 19,
+   "uid": "ifa-2026-27-round-15",
+   "type": "league",
+   "date": "2027-02-20",
+   "time": "",
+   "opponent": "מכבי פ\"ת \"חיים הנדלר\"",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 15",
+   "round": 15
+  },
+  {
+   "id": 20,
+   "uid": "ifa-2026-27-round-16",
+   "type": "league",
+   "date": "2027-03-06",
+   "time": "",
+   "opponent": "הפ' ניר רמת השרון מרכז",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 16",
+   "round": 16
+  },
+  {
+   "id": 21,
+   "uid": "ifa-2026-27-round-17",
+   "type": "league",
+   "date": "2027-03-13",
+   "time": "",
+   "opponent": "מכבי עמישב פ\"ת",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 17",
+   "round": 17
+  },
+  {
+   "id": 22,
+   "uid": "ifa-2026-27-round-18",
+   "type": "league",
+   "date": "2027-03-20",
+   "time": "",
+   "opponent": "מ.ס. ב\"ש 2",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 18",
+   "round": 18
+  },
+  {
+   "id": 23,
+   "uid": "ifa-2026-27-round-19",
+   "type": "league",
+   "date": "2027-03-27",
+   "time": "",
+   "opponent": "ללא משחק",
+   "home": null,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 19",
+   "round": 19,
+   "bye": true
+  },
+  {
+   "id": 24,
+   "uid": "ifa-2026-27-round-20",
+   "type": "league",
+   "date": "2027-04-03",
+   "time": "",
+   "opponent": "בני יהודה ת\"א",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 20",
+   "round": 20
+  },
+  {
+   "id": 25,
+   "uid": "ifa-2026-27-round-21",
+   "type": "league",
+   "date": "2027-04-06",
+   "time": "",
+   "opponent": "מכבי נתניה",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 21",
+   "round": 21
+  },
+  {
+   "id": 26,
+   "uid": "ifa-2026-27-round-22",
+   "type": "league",
+   "date": "2027-04-10",
+   "time": "",
+   "opponent": "מכבי ב\"ש",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 22",
+   "round": 22
+  },
+  {
+   "id": 27,
+   "uid": "ifa-2026-27-round-23",
+   "type": "league",
+   "date": "2027-04-17",
+   "time": "",
+   "opponent": "מ.ס. אשדוד סולומון",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 23",
+   "round": 23
+  },
+  {
+   "id": 28,
+   "uid": "ifa-2026-27-round-24",
+   "type": "league",
+   "date": "2027-04-24",
+   "time": "",
+   "opponent": "מכבי ת\"א עוז",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 24",
+   "round": 24
+  },
+  {
+   "id": 29,
+   "uid": "ifa-2026-27-round-25",
+   "type": "league",
+   "date": "2027-05-01",
+   "time": "",
+   "opponent": "מכבי ת\"א עוז",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 25",
+   "round": 25
+  },
+  {
+   "id": 30,
+   "uid": "ifa-2026-27-round-26",
+   "type": "league",
+   "date": "2027-05-08",
+   "time": "",
+   "opponent": "הפועל רעננה",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 26",
+   "round": 26
+  },
+  {
+   "id": 31,
+   "uid": "ifa-2026-27-round-27",
+   "type": "league",
+   "date": "2027-05-15",
+   "time": "",
+   "opponent": "הפועל ראשל\"צ",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 27",
+   "round": 27
+  },
+  {
+   "id": 32,
+   "uid": "ifa-2026-27-round-28",
+   "type": "league",
+   "date": "2027-05-18",
+   "time": "",
+   "opponent": "ללא משחק",
+   "home": null,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 28",
+   "round": 28,
+   "bye": true
+  },
+  {
+   "id": 33,
+   "uid": "ifa-2026-27-round-29",
+   "type": "league",
+   "date": "2027-05-22",
+   "time": "",
+   "opponent": "ה.מ יהודה ד. תומר ברק",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 29",
+   "round": 29
+  },
+  {
+   "id": 34,
+   "uid": "ifa-2026-27-round-30",
+   "type": "league",
+   "date": "2027-05-29",
+   "time": "",
+   "opponent": "מ.ס. קדימה צורן",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 30",
+   "round": 30
   }
  ],
  "squad": [
@@ -318,7 +741,8 @@ const DATA = {
    "role": "מאמן",
    "name": "סהר יצחקי"
   }
- ]
+ ],
+ "fixturesImport": "ifa-2026-27-v1"
 };
 /*DATA_END*/
 
@@ -338,16 +762,28 @@ const oldCup=S.games.find(g=>g.id===4&&g.date==='2026-10-10'&&g.opponent==='בי
 if(oldCup){const corrected=DATA.games.find(g=>g.id===4);for(const k of ['date','opponent','time','venue','home','note','scheduleOverride'])oldCup[k]=corrected[k];if(dirty)try{localStorage.setItem(LS,JSON.stringify({base:DATA.rev,data:S}));}catch{}}
 const postponedCup=S.games.find(g=>g.id===4&&g.date==='2026-10-10'&&g.opponent==='הפועל ירושלים מזרח'&&g.time==='20:15');
 if(postponedCup){const corrected=DATA.games.find(g=>g.id===4);for(const k of ['date','time','note','scheduleOverride'])postponedCup[k]=corrected[k];if(dirty)try{localStorage.setItem(LS,JSON.stringify({base:DATA.rev,data:S}));}catch{}}
+// Merge the approved season fixtures once into unsaved local data, preserving edits and IDs.
+if(dirty&&S.fixturesImport!==DATA.fixturesImport){
+  for(const fixture of DATA.games.filter(g=>g.uid?.startsWith('ifa-2026-27-round-'))){
+    if(S.games.some(g=>g.uid===fixture.uid))continue;
+    const copy=JSON.parse(JSON.stringify(fixture));
+    if(S.games.some(g=>g.id===copy.id))copy.id=Math.max(0,...S.games.map(g=>g.id))+1;
+    S.games.push(copy);
+  }
+  S.fixturesImport=DATA.fixturesImport;
+  try{localStorage.setItem(LS,JSON.stringify({base:DATA.rev,data:S}));}catch{}
+}
 function persist(){dirty=true;localStorage.setItem(LS,JSON.stringify({base:DATA.rev,data:S}));renderAll()}
 
-const played=g=>Array.isArray(g.score);
+const played=g=>!g.bye&&Array.isArray(g.score);
 const fd=d=>new Date(d+"T00:00").toLocaleDateString("he-IL",{weekday:"short",day:"numeric",month:"numeric"});
 const fdl=d=>new Date(d+"T00:00").toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"});
 const res=g=>{if(!played(g))return"";const[a,b]=g.score;return a>b?"W":a<b?"L":"D"};
-const gname=g=>`${g.home?"בית":"חוץ"} נגד ${g.opponent}`;
+const gname=g=>g.bye?"ללא משחק (מחזור חופשי)":`${g.home?"בית":"חוץ"} נגד ${g.opponent}`;
 let filter="all",statFilter="all";
 
 function gameCard(g){
+  if(g.bye)return `<div class="card" data-bye="${g.round}"><span class="tag t-league">ליגה</span><b>מחזור ${g.round} · ללא משחק</b><div class="mut">${fd(g.date)} · מחזור חופשי</div></div>`;
   const r=res(g),rl={W:"ניצחון",L:"הפסד",D:"תיקו"}[r]||"";
   const sc=played(g)?`<div class="score ${r}">${g.score[0]} : ${g.score[1]}<div class="mut" style="font-size:.75rem">${rl}</div></div>`:`<div class="mut">${esc(g.time||"שעה תפורסם")}</div>`;
   const evs=(g.events||[]).filter(e=>e.kind!=="assist").sort((a,b)=>(a.min||0)-(b.min||0));
@@ -397,12 +833,13 @@ function renderStats(){
    `<div class="mut">שערים ללא שם שחקן נספרים בתוצאה אך לא בטבלת השחקנים.</div>`+
    `<h2>🏅 תגי הצטיינות</h2><div class="card">`+(S.badges.length?S.badges.map(b=>`<div>${esc(b.text)} · ${esc(b.player)}</div>`).join(""):`<div class="empty">עדיין לא הוענקו תגים.</div>`)+`</div>`;
 }
-const FOOTBALL={endpoint:'https://maccabi-rehovot-api.pages.dev/football',leagueUrl:'https://vole.one.co.il/league/1284',cupUrl:'https://www.football.org.il/national-cup/?national_cup_id=592&season_id=28',teamId:2902};
+const FOOTBALL={paused:true,endpoint:'https://maccabi-rehovot-api.pages.dev/football',leagueUrl:'https://vole.one.co.il/league/1284',cupUrl:'https://www.football.org.il/national-cup/?national_cup_id=592&season_id=28',teamId:2902};
 setInterval(()=>{if(document.visibilityState==='visible'&&location.hash==='#league')loadFootball();},3600000);
 let footballRound=0,footballCupRound=0,footballData=null,footballLoading=false,footballError=false;
 const footballCacheKey=()=>`mr_football_28_1284_${footballRound}_${footballCupRound}`;
 function footballCached(){try{const x=JSON.parse(localStorage.getItem(footballCacheKey())||'null');if(x?.season===28&&x.teamId===2902&&Array.isArray(x.standings))return x;}catch{}return null;}
 async function loadFootball(force=false){
+ if(FOOTBALL.paused){footballData=null;footballLoading=false;footballError=false;renderLeague();return;}
  if(footballLoading)return;
  footballData=footballCached();footballError=false;
  if(!force&&footballData&&Date.now()-Date.parse(footballData.updatedAt)<3600000){renderLeague();return;}
@@ -433,8 +870,12 @@ function feedGames(gs,kind){
  }).join('');
 }
 function renderLeague(){
+ if(FOOTBALL.paused){
+  $('#s-league').innerHTML=`<div class="note">ליגת ילדים ג' מרכז · 2026/27<br>הקבוצה רשומה בהתאחדות בשם הפועל מרמורק רחובות "צו פיוס".</div><h2>טבלת הליגה</h2><div class="card"><p>המשיכה האוטומטית הושהתה: המקור הקודם הציג ליגה אחרת, ובמקור מרכז עדיין לא מופיעה הקבוצה. טבלת הליגה תוצג רק אחרי אימות מקור מתאים.</p><p class="mut">לוח 30 המחזורים נמצא בלשונית משחקים. מועדים, תוצאות ואירועים ממשיכים להתעדכן דרך ניהול; שינויים ידניים לא נדרסים.</p></div><h2>משחקי הליגה</h2>`+S.games.filter(g=>g.type==='league').sort((a,b)=>a.date.localeCompare(b.date)).map(gameCard).join('')+`<h2>גביע - משחקי הקבוצה</h2>`+S.games.filter(g=>g.type==='cup').sort((a,b)=>a.date.localeCompare(b.date)).map(gameCard).join('');
+  return;
+ }
  const d=footballData,L=d?.standings||[];
- let h=`<div class="note">ליגת ילדים ג' שפלה · 2026/27<br>הקבוצה רשומה בהתאחדות בשם הפועל מרמורק רחובות "צו פיוס".<br>נתונים אוטומטיים מ-Vole/ONE, מקור משני ולא רשמי. פרטי המשחקים והתוצאות של הקבוצה נשארים ידניים.</div>`;
+ let h=`<div class="note">ליגת ילדים ג' מרכז · 2026/27<br>הקבוצה רשומה בהתאחדות בשם הפועל מרמורק רחובות "צו פיוס".<br>נתונים אוטומטיים מ-Vole/ONE, מקור משני ולא רשמי. פרטי המשחקים והתוצאות של הקבוצה נשארים ידניים.</div>`;
  h+=`<div class="bar"><button class="btn" onclick="loadFootball(true)" ${footballLoading?'disabled':''}>${footballLoading?'טוען…':'רענון נתונים'}</button><span class="mut">${d?'משיכה אחרונה: '+esc(new Date(d.updatedAt).toLocaleString('he-IL',{timeZone:'Asia/Jerusalem'})):'טרם התקבלו נתונים'}</span></div>`;
  if(footballError)h+=`<div class="note">המקור לא זמין כרגע. ${d?'מוצגים הנתונים האחרונים שנשמרו; ייתכן שאינם עדכניים.':'אפשר לנסות שוב או לפתוח את המקור.'}</div>`;
  h+=`<div class="card"><a target="_blank" rel="noopener" href="${FOOTBALL.leagueUrl}">טבלה ומשחקים ב-Vole/ONE</a><br><a target="_blank" rel="noopener" href="${FOOTBALL.cupUrl}">גביע ילדים ג' בהתאחדות</a></div>`;
@@ -467,7 +908,7 @@ function shareText(){
     o+=`\n*סטטיסטיקה*\n${t.p} משחקים: ${t.w} ניצחונות, ${t.d} תיקו, ${t.l} הפסדים. שערים ${t.gf}:${t.ga}\n`;
     if(m.length)o+=`מלכי שערים: `+m.map(([n,v])=>`${n} ${v.g}`).join(", ")+`\n`;}
   if(sh.badges&&S.badges.length)o+=`\n*תגי הצטיינות*\n`+S.badges.map(b=>`${b.text} ${b.player}`).join("\n")+`\n`;
-  if(sh.next){o+=`\n*המשחקים הקרובים*\n`+(up.length?up.slice(0,3).map(g=>`${fdl(g.date)} ${g.time||""} - ${TYPES[g.type]}, ${g.home?"בית":"חוץ"} נגד ${g.opponent}${g.venue?" ("+g.venue+")":""}`).join("\n"):"אין משחק מתוכנן כרגע")+`\n`;}
+  if(sh.next){o+=`\n*המשחקים הקרובים*\n`+(up.length?up.slice(0,3).map(g=>g.bye?`${fdl(g.date)} - ליגה, מחזור ${g.round}: ללא משחק (מחזור חופשי)`:`${fdl(g.date)} ${g.time||""} - ${TYPES[g.type]}, ${g.home?"בית":"חוץ"} נגד ${g.opponent}${g.venue?" ("+g.venue+")":""}`).join("\n"):"אין משחק מתוכנן כרגע")+`\n`;}
   return o.trim();
 }
 function renderShare(){
@@ -558,7 +999,7 @@ function renderAdmin(){
   el.innerHTML=`<div class="bar"><button class="btn pri" onclick="newGame()">+ משחק חדש</button><button class="btn" onclick="logout()">יציאה ושכח אותי</button></div><p class="mut">${localStorage.getItem(ADMIN_SESSION)?"הכניסה זכורה במכשיר הזה עד 30 יום. יציאה מוחקת אותה.":"כניסה למפגש הנוכחי בלבד."}</p>`+
    `<div class="note" style="${dirty?"":"background:#eefaf1;border-color:#b8e2c4"}">${dirty?"יש שינויים במכשיר הזה שטרם פורסמו לכולם.":"אין שינויים שלא פורסמו."} שינויים נשמרים במכשיר הזה. כדי שההורים יראו אותם צריך לפרסם.</div>`+
    `<div class="bar"><button class="btn wa" style="background:var(--c);border-color:var(--c)" onclick="publish()">פרסום לאתר</button><button class="btn" onclick="exportData()">העתקת נתונים</button>${dirty?`<button class="btn red" onclick="resetLocal()">ביטול שינויים</button>`:""}</div>`+
-   `<h2>משחקים</h2>`+gl.map(g=>`<div class="card"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span>${esc(g.opponent)}<div class="mut">${fd(g.date)} ${g.time||""} · ${played(g)?g.score[0]+" : "+g.score[1]:"טרם שוחק"} · ${(g.events||[]).length} אירועים</div></div><div><button class="btn sm" onclick="editGame(${g.id})">עריכה</button> <button class="btn sm red" onclick="delGame(${g.id})">מחק</button></div></div></div>`).join("")+
+   `<h2>משחקים</h2>`+gl.map(g=>`<div class="card"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span>${esc(g.opponent)}<div class="mut">${fd(g.date)} ${g.time||""} · ${g.bye?"מחזור חופשי":played(g)?g.score[0]+" : "+g.score[1]:"טרם שוחק"} · ${(g.events||[]).length} אירועים</div></div><div>${g.bye?"":`<button class="btn sm" onclick="editGame(${g.id})">עריכה</button>`} <button class="btn sm red" onclick="delGame(${g.id})">מחק</button></div></div></div>`).join("")+
    `<h2>סגל</h2><div class="card">`+S.squad.map((p,i)=>`<div class="ev"><span style="flex:1">${p.num??"-"} · ${esc(p.name)} · ${esc(p.pos)}</span><button class="btn sm" onclick="editPlayer(${i})">עריכה</button><button class="btn sm red" onclick="delPlayer(${i})">מחק</button></div>`).join("")+`<div class="bar"><button class="btn" onclick="addPlayer()">+ שחקן</button></div></div>`+
    `<h2>תגי הצטיינות</h2><div class="card">`+S.badges.map((b,i)=>`<div class="ev"><span style="flex:1">${esc(b.text)} · ${esc(b.player)}</span><button class="btn sm red" onclick="delBadge(${i})">מחק</button></div>`).join("")+
    `<div class="row"><select id="bp"><option value="">שחקן</option>${names.map(n=>`<option>${esc(n)}</option>`).join("")}</select><input id="bt" placeholder="למשל 🧤 שער נקי"></div><div class="bar"><button class="btn" onclick="addBadge()">+ תג</button></div></div>`+
