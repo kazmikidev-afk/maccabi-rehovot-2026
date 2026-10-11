@@ -27,6 +27,8 @@ section{display:none}section.on{display:block}
 .game{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .tag{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:99px;color:#fff;margin-inline-end:6px}
 .t-league{background:#0b5ed7}.t-cup{background:#c98a00}.t-friendly{background:#2e9e5b}
+.livesc{color:#d11}.livedot{font-weight:700;animation:lv 1.2s infinite}@keyframes lv{50%{opacity:.35}}
+.livep{border:2px solid #d11}.livep .big{font-size:2.4rem;font-weight:800;text-align:center;direction:rtl}.livep .btn{min-height:52px;font-size:1.1rem}
 .score{font-size:1.3rem;font-weight:700;white-space:nowrap;text-align:center}
 .mut{color:var(--mut);font-size:.85rem}
 .W{color:#2e9e5b}.L{color:#d23}.D{color:#888}
@@ -80,7 +82,7 @@ a{color:var(--c)}
    =================================================================== */
 /*DATA_START*/
 const DATA = {
- "rev": 1791738189436,
+ "rev": 1791738473234,
  "club": "מכבי רחובות",
  "season": "עונת 2026/27",
  "adminHash": "31d4f5f8af22211e6387f51657eecf5ee8b37d55d13bae3c6266ff2909369ad9",
@@ -202,11 +204,15 @@ const DATA = {
      "text": ""
     }
    ],
-   "note": "גביע המדינה ע\"ש יעקב גרונדמן ז\"ל, סיבוב 1. נדחה מ-10.10 לפי עדכון מיקי ב-5.10",
+   "note": "גביע המדינה ע\"ש יעקב גרונדמן ז\"ל, סיבוב 1. נדחה מ-10.10",
    "uid": "game-2026-4",
    "scheduleOverride": {
     "previousDate": "2026-10-10",
-    "source": "עדכון מיקי ב-5.10.2026"
+    "source": ""
+   },
+   "live": {
+    "min": null,
+    "at": 1791738473234
    },
    "matchId": "s28-l592-r1-2902-vs-2931"
   },
@@ -785,7 +791,7 @@ if(dirty&&S.fixturesImport!==DATA.fixturesImport){
 }
 function persist(){dirty=true;localStorage.setItem(LS,JSON.stringify({base:DATA.rev,data:S}));renderAll()}
 
-const played=g=>!g.bye&&Array.isArray(g.score);
+const played=g=>!g.bye&&Array.isArray(g.score)&&!g.live;
 const fd=d=>new Date(d+"T00:00").toLocaleDateString("he-IL",{weekday:"short",day:"numeric",month:"numeric"});
 const fdl=d=>new Date(d+"T00:00").toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"});
 const res=g=>{if(!played(g))return"";const[a,b]=g.score;return a>b?"W":a<b?"L":"D"};
@@ -795,7 +801,7 @@ let filter="all",statFilter="all";
 function gameCard(g){
   if(g.bye)return `<div class="card" data-bye="${g.round}"><span class="tag t-league">ליגה</span><b>מחזור ${g.round} · ללא משחק</b><div class="mut">${fd(g.date)} · מחזור חופשי</div></div>`;
   const r=res(g),rl={W:"ניצחון",L:"הפסד",D:"תיקו"}[r]||"";
-  const sc=played(g)?`<div class="score ${r}">${g.score[0]} : ${g.score[1]}<div class="mut" style="font-size:.75rem">${rl}</div></div>`:`<div class="mut">${esc(g.time||"שעה תפורסם")}</div>`;
+  const sc=g.live?`<div class="score livesc">${(g.score||[0,0])[0]} : ${(g.score||[0,0])[1]}<div class="mut" style="font-size:.75rem"><span class="livedot">🔴 חי</span>${g.live.min!=null&&g.live.min!==""?" · דקה "+g.live.min:""}</div></div>`:played(g)?`<div class="score ${r}">${g.score[0]} : ${g.score[1]}<div class="mut" style="font-size:.75rem">${rl}</div></div>`:`<div class="mut">${esc(g.time||"שעה תפורסם")}</div>`;
   const evs=(g.events||[]).filter(e=>e.kind!=="assist").sort((a,b)=>(a.min||0)-(b.min||0));
   const ex=evs.length?`<div class="mut" style="margin-top:6px">`+evs.map(e=>`${KINDS[e.kind].split(" ")[0]} ${e.min?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}`).join("<br>")+`</div>`:"";
   const mv=S.badges.filter(b=>b.gameId===g.id).map(b=>`<div class="mut">${esc(b.text)}: ${esc(b.player)}</div>`).join("");
@@ -807,10 +813,11 @@ function setS(k){statFilter=k;renderStats()}
 
 function renderGames(){
   const gs=S.games.filter(g=>filter==="all"||g.type===filter);
-  const up=gs.filter(g=>!played(g)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  const lv=gs.filter(g=>g.live);
+  const up=gs.filter(g=>!played(g)&&!g.live).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
   const pl=gs.filter(played).sort((a,b)=>b.date.localeCompare(a.date));
   $("#s-games").innerHTML=chips(filter,"setF")+
-   `<h2>משחקים קרובים</h2>`+(up.length?up.map(gameCard).join(""):`<div class="empty">אין כרגע משחק מתוכנן.</div>`)+
+   (lv.length?`<h2>🔴 משחק חי</h2>`+lv.map(gameCard).join(""):"")+`<h2>משחקים קרובים</h2>`+(up.length?up.map(gameCard).join(""):`<div class="empty">אין כרגע משחק מתוכנן.</div>`)+
    `<h2>תוצאות אחרונות</h2>`+(pl.length?pl.map(gameCard).join(""):`<div class="empty">עדיין אין תוצאות.</div>`);
 }
 function playerStats(f){
@@ -876,7 +883,7 @@ function feedGames(gs,kind){
   const unknownTime=valid&&sourceTime==='00:00';
   const postponed=relevantManual?.scheduleOverride?.previousDate===sourceDay;
   const score=Array.isArray(g.score)?`<b>${g.score[0]} : ${g.score[1]}</b>`:'טרם שוחק';
-  return `<div class="card" ${ours?'style="border-color:#42c979"':''}><strong>${esc(g.home.name)} - ${esc(g.away.name)}</strong><div class="mut">${esc(g.round||'')} · ${esc(dated)} · ${score}</div>${postponed?`<div class="note">המשחק נדחה לפי ${esc(manual.scheduleOverride.source)}: ${esc(fd(manual.date))}, ${esc(manual.time)} · ${esc(manual.venue||'')}. בפיד עדיין מופיע המועד הקודם.</div>`:''}${!postponed&&relevantManual&&manual.time&&sourceTime==='00:00'?`<div class="note">לפי עדכון הקבוצה: ${esc(manual.time)} · ${esc(manual.venue||'')}. השעה בפיד אינה מאומתת.</div>`:''}${unknownTime?'<div class="mut">00:00 בפיד עשוי להיות זמן ברירת מחדל, לא שעת בעיטה מאומתת.</div>':''}${clash&&!postponed?`<div class="note">פרטי הפיד שונים מעדכון הקבוצה: ${esc(manual.opponent)} · ${esc(manual.date)} ${esc(manual.time||'')} ${esc(manual.venue||'')}. פרטי המשחק בלשונית משחקים נשארו ללא שינוי.</div>`:''}${relevantManual&&Array.isArray(manual.score)&&g.score&&JSON.stringify(manual.score)!==JSON.stringify(g.home.id===FOOTBALL.teamId?g.score:[g.score[1],g.score[0]])?'<div class="note">התוצאה בפיד שונה מהתוצאה הידנית של הקבוצה. התוצאה שלנו לא שונתה.</div>':''}</div>`;
+  return `<div class="card" ${ours?'style="border-color:#42c979"':''}><strong>${esc(g.home.name)} - ${esc(g.away.name)}</strong><div class="mut">${esc(g.round||'')} · ${esc(dated)} · ${score}</div>${postponed?`<div class="note">המשחק נדחה: ${esc(fd(manual.date))}, ${esc(manual.time)} · ${esc(manual.venue||'')}. בפיד עדיין מופיע המועד הקודם.</div>`:''}${!postponed&&relevantManual&&manual.time&&sourceTime==='00:00'?`<div class="note">לפי עדכון הקבוצה: ${esc(manual.time)} · ${esc(manual.venue||'')}. השעה בפיד אינה מאומתת.</div>`:''}${unknownTime?'<div class="mut">00:00 בפיד עשוי להיות זמן ברירת מחדל, לא שעת בעיטה מאומתת.</div>':''}${clash&&!postponed?`<div class="note">פרטי הפיד שונים מעדכון הקבוצה: ${esc(manual.opponent)} · ${esc(manual.date)} ${esc(manual.time||'')} ${esc(manual.venue||'')}. פרטי המשחק בלשונית משחקים נשארו ללא שינוי.</div>`:''}${relevantManual&&Array.isArray(manual.score)&&g.score&&JSON.stringify(manual.score)!==JSON.stringify(g.home.id===FOOTBALL.teamId?g.score:[g.score[1],g.score[0]])?'<div class="note">התוצאה בפיד שונה מהתוצאה הידנית של הקבוצה. התוצאה שלנו לא שונתה.</div>':''}</div>`;
  }).join('');
 }
 function renderLeague(){
@@ -939,9 +946,23 @@ function isAdmin(){try{const a=JSON.parse(localStorage.getItem(ADMIN_SESSION)||"
 async function login(){const v=$("#pw").value.trim();if(await sha(v)===DATA.adminHash){if($("#remember-admin").checked){sessionStorage.removeItem(ADM);}else{sessionStorage.setItem(ADM,"1");}if($("#remember-admin").checked)localStorage.setItem(ADMIN_SESSION,JSON.stringify({hash:DATA.adminHash,expires:Date.now()+ADMIN_DAYS*86400000}));else localStorage.removeItem(ADMIN_SESSION);if(pendingMatch!=null){const id=pendingMatch;pendingMatch=null;editGame(id);}renderAll();if(edit)$("#s-admin").scrollIntoView({block:"start"});}else toast("קוד שגוי");}
 function logout(){sessionStorage.removeItem(ADM);localStorage.removeItem(ADMIN_SESSION);pendingMatch=null;edit=null;renderAll();}
 function openMatch(id){pendingMatch=id;tab("admin");if(isAdmin()){pendingMatch=null;editGame(id);}else renderAdmin();$("#s-admin").scrollIntoView({block:"start",behavior:"smooth"});}
-function matchResultText(g){let t=`⚽ *${S.club} - עדכון תוצאה*\n${TYPES[g.type]} · ${fdl(g.date)} · ${g.home?"בית":"חוץ"}\n`;t+=played(g)?`${S.club} ${g.score[0]} : ${g.score[1]} ${g.opponent}\n`:`נגד ${g.opponent} - טרם עודכנה תוצאה\n`;const evs=[...(g.events||[])].sort((a,b)=>(a.min||0)-(b.min||0));for(const e of evs)t+=`${KINDS[e.kind]||"אירוע"}${e.min?" · דקה "+e.min:""}${e.player?" · "+e.player:""}${e.text?" · "+e.text:""}\n`;S.badges.filter(b=>b.gameId===g.id).forEach(b=>t+=`${b.text}: ${b.player}\n`);if(g.note)t+=`📝 ${g.note}\n`;return t.trim();}
+function matchResultText(g){let t=`⚽ *${S.club} - עדכון תוצאה*\n${TYPES[g.type]} · ${fdl(g.date)} · ${g.home?"בית":"חוץ"}\n`;t+=g.live?`🔴 *משחק חי*${g.live.min!=null&&g.live.min!==""?" · דקה "+g.live.min:""}\n${S.club} ${(g.score||[0,0])[0]} : ${(g.score||[0,0])[1]} ${g.opponent}\n`:played(g)?`${S.club} ${g.score[0]} : ${g.score[1]} ${g.opponent}\n`:`נגד ${g.opponent} - טרם עודכנה תוצאה\n`;const evs=[...(g.events||[])].sort((a,b)=>(a.min||0)-(b.min||0));for(const e of evs)t+=`${KINDS[e.kind]||"אירוע"}${e.min?" · דקה "+e.min:""}${e.player?" · "+e.player:""}${e.text?" · "+e.text:""}\n`;S.badges.filter(b=>b.gameId===g.id).forEach(b=>t+=`${b.text}: ${b.player}\n`);if(g.note)t+=`📝 ${g.note}\n`;return t.trim();}
 function showMatchResult(g){$("#match-share")?.remove();const dialog=document.createElement("dialog");dialog.id="match-share";dialog.innerHTML=`<h2>עדכון תוצאה לקבוצת הוואטסאפ</h2><p class="mut">טקסט למשחק שבחרת. לא נשלח אוטומטית. השמירה מקומית; לפרסום באתר השתמשו בכפתור הפרסום.</p><textarea id="match-share-text" readonly rows="12" dir="rtl"></textarea><div class="bar"><button id="match-copy" class="btn pri">העתקת עדכון</button><button id="match-share-device" class="btn">שיתוף דרך המכשיר</button><button id="match-share-close" class="btn">סגירה</button></div>`;document.body.append(dialog);$("#match-share-text").value=matchResultText(g);$("#match-copy").onclick=async()=>{try{await navigator.clipboard.writeText($("#match-share-text").value);toast("העדכון הועתק להדבקה בוואטסאפ");}catch{$("#match-share-text").select();toast("סמנו והעתיקו את הטקסט");}};$("#match-share-device").onclick=async()=>{if(!navigator.share){$("#match-share-text").select();return toast("העתיקו והדביקו בוואטסאפ");}try{await navigator.share({text:$("#match-share-text").value});}catch{}};$("#match-share-close").onclick=()=>{dialog.close();dialog.remove();};dialog.showModal();}
 
+
+let pubTimer=null;
+function schedulePublish(){if(!localStorage.getItem(TOK))return;clearTimeout(pubTimer);pubTimer=setTimeout(()=>publish(),2500)}
+function liveGame(id){return S.games.find(g=>g.id===id)}
+function liveTouch(){persist();schedulePublish()}
+function liveStart(id){const g=liveGame(id);if(!g)return;g.score=g.score||[0,0];g.live={min:null,at:Date.now()};liveTouch()}
+function liveBump(id,i,d){const g=liveGame(id);if(!g||!g.live)return;g.score=g.score||[0,0];g.score[i]=Math.max(0,Math.min(99,g.score[i]+d));g.live.at=Date.now();liveTouch()}
+function liveMinute(id,d){const g=liveGame(id);if(!g||!g.live)return;const m=(g.live.min==null||g.live.min==="")?0:+g.live.min;g.live.min=Math.max(0,Math.min(120,m+d));g.live.at=Date.now();liveTouch()}
+function liveSetMin(id){const v=prompt("באיזו דקה המשחק?");if(v===null)return;const g=liveGame(id);if(!g||!g.live)return;if(v.trim()===""){g.live.min=null}else{const n=+v;if(!Number.isInteger(n)||n<0||n>120){toast("דקה בין 0 ל-120");return}g.live.min=n}g.live.at=Date.now();liveTouch()}
+function liveEnd(id){const g=liveGame(id);if(!g||!g.live)return;if(!confirm("לסיים את המשחק? התוצאה תהפוך לסופית ותיכנס לסטטיסטיקות."))return;delete g.live;persist();schedulePublish();toast(localStorage.getItem(TOK)?"המשחק הסתיים, מפרסם...":"המשחק הסתיים. לחצו פרסום לאתר.")}
+function livePanel(){const L=S.games.filter(g=>g.live);return L.map(g=>{const sc=g.score||[0,0],m=g.live.min;return `<div class="card livep"><b>🔴 משחק חי: מכבי רחובות - ${esc(g.opponent)}</b><div class="big">${sc[0]} : ${sc[1]}</div><div class="mut" style="text-align:center">שלנו : יריב${m!=null&&m!==""?" · דקה "+m:""}</div><div class="row"><button class="btn pri" onclick="liveBump(${g.id},0,1)">⚽ +1 מכבי</button><button class="btn red" onclick="liveBump(${g.id},1,1)">⚽ +1 יריב</button></div><div class="row"><button class="btn" onclick="liveBump(${g.id},0,-1)">-1 מכבי</button><button class="btn" onclick="liveBump(${g.id},1,-1)">-1 יריב</button></div><div class="row"><button class="btn" onclick="liveMinute(${g.id},-1)">דקה -1</button><button class="btn" onclick="liveMinute(${g.id},1)">דקה +1</button><button class="btn" onclick="liveSetMin(${g.id})">קבע דקה</button></div><div class="bar"><button class="btn" onclick="editGame(${g.id})">אירועים וכובשים</button><button class="btn wa" onclick="liveEnd(${g.id})">סיום משחק</button></div><div class="mut">${localStorage.getItem(TOK)?"כל שינוי מתפרסם אוטומטית תוך כמה שניות. ההורים יראו אותו בעוד כדקה.":"אין token: השינויים נשמרים רק כאן. לחצו על פרסום לאתר כדי שההורים יראו."}</div></div>`}).join("")}
+// פולינג: בדיקה אם פורסמו נתונים חדשים (רק במכשיר בלי שינויים מקומיים)
+async function pollData(){if(document.hidden||dirty||edit)return;try{const t=await (await fetch(location.pathname+"?cb="+Date.now(),{cache:"no-store"})).text();const a=t.indexOf("/*DATA_START*/"),z=t.indexOf("/*DATA_END*/");if(a<0||z<0)return;const m=t.slice(a,z).match(/const DATA = ([\s\S]*);\s*$/);if(!m)return;const d=JSON.parse(m[1]);if(d.rev&&d.rev!==window.__rev){window.__rev=d.rev;if(d.rev!==DATA.rev&&!dirty&&!edit){S=JSON.parse(JSON.stringify(d));renderAll()}}}catch(e){}}
+setInterval(pollData,30000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)pollData()});
 const nextId=()=>Math.max(0,...S.games.map(g=>g.id))+1;
 function newGame(){edit={g:{id:nextId(),uid:"game-"+crypto.randomUUID(),type:"friendly",date:new Date().toISOString().slice(0,10),time:"18:00",opponent:"",home:true,venue:"",score:null,events:[],note:""}};renderAdmin()}
 function editGame(id){if(!isAdmin())return;edit={g:JSON.parse(JSON.stringify(S.games.find(g=>g.id===id)))};renderAdmin()}
@@ -1006,10 +1027,10 @@ function renderAdmin(){
     <div class="bar"><button class="btn pri" onclick="saveGame()">שמירה</button><button class="btn wa" onclick="saveGame(true)">עדכון תוצאה לוואטסאפ</button><button class="btn" onclick="edit=null;renderAdmin()">ביטול</button></div></div>`;
     return}
   const gl=[...S.games].sort((a,b)=>b.date.localeCompare(a.date));
-  el.innerHTML=`<div class="bar"><button class="btn pri" onclick="newGame()">+ משחק חדש</button><button class="btn" onclick="logout()">יציאה ושכח אותי</button></div><p class="mut">${localStorage.getItem(ADMIN_SESSION)?"הכניסה זכורה במכשיר הזה עד 30 יום. יציאה מוחקת אותה.":"כניסה למפגש הנוכחי בלבד."}</p>`+
+  el.innerHTML=livePanel()+`<div class="bar"><button class="btn pri" onclick="newGame()">+ משחק חדש</button><button class="btn" onclick="logout()">יציאה ושכח אותי</button></div><p class="mut">${localStorage.getItem(ADMIN_SESSION)?"הכניסה זכורה במכשיר הזה עד 30 יום. יציאה מוחקת אותה.":"כניסה למפגש הנוכחי בלבד."}</p>`+
    `<div class="note" style="${dirty?"":"background:#eefaf1;border-color:#b8e2c4"}">${dirty?"יש שינויים במכשיר הזה שטרם פורסמו לכולם.":"אין שינויים שלא פורסמו."} שינויים נשמרים במכשיר הזה. כדי שההורים יראו אותם צריך לפרסם.</div>`+
    `<div class="bar"><button class="btn wa" style="background:var(--c);border-color:var(--c)" onclick="publish()">פרסום לאתר</button><button class="btn" onclick="exportData()">העתקת נתונים</button>${dirty?`<button class="btn red" onclick="resetLocal()">ביטול שינויים</button>`:""}</div>`+
-   `<h2>משחקים</h2>`+gl.map(g=>`<div class="card"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span>${esc(g.opponent)}<div class="mut">${fd(g.date)} ${g.time||""} · ${g.bye?"מחזור חופשי":played(g)?g.score[0]+" : "+g.score[1]:"טרם שוחק"} · ${(g.events||[]).length} אירועים</div></div><div>${g.bye?"":`<button class="btn sm" onclick="editGame(${g.id})">עריכה</button>`} <button class="btn sm red" onclick="delGame(${g.id})">מחק</button></div></div></div>`).join("")+
+   `<h2>משחקים</h2>`+gl.map(g=>`<div class="card"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span>${esc(g.opponent)}<div class="mut">${fd(g.date)} ${g.time||""} · ${g.bye?"מחזור חופשי":played(g)?g.score[0]+" : "+g.score[1]:"טרם שוחק"} · ${(g.events||[]).length} אירועים</div></div><div>${g.bye?"":`<button class="btn sm" onclick="editGame(${g.id})">עריכה</button> ${g.live?"":`<button class="btn sm" onclick="liveStart(${g.id})">🔴 חי</button>`}`} <button class="btn sm red" onclick="delGame(${g.id})">מחק</button></div></div></div>`).join("")+
    `<h2>סגל</h2><div class="card">`+S.squad.map((p,i)=>`<div class="ev"><span style="flex:1">${p.num??"-"} · ${esc(p.name)} · ${esc(p.pos)}</span><button class="btn sm" onclick="editPlayer(${i})">עריכה</button><button class="btn sm red" onclick="delPlayer(${i})">מחק</button></div>`).join("")+`<div class="bar"><button class="btn" onclick="addPlayer()">+ שחקן</button></div></div>`+
    `<h2>תגי הצטיינות</h2><div class="card">`+S.badges.map((b,i)=>`<div class="ev"><span style="flex:1">${esc(b.text)} · ${esc(b.player)}</span><button class="btn sm red" onclick="delBadge(${i})">מחק</button></div>`).join("")+
    `<div class="row"><select id="bp"><option value="">שחקן</option>${names.map(n=>`<option>${esc(n)}</option>`).join("")}</select><input id="bt" placeholder="למשל 🧤 שער נקי"></div><div class="bar"><button class="btn" onclick="addBadge()">+ תג</button></div></div>`+
