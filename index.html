@@ -876,10 +876,10 @@ function renderStats(){
    `<div class="mut">שערים ללא שם שחקן נספרים בתוצאה אך לא בטבלת השחקנים.</div>`+
    `<h2>🏅 תגי הצטיינות</h2><div class="card">`+(S.badges.length?S.badges.map(b=>`<div>${esc(b.text)} · ${esc(b.player)}</div>`).join(""):`<div class="empty">עדיין לא הוענקו תגים.</div>`)+`</div>`;
 }
-const FOOTBALL={paused:true,endpoint:'https://maccabi-rehovot-api.pages.dev/football',leagueUrl:'https://vole.one.co.il/league/1284',cupUrl:'https://www.football.org.il/national-cup/?national_cup_id=592&season_id=28',teamId:2902};
+const FOOTBALL={paused:false,endpoint:'https://maccabi-rehovot-api.pages.dev/football',leagueUrl:'https://vole.one.co.il/league/1277',cupUrl:'https://www.football.org.il/national-cup/?national_cup_id=592&season_id=28',teamId:2902};
 setInterval(()=>{if(document.visibilityState==='visible'&&location.hash==='#league')loadFootball();},3600000);
 let footballRound=0,footballCupRound=0,footballData=null,footballLoading=false,footballError=false;
-const footballCacheKey=()=>`mr_football_28_1284_${footballRound}_${footballCupRound}`;
+const footballCacheKey=()=>`mr_football_28_1277_${footballRound}_${footballCupRound}`;
 function footballCached(){try{const x=JSON.parse(localStorage.getItem(footballCacheKey())||'null');if(x?.season===28&&x.teamId===2902&&Array.isArray(x.standings))return x;}catch{}return null;}
 async function loadFootball(force=false){
  if(FOOTBALL.paused){footballData=null;footballLoading=false;footballError=false;renderLeague();return;}
@@ -890,7 +890,7 @@ async function loadFootball(force=false){
  const c=new AbortController(),timer=setTimeout(()=>c.abort(),20000);
  try{
   const r=await fetch(FOOTBALL.endpoint+`?round=${footballRound}&cupRound=${footballCupRound}`,{signal:c.signal});if(!r.ok)throw Error('source');
-  const d=await r.json();if(d.season!==28||d.teamId!==2902||d.leagueId!==1284||!Array.isArray(d.standings)||!Array.isArray(d.leagueGames)||!Array.isArray(d.cupGames))throw Error('schema');
+  const d=await r.json();if(d.season!==28||d.teamId!==2902||d.leagueId!==1277||!Array.isArray(d.standings)||!Array.isArray(d.leagueGames)||!Array.isArray(d.cupGames))throw Error('schema');
   footballData=d;try{localStorage.setItem(footballCacheKey(),JSON.stringify(d));}catch{}
  }catch{footballError=true;}finally{clearTimeout(timer);footballLoading=false;renderLeague();}
 }
