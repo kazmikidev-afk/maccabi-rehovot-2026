@@ -241,15 +241,29 @@ const DATA = {
    "id": 5,
    "uid": "ifa-2026-27-round-1",
    "type": "league",
-   "date": "2026-10-17",
+   "date": "2026-10-16",
    "time": "",
+   "arrive": "12:30",
    "opponent": "הפועל רעננה",
    "home": false,
-   "venue": "",
+   "venue": "רעננה, רחוב מרטין דרוקר 1",
    "score": null,
    "events": [],
-   "note": "מחזור 1",
+   "note": "מחזור 1 · סט לבן לשחקנים, סט ירוק לשוערים",
    "round": 1
+  },
+  {
+   "id": 35,
+   "uid": "training-2026-10-15",
+   "type": "friendly",
+   "date": "2026-10-15",
+   "time": "15:45",
+   "opponent": "אימון",
+   "home": true,
+   "venue": "ויסגל",
+   "score": null,
+   "events": [],
+   "note": ""
   },
   {
    "id": 6,
@@ -827,7 +841,7 @@ let filter="all",statFilter="all";
 function gameCard(g){
   if(g.bye)return `<div class="card" data-bye="${g.round}"><span class="tag t-league">ליגה</span><b>מחזור ${g.round} · ללא משחק</b><div class="mut">${fd(g.date)} · מחזור חופשי</div></div>`;
   const r=res(g),rl={W:"ניצחון",L:"הפסד",D:"תיקו"}[r]||"";
-  const sc=g.live?`<div class="score livesc">${(g.score||[0,0])[0]} : ${(g.score||[0,0])[1]}<div class="mut" style="font-size:.75rem"><span class="livedot">🔴 חי</span>${g.live.min!=null&&g.live.min!==""?" · דקה "+g.live.min:""}</div></div>`:played(g)?`<div class="score ${r}">${g.score[0]} : ${g.score[1]}<div class="mut" style="font-size:.75rem">${rl}</div></div>`:`<div class="mut">${esc(g.time||"שעה תפורסם")}</div>`;
+  const sc=g.live?`<div class="score livesc">${(g.score||[0,0])[0]} : ${(g.score||[0,0])[1]}<div class="mut" style="font-size:.75rem"><span class="livedot">🔴 חי</span>${g.live.min!=null&&g.live.min!==""?" · דקה "+g.live.min:""}</div></div>`:played(g)?`<div class="score ${r}">${g.score[0]} : ${g.score[1]}<div class="mut" style="font-size:.75rem">${rl}</div></div>`:`<div class="mut">${esc(g.time||(g.arrive?"הגעה עד "+g.arrive:"שעה תפורסם"))}</div>`;
   const evs=(g.events||[]).filter(e=>e.kind!=="assist").sort((a,b)=>(a.min||0)-(b.min||0));
   const ex=evs.length?`<div class="mut" style="margin-top:6px">`+evs.map(e=>`${KINDS[e.kind].split(" ")[0]} ${e.min?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}`).join("<br>")+`</div>`:"";
   const mv=S.badges.filter(b=>b.gameId===g.id).map(b=>`<div class="mut">${esc(b.text)}: ${esc(b.player)}</div>`).join("");
