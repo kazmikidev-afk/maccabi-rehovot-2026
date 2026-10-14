@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b5ed7">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="מכבי רחובות">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>מכבי רחובות</title>
 <style>
 :root{--c:#0b5ed7;--bg:#f4f6fa;--tx:#1b2430;--mut:#6b7686;--bd:#e1e6ee}
@@ -52,6 +57,24 @@ pre{white-space:pre-wrap;background:#fff;border:1px solid var(--bd);border-radiu
 a{color:var(--c)}
 
 [data-match]{cursor:pointer}[data-match]:focus-visible{outline:3px solid #8cbbff;outline-offset:2px}#match-share{width:min(700px,calc(100vw - 28px));max-height:85vh;overflow:auto;border:1px solid #dbe3ef;border-radius:16px;padding:20px;color:#172337}#match-share::backdrop{background:#17233799}#match-share textarea{width:100%;font:inherit;line-height:1.6}#s-admin{scroll-margin-top:70px}
+
+/* כרטיס המשחק הבא */
+.ngc{max-width:720px;margin:10px auto 0;padding:0 12px}
+.ng{background:#fff;border:1px solid var(--bd);border-radius:16px;padding:14px;box-shadow:0 2px 10px rgba(11,94,215,.07)}
+.ng-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ng-title{font-weight:800;font-size:1.1rem;color:var(--c)}
+.ng-round{background:var(--c);color:#fff;border-radius:99px;padding:2px 12px;font-size:.85rem;font-weight:700}
+.ng-teams{font-size:1.25rem;font-weight:800;margin:8px 0 2px}
+.ng-ha{display:inline-block;border:1px solid var(--bd);border-radius:99px;padding:1px 10px;font-size:.8rem;color:var(--mut);font-weight:600;vertical-align:middle}
+.ng-row{margin:6px 0;color:var(--tx);font-size:.98rem}
+.ng-row b{font-weight:700}
+.ng-result{background:#e8f7ee;border:1px solid #bfe6cd;border-radius:10px;padding:8px 10px;margin:8px 0;font-weight:800;color:#146c2e;text-align:center}
+.ng-btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.ng-btns a,.ng-btns button{flex:1;min-width:100px;text-align:center;text-decoration:none;border-radius:12px;padding:10px 8px;font:inherit;font-weight:700;border:1px solid var(--bd);background:#fff;color:var(--tx);cursor:pointer;font-size:.92rem}
+.ng-btns a.waze{background:#33ccff;color:#05304a;border-color:#33ccff}
+.ng-btns a.gmaps{background:#34a853;color:#fff;border-color:#34a853}
+.ng-btns button.bell.on{background:#ffe9a8;border-color:#e6c34a}
+.ng-note{font-size:.82rem;color:var(--mut);margin-top:8px}
 </style>
 <style>
 .v-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0 16px}.v-heading h2{margin:0;font-size:1.3rem}.v-empty{text-align:center;padding:24px 16px}.v-mark{display:grid;place-items:center;margin:0 auto 14px;background:#e9f1ff;color:var(--c);border-radius:50%;width:64px;height:64px;font-size:26px}.v-empty p{max-width:460px;margin:12px auto}.v-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.v-card{padding:0;overflow:hidden}.v-card h3{font-size:1rem;margin:10px 12px 4px;overflow-wrap:anywhere}.v-card .mut,.v-card .badge,.v-card .bar{margin:8px 12px}.v-preview{border:0;width:100%;height:145px;background:linear-gradient(135deg,#143c72,#0b5ed7);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:inherit;cursor:pointer}.v-preview:disabled{opacity:.55;cursor:default}.v-playicon{display:grid;place-items:center;width:46px;height:46px;border:1px solid #ffffff80;border-radius:50%;padding-left:3px}.v-check{display:flex;align-items:flex-start;gap:10px;color:var(--tx);line-height:1.6}.v-check input{width:20px;height:20px;flex:none;margin-top:3px}.v-tags{margin-top:16px}.v-fieldset{border:1px solid var(--bd);border-radius:10px;margin:16px 0;padding:8px 12px}.v-fieldset legend{font-size:.9rem;color:var(--mut)}#v-player{display:block;width:100%;max-height:65vh;background:#111;border-radius:8px}#v-google{display:flex;justify-content:center;margin:20px 0}#v-progress{width:100%;height:18px;margin:12px 0}#s-videos button:focus-visible{outline:3px solid #8cbbff;outline-offset:2px}#s-videos .note{overflow-wrap:anywhere}#v-uploadstatus{overflow-wrap:anywhere}#v-playarea{scroll-margin-top:65px}@media(max-width:400px){.v-grid{gap:8px}.v-preview{height:120px}.v-heading h2{font-size:1.15rem}.v-heading .mut{font-size:.78rem}.v-card h3{font-size:.92rem}.v-tags button{padding:7px 12px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
@@ -62,6 +85,7 @@ a{color:var(--c)}
 <body>
 <header><h1 id="club"></h1><p id="season"></p></header>
 <nav id="nav"></nav>
+<div class="ngc" id="ngc" hidden></div>
 <main>
 <section id="s-games"></section>
 <section id="s-squad"></section>
@@ -1151,6 +1175,128 @@ async function renderFamilies(){sec().innerHTML=base()+`<div class="card"><div c
 window.TeamVideos={open(gameId){filter.game=gameId||'';view='gallery';tab('videos');render();},render};
 document.addEventListener('visibilitychange',()=>{if(document.hidden)E('#v-player')?.pause();});
 render();
+})();
+</script>
+
+<script>
+/* ===================================================================
+   כרטיס "המשחק הבא" + התראות Push (PWA)
+   הנתונים מגיעים מ-data/next-game.json שמתעדכן אוטומטית מדי בוקר.
+   =================================================================== */
+(function(){
+const NG = document.getElementById('ngc');
+const PUSH_API = 'https://maccabi-rehovot-api.pages.dev';
+const esc = t => String(t==null?'':t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function b64ToU8(b64){const p='='.repeat((4-b64.length%4)%4);const b=atob((b64+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...b].map(c=>c.charCodeAt(0)));}
+const isIOS = ()=>/iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone = ()=>window.matchMedia('(display-mode: standalone)').matches || navigator.standalone===true;
+function toast2(m){const t=document.getElementById('toast');if(t){t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}}
+
+function fmtDate(d,time,arrive){
+  try{
+    const dt=new Date(d+'T'+(time||'00:00')+':00');
+    const wd=new Intl.DateTimeFormat('he-IL',{weekday:'long'}).format(dt);
+    const dd=new Intl.DateTimeFormat('he-IL',{day:'numeric',month:'numeric'}).format(dt);
+    let s=wd+', '+dd+(time?' · '+time:'');
+    if(arrive)s+=' (הגעה '+arrive+')';
+    return s;
+  }catch{return d+' '+(time||'');}
+}
+function ics(g){
+  const dt=(g.date||'').replace(/-/g,'')+'T'+(g.time||'0900').replace(':','')+'00';
+  const title='מכבי רחובות '+(g.home?'-':'מול ')+(g.opponent||'');
+  const loc=[g.venue,g.address].filter(Boolean).join(', ');
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//maccabi-rehovot//he','BEGIN:VEVENT',
+    'UID:game-'+(g.round||'x')+'-'+Date.now()+'@maccabi-rehovot','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').split('.')[0]+'Z',
+    'DTSTART;TZID=Asia/Jerusalem:'+dt,'DURATION:PT2H','SUMMARY:'+title,'LOCATION:'+loc,'END:VEVENT','END:VCALENDAR'].join('\r\n');
+}
+function gcalUrl(g){
+  const dt=(g.date||'').replace(/-/g,'')+'T'+(g.time||'0900').replace(':','')+'00';
+  const p=new URLSearchParams({action:'TEMPLATE',text:'מכבי רחובות '+(g.home?'-':'מול ')+(g.opponent||''),dates:dt+'/'+(g.date||'').replace(/-/g,'')+'T'+String(+(g.time||'09:00').slice(0,2)+2).padStart(2,'0')+(g.time||'09:00').slice(3,5)+'00',location:[g.venue,g.address].filter(Boolean).join(', '),ctz:'Asia/Jerusalem'});
+  return 'https://calendar.google.com/calendar/render?'+p.toString();
+}
+
+async function pushStatus(){
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)||!window.isSecureContext)return 'unsupported';
+  try{const reg=await navigator.serviceWorker.getRegistration();if(!reg)return 'off';const s=await reg.pushManager.getSubscription();return s?'on':'off';}catch{return 'off';}
+}
+async function renderBell(btn){
+  const st=await pushStatus();
+  if(st==='on'){btn.classList.add('on');btn.innerHTML='🔔 עדכונים פעילים';}
+  else{btn.classList.remove('on');btn.innerHTML='🔕 עדכונים על המשחק';}
+}
+async function togglePush(btn){
+  const st=await pushStatus();
+  if(st==='unsupported'){
+    if(isIOS()&&!isStandalone()){toast2('באייפון: קודם הוסיפו למסך הבית (שתף → הוספה למסך הבית), ואז הפעילו עדכונים מהאפליקציה');}
+    else toast2('הדפדפן לא תומך בהתראות');
+    return;
+  }
+  if(isIOS()&&!isStandalone()){toast2('באייפון: מתקינים קודם את האתר למסך הבית (שתף → הוספה למסך הבית) ופותחים ממנו');return;}
+  try{
+    const reg=await navigator.serviceWorker.register('sw.js');
+    if(st==='on'){
+      const s=await reg.pushManager.getSubscription();
+      if(s){await fetch(PUSH_API+'/push/unsubscribe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({endpoint:s.endpoint})}).catch(()=>{});await s.unsubscribe();}
+      toast2('העדכונים כובו');
+    }else{
+      const perm=await Notification.requestPermission();
+      if(perm!=='granted'){toast2('לא אושרו התראות בדפדפן');return;}
+      const k=await (await fetch(PUSH_API+'/push/key')).json();
+      const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64ToU8(k.key)});
+      const j=sub.toJSON();
+      const r=await fetch(PUSH_API+'/push/subscribe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({endpoint:sub.endpoint,keys:j.keys,ua:navigator.userAgent.slice(0,180)})});
+      if(!r.ok)throw 0;
+      toast2('העדכונים הופעלו! נעדכן על שינויי מועד, מגרש ותוצאות');
+    }
+  }catch(e){toast2('הפעלת העדכונים נכשלה, נסו שוב');}
+  renderBell(btn);
+}
+
+let installEvt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;const b=document.getElementById('ngInstall');if(b)b.hidden=false;});
+
+async function load(){
+  let g=null;
+  try{const r=await fetch('data/next-game.json?cb='+Date.now());if(r.ok)g=await r.json();}catch{}
+  if(!g||!g.opponent){NG.hidden=true;return;}
+  const waze='https://waze.com/ul?q='+encodeURIComponent(g.address||g.venue||'')+'&navigate=yes';
+  const maps='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(g.address||g.venue||'');
+  NG.innerHTML=`<div class="ng">
+    <div class="ng-head"><span class="ng-title">⚽ ${g.result?'המשחק האחרון':'המשחק הבא'}</span>${g.round?`<span class="ng-round">מחזור ${esc(g.round)}</span>`:''}</div>
+    <div class="ng-teams">${g.home?'מכבי רחובות':'מול'} ${esc(g.opponent)} <span class="ng-ha">${g.home?'🏠 בית':'🚌 חוץ'}</span></div>
+    ${g.result?`<div class="ng-result">תוצאה: ${esc(g.result)}</div>`:''}
+    <div class="ng-row">📅 <b>${esc(fmtDate(g.date,g.time,g.arrive))}</b></div>
+    ${(g.venue||g.address)?`<div class="ng-row">📍 ${esc([g.venue,g.address].filter(Boolean).join(' · '))}</div>`:''}
+    ${g.note?`<div class="ng-row">${esc(g.note)}</div>`:''}
+    <div class="ng-btns">
+      <a class="waze" href="${waze}" target="_blank" rel="noopener">🚗 Waze</a>
+      <a class="gmaps" href="${maps}" target="_blank" rel="noopener">🗺️ Google Maps</a>
+      <button id="ngCal">📅 הוספה ליומן</button>
+    </div>
+    <div class="ng-btns">
+      <button class="bell" id="ngBell">🔕 עדכונים על המשחק</button>
+      <button id="ngInstall" hidden>📲 הוספה למסך הבית</button>
+    </div>
+    <div class="ng-note">המידע מתעדכן אוטומטית מדי בוקר. בלחיצה על הפעמון - התראה על שינוי שעה, מגרש או תוצאה.</div>
+  </div>`;
+  NG.hidden=false;
+  document.getElementById('ngCal').onclick=()=>{
+    const blob=new Blob([ics(g)],{type:'text/calendar'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='maccabi-game.ics';a.click();
+    setTimeout(()=>window.open(gcalUrl(g),'_blank'),400);
+  };
+  const bell=document.getElementById('ngBell');
+  bell.onclick=()=>togglePush(bell);
+  renderBell(bell);
+  const inst=document.getElementById('ngInstall');
+  inst.onclick=async()=>{
+    if(installEvt){installEvt.prompt();await installEvt.userChoice;installEvt=null;inst.hidden=true;}
+    else if(isIOS())toast2('שתף → הוספה למסך הבית');
+    else toast2('מהתפריט של הדפדפן: הוספה למסך הבית');
+  };
+}
+load();
 })();
 </script>
 </body>
