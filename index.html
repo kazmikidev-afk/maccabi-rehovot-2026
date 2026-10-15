@@ -7,9 +7,9 @@
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="מכבי רחובות">
+<meta name="apple-mobile-web-app-title" content="עירוני רחובות">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<title>מכבי רחובות</title>
+<title>עירוני רחובות</title>
 <style>
 :root{--c:#0b5ed7;--bg:#f4f6fa;--tx:#1b2430;--mut:#6b7686;--bd:#e1e6ee}
 *{box-sizing:border-box}
@@ -108,7 +108,7 @@ a{color:var(--c)}
 /*DATA_START*/
 const DATA = {
  "rev": 1791901691094,
- "club": "מכבי רחובות",
+ "club": "עירוני רחובות",
  "season": "עונת 2026/27",
  "adminHash": "31d4f5f8af22211e6387f51657eecf5ee8b37d55d13bae3c6266ff2909369ad9",
  "leagueUrl": "",
@@ -856,7 +856,7 @@ function gameCard(g){
   const evs=(g.events||[]).filter(e=>e.kind!=="assist").sort((a,b)=>(a.min||0)-(b.min||0));
   const ex=evs.length?`<div class="mut" style="margin-top:6px">`+evs.map(e=>`${KINDS[e.kind].split(" ")[0]} ${e.min?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}`).join("<br>")+`</div>`:"";
   const mv=S.badges.filter(b=>b.gameId===g.id).map(b=>`<div class="mut">${esc(b.text)}: ${esc(b.player)}</div>`).join("");
-  return `<div class="card" data-match="${g.id}" role="button" tabindex="0" aria-label="פתיחת משחק: ${esc(g.opponent)}" onclick="if(!event.target.closest('button,a'))openMatch(${g.id})" onkeydown="if(event.key==='Enter'&&event.target===this)openMatch(${g.id})"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span><b>מכבי רחובות - ${esc(g.opponent)}</b><div class="mut">${fd(g.date)} · ${g.home?"בית":"חוץ"}${g.venue?" · "+esc(g.venue):""}${g.note?" · "+esc(g.note):""}</div></div>${sc}</div>${ex}${mv}<div class="bar"><button class="btn sm" onclick="TeamVideos.open('${esc(g.uid||("legacy-"+g.id))}')">▶ סרטוני המשחק</button></div></div>`;
+  return `<div class="card" data-match="${g.id}" role="button" tabindex="0" aria-label="פתיחת משחק: ${esc(g.opponent)}" onclick="if(!event.target.closest('button,a'))openMatch(${g.id})" onkeydown="if(event.key==='Enter'&&event.target===this)openMatch(${g.id})"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span><b>עירוני רחובות - ${esc(g.opponent)}</b><div class="mut">${fd(g.date)} · ${g.home?"בית":"חוץ"}${g.venue?" · "+esc(g.venue):""}${g.note?" · "+esc(g.note):""}</div></div>${sc}</div>${ex}${mv}<div class="bar"><button class="btn sm" onclick="TeamVideos.open('${esc(g.uid||("legacy-"+g.id))}')">▶ סרטוני המשחק</button></div></div>`;
 }
 const chips=(cur,fn)=>`<div class="chips">`+[["all","הכול"],["league","ליגה"],["cup","גביע"],["friendly","אימון"]].map(([k,l])=>`<button class="${cur===k?"on":""}" onclick="${fn}('${k}')">${l}</button>`).join("")+`</div>`;
 function setF(k){filter=k;renderGames()}
@@ -966,7 +966,7 @@ function shareText(){
   const up=gs.filter(g=>!played(g)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
   let o=`⚽ *${S.club} - ${S.season}*\n`;
   if(sh.last&&pl[0]){const g=pl[0];
-    o+=`\n*תוצאה אחרונה* (${TYPES[g.type]})\n${g.home?"בית":"חוץ"}, ${fdl(g.date)}\nמכבי רחובות ${g.score[0]} : ${g.score[1]} ${g.opponent}\n`;
+    o+=`\n*תוצאה אחרונה* (${TYPES[g.type]})\n${g.home?"בית":"חוץ"}, ${fdl(g.date)}\nעירוני רחובות ${g.score[0]} : ${g.score[1]} ${g.opponent}\n`;
     const goals=(g.events||[]).filter(e=>e.kind==="goal"&&e.player&&e.player!=="לא ידוע").sort((a,b)=>(a.min||0)-(b.min||0));
     if(goals.length)o+=`שערים: `+goals.map(e=>e.player+(e.min?` (${e.min}')`:"")).join(", ")+`\n`;
     S.badges.filter(b=>b.gameId===g.id).forEach(b=>o+=`${b.text}: ${b.player}\n`);
@@ -1013,7 +1013,7 @@ function liveBump(id,i,d){const g=liveGame(id);if(!g||!g.live)return;g.score=g.s
 function liveMinute(id,d){const g=liveGame(id);if(!g||!g.live)return;const m=(g.live.min==null||g.live.min==="")?0:+g.live.min;g.live.min=Math.max(0,Math.min(120,m+d));g.live.at=Date.now();liveTouch()}
 function liveSetMin(id){const v=prompt("באיזו דקה המשחק?");if(v===null)return;const g=liveGame(id);if(!g||!g.live)return;if(v.trim()===""){g.live.min=null}else{const n=+v;if(!Number.isInteger(n)||n<0||n>120){toast("דקה בין 0 ל-120");return}g.live.min=n}g.live.at=Date.now();liveTouch()}
 function liveEnd(id){const g=liveGame(id);if(!g||!g.live)return;if(!confirm("לסיים את המשחק? התוצאה תהפוך לסופית ותיכנס לסטטיסטיקות."))return;delete g.live;persist();schedulePublish();toast(localStorage.getItem(TOK)?"המשחק הסתיים, מפרסם...":"המשחק הסתיים. לחצו פרסום לאתר.")}
-function livePanel(){const L=S.games.filter(g=>g.live);return L.map(g=>{const sc=g.score||[0,0],m=g.live.min;return `<div class="card livep"><b>🔴 משחק חי: מכבי רחובות - ${esc(g.opponent)}</b><div class="big">${sc[0]} : ${sc[1]}</div><div class="mut" style="text-align:center">שלנו : יריב${m!=null&&m!==""?" · דקה "+m:""}</div><div class="row"><button class="btn pri" onclick="liveBump(${g.id},0,1)">⚽ +1 מכבי</button><button class="btn red" onclick="liveBump(${g.id},1,1)">⚽ +1 יריב</button></div><div class="row"><button class="btn" onclick="liveBump(${g.id},0,-1)">-1 מכבי</button><button class="btn" onclick="liveBump(${g.id},1,-1)">-1 יריב</button></div><div class="row"><button class="btn" onclick="liveMinute(${g.id},-1)">דקה -1</button><button class="btn" onclick="liveMinute(${g.id},1)">דקה +1</button><button class="btn" onclick="liveSetMin(${g.id})">קבע דקה</button></div><div class="bar"><button class="btn" onclick="editGame(${g.id})">אירועים וכובשים</button></div><button class="endbtn" onclick="liveEnd(${g.id})">🏁 סיום משחק</button><div class="mut">${localStorage.getItem(TOK)?"כל שינוי מתפרסם אוטומטית תוך כמה שניות. ההורים יראו אותו בעוד כדקה.":"אין token: השינויים נשמרים רק כאן. לחצו על פרסום לאתר כדי שההורים יראו."}</div></div>`}).join("")}
+function livePanel(){const L=S.games.filter(g=>g.live);return L.map(g=>{const sc=g.score||[0,0],m=g.live.min;return `<div class="card livep"><b>🔴 משחק חי: עירוני רחובות - ${esc(g.opponent)}</b><div class="big">${sc[0]} : ${sc[1]}</div><div class="mut" style="text-align:center">שלנו : יריב${m!=null&&m!==""?" · דקה "+m:""}</div><div class="row"><button class="btn pri" onclick="liveBump(${g.id},0,1)">⚽ +1 עירוני</button><button class="btn red" onclick="liveBump(${g.id},1,1)">⚽ +1 יריב</button></div><div class="row"><button class="btn" onclick="liveBump(${g.id},0,-1)">-1 עירוני</button><button class="btn" onclick="liveBump(${g.id},1,-1)">-1 יריב</button></div><div class="row"><button class="btn" onclick="liveMinute(${g.id},-1)">דקה -1</button><button class="btn" onclick="liveMinute(${g.id},1)">דקה +1</button><button class="btn" onclick="liveSetMin(${g.id})">קבע דקה</button></div><div class="bar"><button class="btn" onclick="editGame(${g.id})">אירועים וכובשים</button></div><button class="endbtn" onclick="liveEnd(${g.id})">🏁 סיום משחק</button><div class="mut">${localStorage.getItem(TOK)?"כל שינוי מתפרסם אוטומטית תוך כמה שניות. ההורים יראו אותו בעוד כדקה.":"אין token: השינויים נשמרים רק כאן. לחצו על פרסום לאתר כדי שההורים יראו."}</div></div>`}).join("")}
 // פולינג: בדיקה אם פורסמו נתונים חדשים (רק במכשיר בלי שינויים מקומיים)
 async function pollData(){if(document.hidden||dirty||edit)return;try{const t=await (await fetch(location.pathname+"?cb="+Date.now(),{cache:"no-store"})).text();const a=t.indexOf("/*DATA_START*/"),z=t.indexOf("/*DATA_END*/");if(a<0||z<0)return;const m=t.slice(a,z).match(/const DATA = ([\s\S]*);\s*$/);if(!m)return;const d=JSON.parse(m[1]);if(d.rev&&d.rev!==window.__rev){window.__rev=d.rev;if(d.rev!==DATA.rev&&!dirty&&!edit){S=JSON.parse(JSON.stringify(d));renderAll()}}}catch(e){}}
 setInterval(pollData,30000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)pollData()});
@@ -1152,7 +1152,7 @@ async function play(id){
  E('#v-full').onclick=async()=>{const player=E('#v-player')||E('#v-photo');try{if(player.webkitEnterFullscreen)player.webkitEnterFullscreen();else await player.requestFullscreen();}catch{notice('אפשר להשתמש בכפתור המסך המלא של הנגן.');}};
  const inGame=filtered().filter(x=>x.gameId===v.gameId&&['approved','pending'].includes(x.status)),i=inGame.findIndex(x=>x.id===id);E('#v-prev').disabled=i<=0;E('#v-next').disabled=i>=inGame.length-1;E('#v-prev').onclick=()=>play(inGame[i-1].id);E('#v-next').onclick=()=>play(inGame[i+1].id);
  E('#v-adminremove')&&(E('#v-adminremove').onclick=()=>remove(id));
- E('#v-report').onclick=async()=>{if(!me){location.href='mailto:kazmikidev@gmail.com?subject='+encodeURIComponent('בקשת הסרה - מכבי רחובות')+'&body='+encodeURIComponent('מזהה פריט: '+id+'\nכותרת: '+v.title+'\nסיבה: ');notice('לבקשת הסרה שלחו הודעה ל-kazmikidev@gmail.com עם מזהה הפריט '+id+'. אנחנו מטפלים בבקשות הסרה.');return;}const reason=prompt('מה תרצו להסיר או לבדוק? אין לציין מידע אישי שאינו נחוץ.');if(!reason)return;try{await api('/videos/'+id+'/report','POST',{reason});notice('בקשת ההסרה נשלחה למנהל.');}catch(e){notice(errorText(e));}};
+ E('#v-report').onclick=async()=>{if(!me){location.href='mailto:kazmikidev@gmail.com?subject='+encodeURIComponent('בקשת הסרה - עירוני רחובות')+'&body='+encodeURIComponent('מזהה פריט: '+id+'\nכותרת: '+v.title+'\nסיבה: ');notice('לבקשת הסרה שלחו הודעה ל-kazmikidev@gmail.com עם מזהה הפריט '+id+'. אנחנו מטפלים בבקשות הסרה.');return;}const reason=prompt('מה תרצו להסיר או לבדוק? אין לציין מידע אישי שאינו נחוץ.');if(!reason)return;try{await api('/videos/'+id+'/report','POST',{reason});notice('בקשת ההסרה נשלחה למנהל.');}catch(e){notice(errorText(e));}};
  E('#v-approve')&&(E('#v-approve').onclick=async()=>{try{await api('/videos/'+id+'/moderate','POST',{action:'approve',title:E('#v-title-edit').value,reviewedClip:E('#v-reviewed').checked});current=null;await load();notice('הקליפ אושר למשפחות.');}catch(e){notice(errorText(e));}});
  E('#v-reject')&&(E('#v-reject').onclick=async()=>{if(!confirm('לדחות ולמחוק את הקליפ מהאחסון?'))return;try{await api('/videos/'+id+'/moderate','POST',{action:'reject'});current=null;await load();}catch(e){notice(errorText(e));}});
  }catch(e){area.innerHTML=`<div class="note" role="status">${h(errorText(e))}</div>`;}
@@ -1204,7 +1204,7 @@ function fmtDate(d,time,arrive){
 }
 function ics(g){
   const dt=(g.date||'').replace(/-/g,'')+'T'+(g.time||'0900').replace(':','')+'00';
-  const title='מכבי רחובות '+(g.home?'-':'מול ')+(g.opponent||'');
+  const title='עירוני רחובות '+(g.home?'-':'מול ')+(g.opponent||'');
   const loc=[g.venue,g.address].filter(Boolean).join(', ');
   return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//maccabi-rehovot//he','BEGIN:VEVENT',
     'UID:game-'+(g.round||'x')+'-'+Date.now()+'@maccabi-rehovot','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').split('.')[0]+'Z',
@@ -1212,7 +1212,7 @@ function ics(g){
 }
 function gcalUrl(g){
   const dt=(g.date||'').replace(/-/g,'')+'T'+(g.time||'0900').replace(':','')+'00';
-  const p=new URLSearchParams({action:'TEMPLATE',text:'מכבי רחובות '+(g.home?'-':'מול ')+(g.opponent||''),dates:dt+'/'+(g.date||'').replace(/-/g,'')+'T'+String(+(g.time||'09:00').slice(0,2)+2).padStart(2,'0')+(g.time||'09:00').slice(3,5)+'00',location:[g.venue,g.address].filter(Boolean).join(', '),ctz:'Asia/Jerusalem'});
+  const p=new URLSearchParams({action:'TEMPLATE',text:'עירוני רחובות '+(g.home?'-':'מול ')+(g.opponent||''),dates:dt+'/'+(g.date||'').replace(/-/g,'')+'T'+String(+(g.time||'09:00').slice(0,2)+2).padStart(2,'0')+(g.time||'09:00').slice(3,5)+'00',location:[g.venue,g.address].filter(Boolean).join(', '),ctz:'Asia/Jerusalem'});
   return 'https://calendar.google.com/calendar/render?'+p.toString();
 }
 
@@ -1264,7 +1264,7 @@ async function load(){
   const maps='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(g.address||g.venue||'');
   NG.innerHTML=`<div class="ng">
     <div class="ng-head"><span class="ng-title">⚽ ${g.result?'המשחק האחרון':'המשחק הבא'}</span>${g.round?`<span class="ng-round">מחזור ${esc(g.round)}</span>`:''}</div>
-    <div class="ng-teams">${g.home?'מכבי רחובות':'מול'} ${esc(g.opponent)} <span class="ng-ha">${g.home?'🏠 בית':'🚌 חוץ'}</span></div>
+    <div class="ng-teams">${g.home?'עירוני רחובות':'מול'} ${esc(g.opponent)} <span class="ng-ha">${g.home?'🏠 בית':'🚌 חוץ'}</span></div>
     ${g.result?`<div class="ng-result">תוצאה: ${esc(g.result)}</div>`:''}
     <div class="ng-row">📅 <b>${esc(fmtDate(g.date,g.time,g.arrive))}</b></div>
     ${(g.venue||g.address)?`<div class="ng-row">📍 ${esc([g.venue,g.address].filter(Boolean).join(' · '))}</div>`:''}

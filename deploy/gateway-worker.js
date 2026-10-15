@@ -60,7 +60,7 @@ async function handlePush(request,env,u){
  if(u.pathname==='/push/notify'&&request.method==='POST'){
   if(!env.NOTIFY_SECRET||request.headers.get('x-notify-secret')!==env.NOTIFY_SECRET)return j({error:'auth'},401);
   let b;try{b=await request.json();}catch{return j({error:'json'},400);}
-  const payload=JSON.stringify({title:String(b.title||'מכבי רחובות').slice(0,80),body:String(b.body||'').slice(0,240),url:String(b.url||'https://kazmikidev-afk.github.io/maccabi-rehovot-2026/').slice(0,300),tag:String(b.tag||'maccabi-game')});
+  const payload=JSON.stringify({title:String(b.title||'עירוני רחובות').slice(0,80),body:String(b.body||'').slice(0,240),url:String(b.url||'https://kazmikidev-afk.github.io/maccabi-rehovot-2026/').slice(0,300),tag:String(b.tag||'maccabi-game')});
   const rows=((await env.DB.prepare('SELECT endpoint,p256dh,auth FROM push_subs').all()).results)||[];
   let sent=0,gone=0,failed=0;const errs=[];
   for(const s of rows){
