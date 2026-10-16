@@ -191,7 +191,7 @@ th,td{padding:9px 7px}
    =================================================================== */
 /*DATA_START*/
 const DATA = {
- "rev": 1792147349595,
+ "rev": 1792147742935,
  "club": "עירוני רחובות",
  "season": "עונת 2026/27",
  "adminHash": "31d4f5f8af22211e6387f51657eecf5ee8b37d55d13bae3c6266ff2909369ad9",
@@ -355,7 +355,10 @@ const DATA = {
    "opponent": "הפועל רעננה",
    "home": false,
    "venue": "רעננה, רחוב מרטין דרוקר 1",
-   "score": null,
+   "score": [
+    0,
+    1
+   ],
    "events": [
     {
      "min": 11,
@@ -365,7 +368,11 @@ const DATA = {
     }
    ],
    "note": "מחזור 1 ",
-   "round": 1
+   "round": 1,
+   "live": {
+    "min": null,
+    "at": 1792147742935
+   }
   },
   {
    "id": 6,
@@ -907,7 +914,7 @@ const DATA = {
  ],
  "fixturesImport": "ifa-2026-27-v1"
 };
-/*DATA_END*/
+/*DATA_END*//
 
 const TYPES={friendly:"אימון",league:"ליגה",cup:"גביע"};
 const POS=["שוער","בלם","מגן ימין","מגן שמאל","קשר","כנף ימין","כנף שמאל","חלוץ"];
@@ -1448,5 +1455,4 @@ load();
 })();
 </script>
 </body>
-</html>
-
+ </html>
