@@ -925,9 +925,9 @@ if(dirty&&S.fixturesImport!==DATA.fixturesImport){
   try{localStorage.setItem(LS,JSON.stringify({base:DATA.rev,data:S}));}catch{}
 }
 // Preserve the user-confirmed Raanana venue across existing local data and future fixture imports.
-const VENUE_OVERRIDES=Object.freeze({"ifa-2026-27-round-1":"רעננה, רחוב מרטין דרוקר 1"});
+const VENUE_OVERRIDES=Object.freeze({"ifa-2026-27-round-1":{fixtureVenue:"רעננה, רחוב מרטין דרוקר 1",nextGameAddress:"מרטין דרוקר 1, רעננה"}});
 let venueOverrideChanged=false;
-for(const g of S.games){const venue=VENUE_OVERRIDES[g.uid];if(venue&&g.venue!==venue){g.venue=venue;venueOverrideChanged=true;}}
+for(const g of S.games){const venue=VENUE_OVERRIDES[g.uid]?.fixtureVenue;if(venue&&g.venue!==venue){g.venue=venue;venueOverrideChanged=true;}}
 if(dirty&&venueOverrideChanged)try{localStorage.setItem(LS,JSON.stringify({base:DATA.rev,data:S}));}catch{}
 function persist(){dirty=true;localStorage.setItem(LS,JSON.stringify({base:DATA.rev,data:S}));renderAll()}
 
@@ -1409,6 +1409,7 @@ syncInstallButton();
 async function load(){
   let g=null;
   try{const r=await fetch('data/next-game.json?cb='+Date.now());if(r.ok)g=await r.json();}catch{}
+  if(g&&g.type==='league'&&Number(g.round)===1&&g.opponent==='הפועל רעננה')g.address=VENUE_OVERRIDES['ifa-2026-27-round-1'].nextGameAddress;
   if(!g||!g.opponent){NG.hidden=true;return;}
   const waze='https://waze.com/ul?q='+encodeURIComponent(g.address||g.venue||'')+'&navigate=yes';
   NG.innerHTML=`<div class="ng">
