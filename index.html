@@ -166,6 +166,22 @@ th,td{padding:9px 7px}
 </style>
 <style id="live-score-card">
 .ng-live-score{margin:10px 0;padding:12px 10px;background:#f8f4e9;border:1px solid #e4d6b4;border-radius:14px;text-align:center}.ng-score-row{display:flex;align-items:center;justify-content:center;gap:16px;direction:ltr}.ng-score-team{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:86px}.ng-score-team b{font-size:2.35rem;line-height:1.1;color:#b43d36;font-weight:850}.ng-score-team span{font-size:.92rem;font-weight:750;direction:rtl}.ng-score-row>strong{font-size:1.7rem;color:var(--mut)}.ng-live-meta{margin-top:7px;font-weight:750;color:#a52d2d}.ng-live-events{text-align:right;margin:8px 0;padding:8px 10px;border-inline-start:3px solid var(--accent);background:var(--soft);border-radius:8px}.ng-live-events b{display:block;margin-bottom:3px}.ng-live-events div{font-size:.92rem}.ng-live .ng-title{color:#a52d2d}
+.ng-live-admin{margin:10px 0 8px;padding:10px;background:#f5f8fb;border:1px solid var(--bd);border-radius:12px;text-align:right}
+.ng-live-admin-title{display:block;margin-bottom:7px;font-weight:800}
+.ng-live-admin-score{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ng-live-admin-side{min-width:0;padding:8px 6px;border:1px solid var(--bd);border-radius:10px;background:#fff;text-align:center}
+.ng-live-admin-side-name{min-height:2.3em;display:grid;place-items:center;font-size:.82rem;font-weight:750}
+.ng-live-admin-side-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:5px}
+.ng-live-admin .btn{min-height:44px;padding:6px 5px;border-radius:9px;font-size:.88rem;font-weight:750;white-space:normal}
+.ng-live-admin-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:7px}
+.ng-live-admin-row.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ng-live-admin-end{display:block;width:100%;min-height:54px;margin-top:8px;border:0;border-radius:11px;background:#1b2430;color:#fff;font:inherit;font-size:.98rem;font-weight:800;cursor:pointer}
+.ng-live-admin-end:active{transform:translateY(1px)}
+.ng-live-admin-hint{margin-top:6px}
+.ng-live-locked{display:flex;justify-content:flex-end;margin:8px 0 2px}
+.ng-live-locked button{min-height:36px;padding:5px 10px;border:1px solid var(--bd);border-radius:99px;background:#f8f8f8;color:var(--mut);font:inherit;font-size:.8rem;cursor:pointer}
+.ng-final .ng-title,.ng-final .ng-live-meta{color:#285b3a}
+.ng-final .ng-live-score{background:#eef7f0;border-color:#c4e2cc}
 @media(max-width:390px){.ng-score-row{gap:9px}.ng-score-team{min-width:74px}.ng-score-team b{font-size:2.05rem}.ng-score-team span{font-size:.82rem}}
 </style>
 </head>
@@ -1154,12 +1170,13 @@ function copyShare(){const t=shareText();(navigator.clipboard?navigator.clipboar
 
 /* ---------- ניהול ---------- */
 const sha=async s=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,"0")).join("");
-let edit=null,pendingMatch=null;
+let edit=null,pendingMatch=null,pendingLiveReturn=null;
 const ADMIN_SESSION=ADM+"_session",ADMIN_DAYS=30;
 function isAdmin(){try{const a=JSON.parse(localStorage.getItem(ADMIN_SESSION)||"null");if(a&&a.hash===DATA.adminHash&&a.expires>Date.now())return true;if(a)localStorage.removeItem(ADMIN_SESSION);}catch{localStorage.removeItem(ADMIN_SESSION);}return sessionStorage.getItem(ADM)==="1";}
-async function login(){const v=$("#pw").value.trim();if(await sha(v)===DATA.adminHash){if($("#remember-admin").checked){sessionStorage.removeItem(ADM);}else{sessionStorage.setItem(ADM,"1");}if($("#remember-admin").checked)localStorage.setItem(ADMIN_SESSION,JSON.stringify({hash:DATA.adminHash,expires:Date.now()+ADMIN_DAYS*86400000}));else localStorage.removeItem(ADMIN_SESSION);if(pendingMatch!=null){const id=pendingMatch;pendingMatch=null;editGame(id);}renderAll();if(edit)$("#s-admin").scrollIntoView({block:"start"});}else toast("קוד שגוי");}
-function logout(){sessionStorage.removeItem(ADM);localStorage.removeItem(ADMIN_SESSION);pendingMatch=null;edit=null;renderAll();}
-function openMatch(id){pendingMatch=id;tab("admin");if(isAdmin()){pendingMatch=null;editGame(id);}else renderAdmin();$("#s-admin").scrollIntoView({block:"start",behavior:"smooth"});}
+async function login(){const v=$("#pw").value.trim();if(await sha(v)===DATA.adminHash){if($("#remember-admin").checked){sessionStorage.removeItem(ADM);}else{sessionStorage.setItem(ADM,"1");}if($("#remember-admin").checked)localStorage.setItem(ADMIN_SESSION,JSON.stringify({hash:DATA.adminHash,expires:Date.now()+ADMIN_DAYS*86400000}));else localStorage.removeItem(ADMIN_SESSION);const returnToLive=pendingLiveReturn;pendingLiveReturn=null;if(pendingMatch!=null){const id=pendingMatch;pendingMatch=null;editGame(id);}renderAll();if(edit)$("#s-admin").scrollIntoView({block:"start"});else if(returnToLive!=null){tab("games");await load();$("#ngc").scrollIntoView({block:"start",behavior:"smooth"});}}else toast("קוד שגוי");}
+function logout(){sessionStorage.removeItem(ADM);localStorage.removeItem(ADMIN_SESSION);pendingMatch=null;pendingLiveReturn=null;edit=null;renderAll();load();}
+function openMatch(id){pendingLiveReturn=null;pendingMatch=id;tab("admin");if(isAdmin()){pendingMatch=null;editGame(id);}else renderAdmin();$("#s-admin").scrollIntoView({block:"start",behavior:"smooth"});}
+function unlockLiveAdmin(id){if(isAdmin()){tab("games");load();return;}pendingMatch=null;pendingLiveReturn=id;tab("admin");renderAdmin();$("#s-admin").scrollIntoView({block:"start",behavior:"smooth"});}
 const SITE_URL="https://kazmikidev-afk.github.io/maccabi-rehovot-2026/";
 function waLink(t){return "https://api.whatsapp.com/send?text="+encodeURIComponent(t)}
 function matchResultText(g){let t=`⚽ *${S.club} - עדכון תוצאה*\n${TYPES[g.type]} · ${fdl(g.date)} · ${g.home?"בית":"חוץ"}\n`;t+=g.live?`🔴 *משחק חי*${g.live.min!=null&&g.live.min!==""?" · דקה "+g.live.min:""}\n${S.club} ${(g.score||[0,0])[0]} : ${(g.score||[0,0])[1]} ${g.opponent}\n`:played(g)?`${S.club} ${g.score[0]} : ${g.score[1]} ${g.opponent}\n`:`נגד ${g.opponent} - טרם עודכנה תוצאה\n`;const evs=[...(g.events||[])].sort((a,b)=>(a.min||0)-(b.min||0));for(const e of evs)t+=`${KINDS[e.kind]||"אירוע"}${e.min?" · דקה "+e.min:""}${e.player&&e.player!=="לא ידוע"?" · "+e.player:""}${e.text?" · "+e.text:""}\n`;S.badges.filter(b=>b.gameId===g.id).forEach(b=>t+=`${b.text}: ${b.player}\n`);if(g.note)t+=`📝 ${g.note}\n`;t+=`\n📲 כל התוצאות והמשחקים באתר:\n${SITE_URL}`;return t.trim();}
@@ -1174,8 +1191,9 @@ function liveStart(id){const g=liveGame(id);if(!g)return;g.score=g.score||[0,0];
 function liveBump(id,i,d){const g=liveGame(id);if(!g||!g.live)return;g.score=g.score||[0,0];g.score[i]=Math.max(0,Math.min(99,g.score[i]+d));g.live.at=Date.now();liveTouch()}
 function liveMinute(id,d){const g=liveGame(id);if(!g||!g.live)return;const m=(g.live.min==null||g.live.min==="")?0:+g.live.min;g.live.min=Math.max(0,Math.min(120,m+d));g.live.at=Date.now();liveTouch()}
 function liveSetMin(id){const v=prompt("באיזו דקה המשחק?");if(v===null)return;const g=liveGame(id);if(!g||!g.live)return;if(v.trim()===""){g.live.min=null}else{const n=+v;if(!Number.isInteger(n)||n<0||n>120){toast("דקה בין 0 ל-120");return}g.live.min=n}g.live.at=Date.now();liveTouch()}
-function liveEnd(id){const g=liveGame(id);if(!g||!g.live)return;if(!confirm("לסיים את המשחק? התוצאה תהפוך לסופית ותיכנס לסטטיסטיקות."))return;delete g.live;persist();schedulePublish();load();toast(localStorage.getItem(TOK)?"המשחק הסתיים, מפרסם...":"המשחק הסתיים. לחצו פרסום לאתר.")}
+function liveEnd(id){const g=liveGame(id);if(!g||!g.live)return;const sc=g.score||[0,0];if(!confirm(`לסיים את המשחק בתוצאה ${sc[0]}:${sc[1]}? התוצאה תהפוך לסופית ותיכנס לסטטיסטיקות.`))return;delete g.live;g.liveFinishedAt=Date.now();persist();schedulePublish();load();toast(localStorage.getItem(TOK)?"המשחק הסתיים, מפרסם...":"המשחק הסתיים. לחצו פרסום לאתר.")}
 function livePhase(id){const g=liveGame(id);if(!g||!g.live)return;g.live.phase=g.live.phase==="first"?"half":g.live.phase==="half"?"second":"second";g.live.at=Date.now();liveTouch()}
+function liveCardAdminControls(g){if(!g.live)return"";if(!isAdmin())return `<div class="ng-live-locked"><button type="button" aria-label="כניסת מנהל לעדכון המשחק" onclick="unlockLiveAdmin(${Number(g.id)})">🔒 כניסת מנהל לעדכון</button></div>`;const id=Number(g.id),sc=g.score||[0,0],p=g.live.phase||"first",phaseLabel=p==="first"?"⏸ מחצית":p==="half"?"▶ מחצית שנייה":"מחצית שנייה";return `<div class="ng-live-admin" aria-label="בקרת מנהל למשחק החי"><b class="ng-live-admin-title">עדכון המשחק - מנהל</b><div class="ng-live-admin-score"><div class="ng-live-admin-side"><div class="ng-live-admin-side-name">עירוני רחובות</div><div class="ng-live-admin-side-buttons"><button type="button" class="btn pri" aria-label="הוסף שער לעירוני רחובות" onclick="liveBump(${id},0,1)">+1 שער</button><button type="button" class="btn" aria-label="הפחת שער מעירוני רחובות" onclick="liveBump(${id},0,-1)">-1 שער</button></div></div><div class="ng-live-admin-side"><div class="ng-live-admin-side-name">${esc(g.opponent)}</div><div class="ng-live-admin-side-buttons"><button type="button" class="btn red" aria-label="הוסף שער ל${esc(g.opponent)}" onclick="liveBump(${id},1,1)">+1 שער</button><button type="button" class="btn" aria-label="הפחת שער מ${esc(g.opponent)}" onclick="liveBump(${id},1,-1)">-1 שער</button></div></div></div><div class="ng-live-admin-row"><button type="button" class="btn" onclick="liveMinute(${id},-1)">דקה -1</button><button type="button" class="btn" onclick="liveSetMin(${id})">קבע דקה</button><button type="button" class="btn" onclick="liveMinute(${id},1)">דקה +1</button></div><div class="ng-live-admin-row two"><button type="button" class="btn" onclick="livePhase(${id})" ${p==="second"?"disabled":""}>${phaseLabel}</button><button type="button" class="btn" onclick="openMatch(${id})">⚽ כובשים ודקות</button></div><button type="button" class="ng-live-admin-end" onclick="liveEnd(${id})">🏁 סיום משחק · ${sc[0]}:${sc[1]}</button><div class="mut ng-live-admin-hint">הוסיפו כובש ודקה בעריכת האירועים. כשלא ידוע, בחרו "לא ידוע" והשאירו את הדקה ריקה.</div></div>`}
 function livePanel(){const L=S.games.filter(g=>g.live);return L.map(g=>{const sc=g.score||[0,0],m=g.live.min,p=g.live.phase||"first",phase=p==="half"?"מחצית":p==="second"?"מחצית שנייה":"מחצית ראשונה";return `<div class="card livep"><b>🔴 משחק חי: עירוני רחובות - ${esc(g.opponent)}</b><div class="big" dir="ltr">${sc[0]} : ${sc[1]}</div><div class="mut" style="text-align:center">עירוני רחובות: ${sc[0]}, ${esc(g.opponent)}: ${sc[1]} · ${phase}${m!=null&&m!==""?" · דקה "+m:""}</div><div class="row"><button class="btn pri" onclick="liveBump(${g.id},0,1)">⚽ +1 עירוני</button><button class="btn red" onclick="liveBump(${g.id},1,1)">⚽ +1 יריב</button></div><div class="row"><button class="btn" onclick="liveBump(${g.id},0,-1)">-1 עירוני</button><button class="btn" onclick="liveBump(${g.id},1,-1)">-1 יריב</button></div><div class="row"><button class="btn" onclick="liveMinute(${g.id},-1)">דקה -1</button><button class="btn" onclick="liveMinute(${g.id},1)">דקה +1</button><button class="btn" onclick="liveSetMin(${g.id})">קבע דקה</button></div><div class="row"><button class="btn" onclick="livePhase(${g.id})" ${p==="second"?"disabled":""}>${p==="first"?"⏸ מחצית":p==="half"?"▶ מחצית שנייה":"מחצית שנייה"}</button><button class="btn" onclick="editGame(${g.id})">אירועים וכובשים</button></div><button class="endbtn" onclick="liveEnd(${g.id})">🏁 סיום משחק</button><div class="mut">${localStorage.getItem(TOK)?"כל שינוי מתפרסם אוטומטית תוך כמה שניות. ההורים יראו אותו בעוד כדקה.":"אין token: השינויים נשמרים רק כאן. לחצו פרסום לאתר כדי שההורים יראו."}</div></div>`}).join("")}
 // פולינג: בדיקה אם פורסמו נתונים חדשים (רק במכשיר בלי שינויים מקומיים)
 async function pollData(){if(document.hidden||dirty||edit)return;try{const t=await (await fetch(location.pathname+"?cb="+Date.now(),{cache:"no-store"})).text();const a=t.indexOf("/*DATA_START*/"),z=t.indexOf("/*DATA_END*/");if(a<0||z<0)return;const m=t.slice(a,z).match(/const DATA = ([\s\S]*);\s*$/);if(!m)return;const d=JSON.parse(m[1]);if(d.rev&&d.rev!==window.__rev){window.__rev=d.rev;if(d.rev!==DATA.rev&&!dirty&&!edit){S=JSON.parse(JSON.stringify(d));renderAll();load()}}}catch(e){}}
@@ -1227,7 +1245,7 @@ function exportData(){const clean=JSON.parse(JSON.stringify(S));navigator.clipbo
 const opts=(arr,sel)=>arr.map(x=>`<option ${x===sel?"selected":""}>${esc(x)}</option>`).join("");
 function renderAdmin(){
   const el=$("#s-admin");
-  if(!isAdmin()){el.innerHTML=`<div class="card"><b>כניסת מנהל</b><label>קוד גישה</label><p class="mut">${pendingMatch!=null?"כניסה נדרשת כדי לערוך את המשחק שבחרת.":""}</p><input id="pw" type="password" inputmode="numeric" onkeydown="if(event.key==='Enter')login()"><label class="v-check"><input id="remember-admin" type="checkbox" checked>זכור אותי במכשיר הזה ל-30 יום (לא במכשיר משותף)</label><div class="bar"><button class="btn pri" onclick="login()">כניסה</button></div></div>`;return}
+  if(!isAdmin()){el.innerHTML=`<div class="card"><b>כניסת מנהל</b><label>קוד גישה</label><p class="mut">${pendingLiveReturn!=null?"כניסה נדרשת כדי לעדכן את המשחק החי.":pendingMatch!=null?"כניסה נדרשת כדי לערוך את המשחק שבחרת.":""}</p><input id="pw" type="password" inputmode="numeric" onkeydown="if(event.key==='Enter')login()"><label class="v-check"><input id="remember-admin" type="checkbox" checked>זכור אותי במכשיר הזה ל-30 יום (לא במכשיר משותף)</label><div class="bar"><button class="btn pri" onclick="login()">כניסה</button></div></div>`;return}
   const names=S.squad.map(p=>p.name);
   if(edit){const g=edit.g,mv=edit.mvp!==undefined?{player:edit.mvp}:S.badges.find(b=>b.gameId===g.id&&b.text.includes("שחקן המשחק"));
     el.innerHTML=`<div class="card"><div class="bar"><b>${S.games.some(x=>x.id===g.id)?"עריכת משחק":"משחק חדש"}</b><button class="btn sm" onclick="edit=null;tab('games');renderAll()">חזרה למשחקים</button></div><p class="mut">עדכון תוצאה, כובשים ואירועים מיוחדים במקום אחד.</p>
@@ -1240,7 +1258,7 @@ function renderAdmin(){
     <label>הערה</label><input id="en" value="${esc(g.note)}">
     <h2>אירועים מעניינים</h2>${g.events.map((e,i)=>`<div class="ev"><span style="flex:1">${KINDS[e.kind]} ${e.min?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}</span><button class="btn sm red" onclick="delEv(${i})">מחק</button></div>`).join("")||`<div class="mut">אין אירועים</div>`}
     <div class="card" style="background:#fafbfd"><div class="row"><div><label>דקה</label><input id="em" type="number" inputmode="numeric"></div><div><label>סוג</label><select id="ek">${Object.entries(KINDS).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></div></div>
-    <label>שחקן</label><select id="ep"><option value="">-</option><option>לא ידוע</option>${names.map(n=>`<option>${esc(n)}</option>`).join("")}</select><label>טקסט (לא חובה)</label><input id="et"><div class="bar"><button class="btn" onclick="addEv()">הוסף אירוע</button></div></div>
+    <label>שחקן</label><select id="ep"><option value="">-</option><option>לא ידוע</option>${names.map(n=>`<option>${esc(n)}</option>`).join("")}</select><p class="mut">אפשר להשאיר את הדקה ריקה ולבחור "לא ידוע".</p><label>טקסט (לא חובה)</label><input id="et"><div class="bar"><button class="btn" onclick="addEv()">הוסף אירוע</button></div></div>
     <div class="bar"><button class="btn pri" onclick="saveGame()">שמירה</button><button class="btn wa" onclick="saveGame(true)">עדכון תוצאה לוואטסאפ</button><button class="btn" onclick="edit=null;renderAdmin()">ביטול</button></div></div>`;
     return}
   const gl=[...S.games].sort((a,b)=>b.date.localeCompare(a.date));
@@ -1455,29 +1473,31 @@ async function load(){
   let g=null;
   try{const r=await fetch('data/next-game.json?cb='+Date.now());if(r.ok)g=await r.json();}catch{}
   if(!g||!g.opponent){NG.hidden=true;topLiveUid=null;renderGames();return;}
-  const live=S.games.find(x=>x.live&&x.type===g.type&&Number(x.round)===Number(g.round)&&x.opponent===g.opponent);
+  const match=S.games.find(x=>x.type===g.type&&Number(x.round)===Number(g.round)&&x.opponent===g.opponent);
+  const live=match?.live?match:null,final=match&&!match.live&&played(match)?match:null;
   topLiveUid=live?.uid||null;
-  if(live)g={...g,live:live.live,score:live.score,events:live.events,home:live.home,venue:live.venue||g.venue};
+  if(live||final)g={...g,id:match.id,uid:match.uid,live:live?.live,score:match.score,events:match.events,home:match.home,venue:match.venue||g.venue,final:!!final};
   if(g.type==='league'&&Number(g.round)===1&&g.opponent==='הפועל רעננה')g.address=VENUE_OVERRIDES['ifa-2026-27-round-1'].nextGameAddress;
-  const isLive=!!g.live,score=g.score||[0,0];
+  const isLive=!!g.live,isFinal=!isLive&&!!g.final,score=g.score||[0,0];
   const waze='https://waze.com/ul?q='+encodeURIComponent(g.address||g.venue||'')+'&navigate=yes';
   const placeParts=[g.venue,g.address].filter(Boolean),placeKey=x=>String(x).normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu," ").split(/\s+/).filter(w=>w&&w!=="רחוב"&&w!=="street").sort().join(" "),placeText=placeParts.filter((x,i)=>!i||placeKey(x)!==placeKey(placeParts[0])).join(" · ");
   const evs=(g.events||[]).filter(e=>e.kind!=="assist").sort((a,b)=>(a.min||0)-(b.min||0));
   const liveEvents=evs.length?`<div class="ng-live-events"><b>אירועים</b>${evs.map(e=>`<div>${KINDS[e.kind]?.split(" ")[0]||"•"} ${e.min!=null&&e.min!==""?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}</div>`).join("")}</div>`:"";
   const phase=g.live?.phase==="half"?"מחצית":g.live?.phase==="second"?"מחצית שנייה":g.live?.phase?.startsWith("first")?"מחצית ראשונה":"";
   const scoreLabel=`עירוני רחובות: ${score[0]}, ${g.opponent}: ${score[1]}`;
-  NG.innerHTML=`<div class="ng ${isLive?"ng-live":""}">
-    <div class="ng-head"><span class="ng-title">${isLive?"🔴 משחק חי":g.result?"⚽ המשחק האחרון":"⚽ המשחק הבא"}</span>${g.round?`<span class="ng-round">מחזור ${esc(g.round)}</span>`:""}</div>
-    ${isLive?`<div class="ng-live-score" aria-label="${esc(scoreLabel)}"><div class="ng-score-row"><div class="ng-score-team"><b dir="ltr">${score[0]}</b><span>עירוני רחובות</span></div><strong aria-hidden="true">:</strong><div class="ng-score-team"><b dir="ltr">${score[1]}</b><span>${esc(g.opponent)}</span></div></div><div class="ng-live-meta"><span class="livedot">🔴 חי</span>${phase?" · "+phase:""}${g.live.min!=null&&g.live.min!==""?" · דקה "+esc(g.live.min):""}</div></div>`:""}
-    <div class="ng-teams">${isLive?`עירוני רחובות - ${esc(g.opponent)}`:`${g.home?"עירוני רחובות":"מול"} ${esc(g.opponent)} <span class="ng-ha">${g.home?"🏠 בית":"🚌 חוץ"}</span>`}</div>
-    ${g.result?`<div class="ng-result">תוצאה: ${esc(g.result)}</div>`:""}
+  NG.innerHTML=`<div class="ng ${isLive?"ng-live":isFinal?"ng-final":""}">
+    <div class="ng-head"><span class="ng-title">${isLive?"🔴 משחק חי":isFinal?"🏁 תוצאה סופית":g.result?"⚽ המשחק האחרון":"⚽ המשחק הבא"}</span>${g.round?`<span class="ng-round">מחזור ${esc(g.round)}</span>`:""}</div>
+    ${isLive||isFinal?`<div class="ng-live-score" aria-label="${esc(scoreLabel)}"><div class="ng-score-row"><div class="ng-score-team"><b dir="ltr">${score[0]}</b><span>עירוני רחובות</span></div><strong aria-hidden="true">:</strong><div class="ng-score-team"><b dir="ltr">${score[1]}</b><span>${esc(g.opponent)}</span></div></div><div class="ng-live-meta">${isLive?'<span class="livedot">🔴 חי</span>':'🏁 הסתיים'}${isLive&&phase?" · "+phase:""}${isLive&&g.live.min!=null&&g.live.min!==""?" · דקה "+esc(g.live.min):""}</div></div>`:""}
+    <div class="ng-teams">${isLive||isFinal?`עירוני רחובות - ${esc(g.opponent)}`:`${g.home?"עירוני רחובות":"מול"} ${esc(g.opponent)} <span class="ng-ha">${g.home?"🏠 בית":"🚌 חוץ"}</span>`}</div>
+    ${isFinal?`<div class="ng-result">תוצאה סופית: ${score[0]} : ${score[1]}</div>`:g.result?`<div class="ng-result">תוצאה: ${esc(g.result)}</div>`:""}
+    ${liveCardAdminControls(g)}
     ${liveEvents}
     <div class="ng-row">📅 <b>${esc(fmtDate(g.date,g.time,g.arrive))}</b></div>
     ${placeText?`<div class="ng-row">📍 ${esc(placeText)}</div>`:""}
     ${g.note?`<div class="ng-row">${esc(g.note)}</div>`:""}
     <div class="ng-btns"><a class="waze" href="${waze}" target="_blank" rel="noopener">🚗 Waze</a></div>
     <div class="ng-btns"><button class="bell" id="ngBell">🔕 עדכונים על המשחק</button></div>
-    <div class="ng-note">${isLive?"המשחק מתעדכן בזמן אמת על ידי מנהל הקבוצה.":"המידע מתעדכן אוטומטית מדי בוקר. בלחיצה על הפעמון - התראה על שינוי שעה, מגרש או תוצאה."}</div>
+    <div class="ng-note">${isLive?"המשחק מתעדכן בזמן אמת על ידי מנהל הקבוצה.":isFinal?"התוצאה הסופית נשמרה.":"המידע מתעדכן אוטומטית מדי בוקר. בלחיצה על הפעמון - התראה על שינוי שעה, מגרש או תוצאה."}</div>
   </div>`;
   NG.hidden=false;
   const bell=document.getElementById('ngBell');bell.onclick=()=>togglePush(bell);renderBell(bell);renderGames();
