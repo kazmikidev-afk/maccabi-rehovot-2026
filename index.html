@@ -998,6 +998,7 @@ function gameCard(g,showCalendar=false){
   if(g.bye)return `<div class="card" data-bye="${g.round}"><span class="tag t-league">ליגה</span><b>מחזור ${g.round} · ללא משחק</b><div class="mut">${fd(g.date)} · מחזור חופשי</div></div>`;
   const r=res(g),rl={W:"ניצחון",L:"הפסד",D:"תיקו"}[r]||"";
   const sc=g.live?`<div class="score livesc">${(g.score||[0,0])[0]} : ${(g.score||[0,0])[1]}<div class="mut" style="font-size:.75rem"><span class="livedot">🔴 חי</span>${g.live.min!=null&&g.live.min!==""?" · דקה "+g.live.min:""}</div></div>`:played(g)?`<div class="score ${r}">${g.score[0]} : ${g.score[1]}<div class="mut" style="font-size:.75rem">${rl}</div></div>`:`<div class="mut">${esc(g.time||(g.arrive?"הגעה עד "+g.arrive:"שעה תפורסם"))}</div>`;
+  const placeParts=[g.venue,g.address].filter(Boolean),placeKey=x=>String(x).normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu," ").split(/\s+/).filter(w=>w&&w!=="רחוב"&&w!=="street").sort().join(" "),placeText=placeParts.filter((x,i)=>!i||placeKey(x)!==placeKey(placeParts[0])).join(" · ");
   const evs=(g.events||[]).filter(e=>e.kind!=="assist").sort((a,b)=>(a.min||0)-(b.min||0));
   const ex=evs.length?`<div class="mut" style="margin-top:6px">`+evs.map(e=>`${KINDS[e.kind].split(" ")[0]} ${e.min?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}`).join("<br>")+`</div>`:"";
   const mv=S.badges.filter(b=>b.gameId===g.id).map(b=>`<div class="mut">${esc(b.text)}: ${esc(b.player)}</div>`).join("");
@@ -1459,7 +1460,7 @@ async function load(){
     ${g.result?`<div class="ng-result">תוצאה: ${esc(g.result)}</div>`:""}
     ${liveEvents}
     <div class="ng-row">📅 <b>${esc(fmtDate(g.date,g.time,g.arrive))}</b></div>
-    ${(g.venue||g.address)?`<div class="ng-row">📍 ${esc([g.venue,g.address].filter(Boolean).join(' · '))}</div>`:""}
+    ${placeText?`<div class="ng-row">📍 ${esc(placeText)}</div>`:""}
     ${g.note?`<div class="ng-row">${esc(g.note)}</div>`:""}
     <div class="ng-btns"><a class="waze" href="${waze}" target="_blank" rel="noopener">🚗 Waze</a></div>
     <div class="ng-btns"><button class="bell" id="ngBell">🔕 עדכונים על המשחק</button></div>
@@ -1473,4 +1474,4 @@ load();
 })();
 </script>
 </body>
-   </html>
+</html>
