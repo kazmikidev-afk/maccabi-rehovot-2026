@@ -1,11 +1,11 @@
-/* עירוני רחובות - service worker: התראות push + דרישת התקנה. הרשת תמיד טרייה. */
+/* הפועל מרמורק רחובות - service worker: התראות push + דרישת התקנה. הרשת תמיד טרייה. */
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch', () => { /* network-only: האתר תמיד עדכני */ });
 self.addEventListener('push', e => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; } catch { d = { body: e.data ? e.data.text() : '' }; }
-  e.waitUntil(self.registration.showNotification(d.title || 'עירוני רחובות', {
+  e.waitUntil(self.registration.showNotification(d.title || 'הפועל מרמורק רחובות', {
     body: d.body || '',
     icon: 'icons/icon-192.png',
     badge: 'icons/icon-192.png',
