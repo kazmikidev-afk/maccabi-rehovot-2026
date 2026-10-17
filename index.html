@@ -1413,7 +1413,7 @@ function fmtDate(d,time,arrive){
     const dt=new Date(d+'T'+(time||'00:00')+':00');
     const wd=new Intl.DateTimeFormat('he-IL',{weekday:'long'}).format(dt);
     const dd=new Intl.DateTimeFormat('he-IL',{day:'numeric',month:'numeric'}).format(dt);
-    let s=wd+', '+dd+(time?' · '+time:'');
+    let s=wd+', '+dd+(time?' · '+time:' · שעה תפורסם');
     if(arrive)s+=' (הגעה '+arrive+')';
     return s;
   }catch{return d+' '+(time||'');}
@@ -1508,7 +1508,7 @@ async function load(){
   let g=null;
   try{const r=await fetch('data/next-game.json?cb='+Date.now());if(r.ok)g=await r.json();}catch{}
   if(!g||!g.opponent){NG.hidden=true;topLiveUid=null;renderGames();return;}
-  const match=S.games.find(x=>x.type===g.type&&Number(x.round)===Number(g.round)&&x.opponent===g.opponent);
+  const match=(g.uid&&S.games.find(x=>x.uid===g.uid))||S.games.find(x=>x.type===g.type&&Number(x.round)===Number(g.round)&&x.opponent===g.opponent);
   const live=match?.live?match:null,final=match&&!match.live&&played(match)?match:null;
   topLiveUid=live?.uid||null;
   if(live||final)g={...g,id:match.id,uid:match.uid,live:live?.live,score:match.score,events:match.events,home:match.home,venue:match.venue||g.venue,final:!!final};
@@ -1521,16 +1521,16 @@ async function load(){
   const phase=g.live?.phase==="half"?"מחצית":g.live?.phase==="second"?"מחצית שנייה":g.live?.phase?.startsWith("first")?"מחצית ראשונה":"";
   const scoreLabel=`הפועל מרמורק רחובות: ${score[0]}, ${g.opponent}: ${score[1]}`;
   NG.innerHTML=`<div class="ng ${isLive?"ng-live":isFinal?"ng-final":""}">
-    <div class="ng-head"><span class="ng-title">${isLive?"🔴 משחק חי":isFinal?"🏁 תוצאה סופית":g.result?"⚽ המשחק האחרון":"⚽ המשחק הבא"}</span>${g.round?`<span class="ng-round">מחזור ${esc(g.round)}</span>`:""}</div>
+    <div class="ng-head"><span class="ng-title">${isLive?"🔴 משחק חי":isFinal?"🏁 תוצאה סופית":g.result?"⚽ המשחק האחרון":"⚽ המשחק הבא"}</span>${g.type==='cup'?`<span class="ng-round">גביע · ${esc(g.roundLabel||'משחק גביע')}</span>`:g.round?`<span class="ng-round">מחזור ${esc(g.round)}</span>`:""}</div>
     ${isLive||isFinal?`<div class="ng-live-score" aria-label="${esc(scoreLabel)}"><div class="ng-score-row"><div class="ng-score-team"><b dir="ltr">${score[0]}</b><span>הפועל מרמורק רחובות</span></div><strong aria-hidden="true">:</strong><div class="ng-score-team"><b dir="ltr">${score[1]}</b><span>${esc(g.opponent)}</span></div></div><div class="ng-live-meta">${isLive?'<span class="livedot">🔴 חי</span>':'🏁 הסתיים'}${isLive&&phase?" · "+phase:""}${isLive&&g.live.min!=null&&g.live.min!==""?" · דקה "+esc(g.live.min):""}</div></div>`:""}
     <div class="ng-teams">${isLive||isFinal?`הפועל מרמורק רחובות - ${esc(g.opponent)}`:`${g.home?"הפועל מרמורק רחובות":"מול"} ${esc(g.opponent)} <span class="ng-ha">${g.home?"🏠 בית":"🚌 חוץ"}</span>`}</div>
     ${isFinal?`<div class="ng-result">תוצאה סופית: ${score[0]} : ${score[1]}</div>`:g.result?`<div class="ng-result">תוצאה: ${esc(g.result)}</div>`:""}
     ${liveCardAdminControls(g)}
     ${liveEvents}
     <div class="ng-row">📅 <b>${esc(fmtDate(g.date,g.time,g.arrive))}</b></div>
-    ${placeText?`<div class="ng-row">📍 ${esc(placeText)}</div>`:""}
+    ${placeText?`<div class="ng-row">📍 ${esc(placeText)}</div>`:`<div class="ng-row">📍 מגרש טרם פורסם</div>`}
     ${g.note?`<div class="ng-row">${esc(g.note)}</div>`:""}
-    <div class="ng-btns"><a class="waze" href="${waze}" target="_blank" rel="noopener">🚗 Waze</a></div>
+    ${placeParts.length?`<div class="ng-btns"><a class="waze" href="${waze}" target="_blank" rel="noopener">🚗 Waze</a></div>`:""}
     <div class="ng-btns"><button class="bell" id="ngBell">🔕 עדכונים על המשחק</button></div>
     <div class="ng-note">${isLive?"המשחק מתעדכן בזמן אמת על ידי מנהל הקבוצה.":isFinal?"התוצאה הסופית נשמרה.":"המידע מתעדכן אוטומטית מדי בוקר. בלחיצה על הפעמון - התראה על שינוי שעה, מגרש או תוצאה."}</div>
   </div>`;
