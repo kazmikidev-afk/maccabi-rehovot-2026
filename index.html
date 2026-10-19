@@ -1042,7 +1042,7 @@ function gameCard(g,showCalendar=false){
   const ex=evs.length?`<div class="mut" style="margin-top:6px">`+evs.map(e=>`${KINDS[e.kind].split(" ")[0]} ${e.min?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}`).join("<br>")+`</div>`:"";
   const mv=S.badges.filter(b=>b.gameId===g.id).map(b=>`<div class="mut">${esc(b.text)}: ${esc(b.player)}</div>`).join("");
   const calendar=showCalendar?calendarButton(g):"";
-  return `<div class="card" data-match="${g.id}" role="button" tabindex="0" aria-label="פתיחת משחק: ${esc(g.opponent)}" onclick="if(!event.target.closest('button,a'))openMatch(${g.id})" onkeydown="if(event.key==='Enter'&&event.target===this)openMatch(${g.id})"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span><b>הפועל מרמורק רחובות - ${esc(g.opponent)}</b><div class="mut">${fd(g.date)} · ${g.home?"בית":"חוץ"}${g.venue?" · "+esc(g.venue):""}${g.note?" · "+esc(g.note):""}</div></div>${sc}</div>${ex}${mv}<div class="bar"><button class="btn sm" onclick="TeamVideos.open('${esc(g.uid||("legacy-"+g.id))}')">▶ סרטוני המשחק</button>${calendar}</div></div>`;
+  return `<div class="card" data-match="${g.id}" role="button" tabindex="0" aria-label="פתיחת משחק: ${esc(g.opponent)}" onclick="if(!event.target.closest('button,a'))openMatch(${g.id})" onkeydown="if(event.key==='Enter'&&event.target===this)openMatch(${g.id})"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span><b>הפועל מרמורק רחובות - ${esc(g.opponent)}</b><div class="mut">${fd(g.date)} · ${g.home?"בית":"חוץ"}${g.venue?" · "+esc(g.venue):""}${g.note?" · "+esc(g.note):""}${g.resultSource&&g.resultSource.url&&JSON.stringify(g.resultSource.score)===JSON.stringify(g.score)?` · תוצאה: <a target="_blank" rel="noopener" href="${esc(g.resultSource.url)}">ג׳וניורליג</a>`:""}</div></div>${sc}</div>${ex}${mv}<div class="bar"><button class="btn sm" onclick="TeamVideos.open('${esc(g.uid||("legacy-"+g.id))}')">▶ סרטוני המשחק</button>${calendar}</div></div>`;
 }
 const chips=(cur,fn)=>`<div class="chips">`+[["all","הכול"],["league","ליגה"],["cup","גביע"],["friendly","אימון"]].map(([k,l])=>`<button class="${cur===k?"on":""}" onclick="${fn}('${k}')">${l}</button>`).join("")+`</div>`;
 function setF(k){filter=k;renderGames()}
@@ -1132,7 +1132,7 @@ function renderLeague(){
   return;
  }
  const d=footballData,L=d?.standings||[];
- let h=`<div class="note">ליגת ילדים ג' מרכז · 2026/27<br>הקבוצה רשומה בהתאחדות בשם הפועל מרמורק רחובות "צו פיוס".<br>נתונים אוטומטיים מ-Vole/ONE, מקור משני ולא רשמי. פרטי המשחקים והתוצאות של הקבוצה נשארים ידניים.</div>`;
+ let h=`<div class="note">ליגת ילדים ג' מרכז · 2026/27<br>הקבוצה רשומה בהתאחדות בשם הפועל מרמורק רחובות "צו פיוס".<br>נתונים אוטומטיים מ-Vole/ONE, מקור משני ולא רשמי. פרטי המשחקים של הקבוצה נשארים ידניים; תוצאה שלא הוזנה ידנית עשויה להשלם מדיווח באתר ג׳וניורליג, עם קישור מקור ליד התוצאה.</div>`;
  h+=`<div class="bar"><button class="btn" onclick="loadFootball(true)" ${footballLoading?'disabled':''}>${footballLoading?'טוען…':'רענון נתונים'}</button><span class="mut">${d?'משיכה אחרונה: '+esc(new Date(d.updatedAt).toLocaleString('he-IL',{timeZone:'Asia/Jerusalem'})):'טרם התקבלו נתונים'}</span></div>`;
  if(footballError)h+=`<div class="note">המקור לא זמין כרגע. ${d?'מוצגים הנתונים האחרונים שנשמרו; ייתכן שאינם עדכניים.':'אפשר לנסות שוב או לפתוח את המקור.'}</div>`;
  h+=`<div class="card"><a target="_blank" rel="noopener" href="${FOOTBALL.leagueUrl}">טבלה ומשחקים ב-Vole/ONE</a><br><a target="_blank" rel="noopener" href="${FOOTBALL.cupUrl}">גביע ילדים ג' בהתאחדות</a></div>`;
