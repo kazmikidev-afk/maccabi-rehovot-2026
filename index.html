@@ -1440,8 +1440,8 @@ async function pushStatus(){
 }
 async function renderBell(btn){
   const st=await pushStatus();
-  if(st==='on'){btn.classList.add('on');btn.innerHTML='🔔 עדכונים פעילים';}
-  else{btn.classList.remove('on');btn.innerHTML='🔕 עדכונים על המשחק';}
+  if(st==='on'){btn.classList.add('on');btn.innerHTML='🔔 עדכונים כלליים פעילים';}
+  else{btn.classList.remove('on');btn.innerHTML='🔕 עדכונים כלליים';}
 }
 async function togglePush(btn){
   const st=await pushStatus();
@@ -1456,7 +1456,7 @@ async function togglePush(btn){
     if(st==='on'){
       const s=await reg.pushManager.getSubscription();
       if(s){await fetch(PUSH_API+'/push/unsubscribe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({endpoint:s.endpoint})}).catch(()=>{});await s.unsubscribe();}
-      toast2('העדכונים כובו');
+      toast2('העדכונים הכלליים כובו');
     }else{
       const perm=await Notification.requestPermission();
       if(perm!=='granted'){toast2('לא אושרו התראות בדפדפן');return;}
@@ -1465,7 +1465,7 @@ async function togglePush(btn){
       const j=sub.toJSON();
       const r=await fetch(PUSH_API+'/push/subscribe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({endpoint:sub.endpoint,keys:j.keys,ua:navigator.userAgent.slice(0,180)})});
       if(!r.ok)throw 0;
-      toast2('העדכונים הופעלו! נעדכן על שינויי מועד, מגרש ותוצאות');
+      toast2('העדכונים הכלליים הופעלו! נעדכן על שינויים בלוח המשחקים, תוצאות ועדכוני תוצאה');
     }
   }catch(e){toast2('הפעלת העדכונים נכשלה, נסו שוב');}
   renderBell(btn);
@@ -1531,8 +1531,8 @@ async function load(){
     ${placeText?`<div class="ng-row">📍 ${esc(placeText)}</div>`:`<div class="ng-row">📍 מגרש טרם פורסם</div>`}
     ${g.note?`<div class="ng-row">${esc(g.note)}</div>`:""}
     ${placeParts.length?`<div class="ng-btns"><a class="waze" href="${waze}" target="_blank" rel="noopener">🚗 Waze</a></div>`:""}
-    <div class="ng-btns"><button class="bell" id="ngBell">🔕 עדכונים על המשחק</button></div>
-    <div class="ng-note">${isLive?"המשחק מתעדכן בזמן אמת על ידי מנהל הקבוצה.":isFinal?"התוצאה הסופית נשמרה.":"המידע מתעדכן אוטומטית מדי בוקר. בלחיצה על הפעמון - התראה על שינוי שעה, מגרש או תוצאה."}</div>
+    <div class="ng-btns"><button class="bell" id="ngBell">🔕 עדכונים כלליים</button></div>
+    <div class="ng-note">${isLive?"המשחק מתעדכן בזמן אמת על ידי מנהל הקבוצה.":isFinal?"התוצאה הסופית נשמרה.":"המידע מתעדכן אוטומטית מדי בוקר. בלחיצה על הכפתור - עדכונים על שינויים בלוח המשחקים, תוצאות ועדכוני תוצאה."}</div>
   </div>`;
   NG.hidden=false;
   const bell=document.getElementById('ngBell');bell.onclick=()=>togglePush(bell);renderBell(bell);renderGames();
