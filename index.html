@@ -1532,7 +1532,7 @@ async function load(){
     ${g.note?`<div class="ng-row">${esc(g.note)}</div>`:""}
     ${placeParts.length?`<div class="ng-btns"><a class="waze" href="${waze}" target="_blank" rel="noopener">🚗 Waze</a></div>`:""}
     <div class="ng-btns"><button class="bell" id="ngBell">🔕 עדכונים כלליים</button></div>
-    <div class="ng-note">${isLive?"המשחק מתעדכן בזמן אמת על ידי מנהל הקבוצה.":isFinal?"התוצאה הסופית נשמרה.":"המידע מתעדכן אוטומטית מדי בוקר. בלחיצה על הכפתור - עדכונים על שינויים בלוח המשחקים, תוצאות ועדכוני תוצאה."}</div>
+    <div class="ng-note">${isLive?"המשחק מתעדכן בזמן אמת על ידי מנהל הקבוצה.":isFinal?"התוצאה הסופית נשמרה.":"המידע מתעדכן אוטומטית מדי בוקר. בלחיצה על הכפתור - עדכונים על שינויים בלוח המשחקים, תוצאות ועדכוני תוצאה. חדשות לא נכללות כרגע."}</div>
   </div>`;
   NG.hidden=false;
   const bell=document.getElementById('ngBell');bell.onclick=()=>togglePush(bell);renderBell(bell);renderGames();
