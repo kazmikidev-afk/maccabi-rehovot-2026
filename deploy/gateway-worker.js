@@ -42,9 +42,42 @@ async function sendPush(env,sub,payload){
  const r=await fetch(sub.endpoint,{method:'POST',headers:{'Authorization':'vapid t='+jwt+', k='+VAPID_PUB,'Content-Encoding':'aes128gcm','TTL':'86400'},body});
  return r.status;
 }
+async function deliverPush(env,payload){
+ const rows=((await env.DB.prepare('SELECT endpoint,p256dh,auth FROM push_subs').all()).results)||[];
+ let sent=0,gone=0,failed=0;const errs=[];
+ for(const sub of rows){
+  try{const status=await sendPush(env,sub,payload);
+   if(status===201)sent++;
+   else if(status===404||status===410){gone++;await env.DB.prepare('DELETE FROM push_subs WHERE endpoint=?').bind(sub.endpoint).run();}
+   else{failed++;errs.push(status);}
+  }catch(e){failed++;errs.push(String(e&&e.message||e).slice(0,80));}
+ }
+ return {total:rows.length,sent,gone,failed,errs:errs.slice(0,3)};
+}
+function constantTimeEqual(a,b){
+ const x=enc.encode(String(a)),y=enc.encode(String(b));let diff=x.length^y.length;
+ for(let i=0,n=Math.max(x.length,y.length);i<n;i++)diff|=(x[i]||0)^(y[i]||0);
+ return diff===0;
+}
+async function checkAdminPushCode(request,env){
+ if(typeof env.ADMIN_PUSH_CODE!=='string'||env.ADMIN_PUSH_CODE.length<24||env.ADMIN_PUSH_CODE.length>128)return {status:503,error:'admin_push_unconfigured'};
+ try{
+  const ip=request.headers.get('CF-Connecting-IP')||'unknown';
+  const digest=await crypto.subtle.digest('SHA-256',enc.encode(ip));
+  const ipKey=b64u(digest),minute=Math.floor(Date.now()/60000);
+  await env.DB.prepare('CREATE TABLE IF NOT EXISTS push_admin_rate_limits (minute INTEGER NOT NULL, ip_key TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(minute,ip_key))').run();
+  if(minute%10===0)await env.DB.prepare('DELETE FROM push_admin_rate_limits WHERE minute < ?').bind(minute-10).run();
+  await env.DB.prepare('INSERT INTO push_admin_rate_limits(minute,ip_key,attempts) VALUES(?,?,1) ON CONFLICT(minute,ip_key) DO UPDATE SET attempts=attempts+1').bind(minute,ipKey).run();
+  const row=await env.DB.prepare('SELECT attempts FROM push_admin_rate_limits WHERE minute=? AND ip_key=?').bind(minute,ipKey).first();
+  if(!row||Number(row.attempts)>12)return {status:429,error:'rate_limited'};
+  const supplied=request.headers.get('x-admin-push-code')||'';
+  if(!constantTimeEqual(supplied,env.ADMIN_PUSH_CODE))return {status:401,error:'auth'};
+  return {ok:true};
+ }catch{return {status:503,error:'admin_push_unavailable'};}
+}
 async function handlePush(request,env,u){
- const j=(d,s=200)=>new Response(JSON.stringify(d),{status:s,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':ORIGIN,'Cache-Control':'no-store'}});
- if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{'Access-Control-Allow-Origin':ORIGIN,'Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Allow-Headers':'content-type, x-notify-secret'}});
+ const j=(d,s=200)=>new Response(JSON.stringify(d),{status:s,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':ORIGIN,'Cache-Control':'no-store','Vary':'Origin'}});
+ if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{'Access-Control-Allow-Origin':ORIGIN,'Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Allow-Headers':'content-type, x-notify-secret, x-admin-push-code','Cache-Control':'no-store','Vary':'Origin'}});
  if(u.pathname==='/push/key')return j({key:VAPID_PUB});
  if(u.pathname==='/push/subscribe'&&request.method==='POST'){
   let b;try{b=await request.json();}catch{return j({error:'json'},400);}
@@ -57,20 +90,35 @@ async function handlePush(request,env,u){
   if(b&&typeof b.endpoint==='string')await env.DB.prepare('DELETE FROM push_subs WHERE endpoint=?').bind(b.endpoint).run();
   return j({ok:true});
  }
+ if(u.pathname==='/push/admin-check'&&request.method==='POST'){
+  const auth=await checkAdminPushCode(request,env);if(!auth.ok)return j({error:auth.error},auth.status);
+  return j({ok:true});
+ }
+ if(u.pathname==='/push/admin-event'&&request.method==='POST'){
+  const auth=await checkAdminPushCode(request,env);if(!auth.ok)return j({error:auth.error},auth.status);
+  let b;try{b=await request.json();}catch{return j({error:'json'},400);}
+  const types=new Set(['score','halftime','final']);
+  if(!b||!types.has(b.type)||typeof b.revision!=='string'||!/^[a-f0-9]{40}$/.test(b.revision)||!Number.isInteger(b.gameId)||b.gameId<0||b.gameId>999999||!Array.isArray(b.score)||b.score.length!==2||b.score.some(n=>!Number.isInteger(n)||n<0||n>99)||typeof b.home!=='boolean'||typeof b.opponent!=='string'||!b.opponent.trim()||b.opponent.length>80||/[\u0000-\u001f\u007f]/.test(b.opponent))return j({error:'invalid_event'},400);
+  if(b.minute!=null&&(!Number.isInteger(b.minute)||b.minute<0||b.minute>120))return j({error:'invalid_event'},400);
+  const opponent=b.opponent.trim(),our=`עירוני רחובות ${b.score[0]}`,rival=`${opponent} ${b.score[1]}`;
+  const scoreText=b.home?`${our}, ${rival}`:`${rival}, ${our}`;
+  const prefix=b.type==='final'?'המשחק הסתיים: ':b.type==='halftime'?'מחצית: ':'תוצאה עודכנה: ';
+  const eventKey=`${b.revision}:${b.gameId}:${b.type}`;
+  try{
+   await env.DB.prepare('CREATE TABLE IF NOT EXISTS push_admin_event_dedupe (event_key TEXT PRIMARY KEY, created_at TEXT NOT NULL)').run();
+   const inserted=await env.DB.prepare('INSERT OR IGNORE INTO push_admin_event_dedupe(event_key,created_at) VALUES(?,?)').bind(eventKey,new Date().toISOString()).run();
+   if(!Number.isInteger(inserted?.meta?.changes))return j({error:'dedupe_unavailable'},503);
+   if(inserted.meta.changes===0)return j({ok:true,duplicate:true,total:0,sent:0,gone:0,failed:0});
+   const payload=JSON.stringify({title:b.type==='final'?'משחק הסתיים':b.type==='halftime'?'מחצית':'תוצאה עודכנה',body:prefix+scoreText,url:'https://kazmikidev-afk.github.io/maccabi-rehovot-2026/#games',tag:'maccabi-'+eventKey});
+   const result=await deliverPush(env,payload);
+   return j({ok:true,duplicate:false,...result});
+  }catch{return j({error:'notify_unavailable'},503);}
+ }
  if(u.pathname==='/push/notify'&&request.method==='POST'){
   if(!env.NOTIFY_SECRET||request.headers.get('x-notify-secret')!==env.NOTIFY_SECRET)return j({error:'auth'},401);
   let b;try{b=await request.json();}catch{return j({error:'json'},400);}
   const payload=JSON.stringify({title:String(b.title||'עירוני רחובות').slice(0,80),body:String(b.body||'').slice(0,240),url:String(b.url||'https://kazmikidev-afk.github.io/maccabi-rehovot-2026/').slice(0,300),tag:String(b.tag||'maccabi-game')});
-  const rows=((await env.DB.prepare('SELECT endpoint,p256dh,auth FROM push_subs').all()).results)||[];
-  let sent=0,gone=0,failed=0;const errs=[];
-  for(const s of rows){
-   try{const st=await sendPush(env,s,payload);
-    if(st===201)sent++;
-    else if(st===404||st===410){gone++;await env.DB.prepare('DELETE FROM push_subs WHERE endpoint=?').bind(s.endpoint).run();}
-    else{failed++;errs.push(st);}
-   }catch(e){failed++;errs.push(String(e&&e.message||e).slice(0,80));}
-  }
-  return j({ok:true,total:rows.length,sent,gone,failed,errs:errs.slice(0,3)});
+  return j({ok:true,...await deliverPush(env,payload)});
  }
  return j({error:'path'},404);
 }
@@ -112,3 +160,4 @@ export default {
   const upstream=await env.SERVICE.fetch(request);const headers=new Headers(upstream.headers);headers.set('Cache-Control','no-store');return new Response(upstream.body,{status:upstream.status,statusText:upstream.statusText,headers});
  }
 };
+
