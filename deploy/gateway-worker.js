@@ -125,6 +125,105 @@ async function handlePush(request,env,u){
 /* ===== סוף בלוק Push ===== */
 
 const text=s=>s.replace(/<[^>]*>/g,'').replace(/&quot;/g,'"').replace(/&#x27;|&#39;/g,"'").replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').trim();
+
+/* ===== Football data: JuniorLeague primary, Vole/ONE fallback - 20.10 =====
+   Miki approved 20.10.2026: juniorleague.co.il is the league table + fixtures
+   source; Vole/ONE stays as fallback. JuniorLeague's own league/cup pages are
+   powered by a public unauthenticated JSON API (one request per page load,
+   response cached 1h at the edge). Its match IDs embed IFA identifiers
+   (season 28, league 173, team 2902), i.e. it mirrors official IFA data.
+   leagueId stays 1277 in the response only because index.html validates that
+   constant; the real IFA league id is 173. */
+const JL_API='https://junior-league-api-server-928016183646.us-central1.run.app';
+const JL_LEAGUE=encodeURIComponent("ליגת ילדים ג' מרכז");
+const JL_CUP=encodeURIComponent('גביע ילדים ג\' ע"ש יעקב גרונדמן ז"ל');
+const JL_LEAGUE_PAGE='https://www.juniorleague.co.il/%d7%99%d7%9c%d7%93%d7%99%d7%9d-%d7%92-%d7%9e%d7%a8%d7%9b%d7%96-26-27/';
+const JL_CUP_PAGE='https://www.juniorleague.co.il/%d7%99%d7%9c%d7%93%d7%99%d7%9d-%d7%92-%d7%92%d7%91%d7%99%d7%a2-%d7%94%d7%9e%d7%93%d7%99%d7%a0%d7%94/';
+const VOLE_LEAGUE_PAGE='https://vole.one.co.il/league/1277';
+const IFA_CUP_PAGE='https://www.football.org.il/national-cup/?national_cup_id=592&season_id=28';
+
+async function getJson(url){const r=await fetch(url,{signal:AbortSignal.timeout(15000),headers:{'User-Agent':'maccabi-rehovot-site/1.0','Accept':'application/json'}});if(!r.ok)throw Error('source_unavailable');return r.json();}
+
+// Israel offset for season 26/27: IDT (UTC+3) until 25.10.2026 and again from
+// 26.3.2027; IST (UTC+2) in between. Used to anchor date-only games to local
+// midnight so the site's existing "00:00 = unconfirmed time" guard works.
+function ilMidnightIso(dateTime){const day=String(dateTime).slice(0,10);const off=(day<'2026-10-25'||day>='2027-03-26')?3:2;return new Date(Date.parse(day+'T00:00:00Z')-off*3600000).toISOString();}
+
+function jlGame(m,roundLabel){
+ if(!m||typeof m.dateTime!=='string'||!m.dateTime)return null;
+ const hasTime=m.hasTime===true;
+ const hs=m.homeScore,as=m.awayScore;
+ return {id:m.id,date:hasTime?m.dateTime:ilMidnightIso(m.dateTime),round:roundLabel,
+  home:{id:Number(m.homeTeamId),name:m.homeTeam||''},away:{id:Number(m.awayTeamId),name:m.awayTeam||''},
+  score:(hs!=null&&as!=null)?[hs,as]:null,venue:m.venue||null,timeConfirmed:hasTime};
+}
+
+// Mirrors juniorleague league.js exactly: teams from matches, skip
+// excludeFromLeagueTable, 3/1/0, additive pointsAdjustments, sort by points,
+// goal difference, then goals for.
+function jlStandings(payload){
+ if(!payload||!Array.isArray(payload.matches))throw Error('invalid_standings_source');
+ const t=new Map();
+ for(const m of payload.matches){
+  if(m.homeTeamId==null||m.awayTeamId==null)continue;
+  if(!t.has(m.homeTeamId))t.set(m.homeTeamId,{team:m.homeTeam||'',p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});
+  if(!t.has(m.awayTeamId))t.set(m.awayTeamId,{team:m.awayTeam||'',p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});
+ }
+ for(const m of payload.matches){
+  if(m.excludeFromLeagueTable||m.homeScore==null||m.awayScore==null)continue;
+  const h=t.get(m.homeTeamId),a=t.get(m.awayTeamId);if(!h||!a)continue;
+  h.p++;a.p++;h.gf+=m.homeScore;h.ga+=m.awayScore;a.gf+=m.awayScore;a.ga+=m.homeScore;
+  if(m.homeScore>m.awayScore){h.w++;a.l++;h.pts+=3;}
+  else if(m.homeScore<m.awayScore){a.w++;h.l++;a.pts+=3;}
+  else{h.d++;a.d++;h.pts++;a.pts++;}
+ }
+ for(const adj of (payload.league&&payload.league.pointsAdjustments)||[]){const r=t.get(String(adj.teamId));if(r&&Number.isFinite(adj.points))r.pts+=adj.points;}
+ const rows=[...t.values()].sort((x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf);
+ rows.forEach((r,i)=>r.rank=i+1);
+ if(!rows.length||!rows.some(r=>String(r.team).includes('מרמורק')))throw Error('team_not_found');
+ return rows;
+}
+
+const CUP_LETTERS='אבגדהוזחטי';
+async function jlLeaguePart(round){
+ const L=await getJson(`${JL_API}/api/public/leagues/${JL_LEAGUE}/matches?season=28`);
+ const games=(L.matches||[]).filter(m=>m.round===round+1).map(m=>jlGame(m,'מחזור '+(round+1))).filter(Boolean);
+ return {standings:jlStandings(L),leagueGames:games};
+}
+async function jlCupPart(cupRound){
+ const C=await getJson(`${JL_API}/api/public/cups/${JL_CUP}/matches?season=28`);
+ if(!C||!Array.isArray(C.matches))throw Error('invalid_cup_source');
+ const letter=CUP_LETTERS[cupRound]||String(cupRound+1);
+ const games=(C.matches||[]).filter(m=>m.round===cupRound+1).map(m=>jlGame(m,'סיבוב '+letter)).filter(Boolean);
+ return {cupGames:games};
+}
+
+/* ===== Vole/ONE fallback (the pre-20.10 source) ===== */
+async function voleGames(j){
+ if(!Array.isArray(j.games))throw Error('invalid_games');
+ return j.games.map(g=>{if(g.season_id!==28)throw Error('season_mismatch');const team=t=>({id:t.provider?.id,name:t.provider?.name||t.one?.name||''});return {id:g._id,date:g.date,round:g.round?.name,home:team(g.home.team),away:team(g.away.team),score:g.is_finished&&g.home.goals>=0&&g.away.goals>=0?[g.home.goals,g.away.goals]:null};});
+}
+async function voleLeaguePart(round){
+ const get=async url=>{const r=await fetch(url,{signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error('source_unavailable');return r;};
+ const [html,L]=await Promise.all([get(VOLE_LEAGUE_PAGE).then(r=>r.text()),get('https://vole.one.co.il/api/leagues/rounds?league_id=1277&round='+round).then(r=>r.json())]);
+ if(!html.includes('season_id\\":28')&&!html.includes('season_id":28'))throw Error('season_mismatch');
+ const table=html.match(/<table[^>]*>([\s\S]*?)<\/table>/)?.[1]||'';
+ const standings=[];
+ for(const row of table.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/g)){
+  const cells=[...row[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map(x=>text(x[1]));
+  if(cells.length<10)continue;
+  const goals=cells[7].match(/(\d+)\s*-\s*(\d+)/);if(!goals)throw Error('invalid_standings');
+  standings.push({rank:Number(cells[1]),team:cells[2],p:Number(cells[3]),w:Number(cells[4]),d:Number(cells[5]),l:Number(cells[6]),gf:Number(goals[1]),ga:Number(goals[2]),pts:Number(cells.at(-1))});
+ }
+ if(!standings.length||!standings.some(r=>r.team.includes('מרמורק')))throw Error('team_not_found');
+ return {standings,leagueGames:await voleGames(L)};
+}
+async function voleCupPart(cupRound){
+ const get=async url=>{const r=await fetch(url,{signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error('source_unavailable');return r;};
+ const C=await get('https://vole.one.co.il/api/leagues/rounds?league_id=1304&round='+cupRound).then(r=>r.json());
+ return {cupGames:await voleGames(C)};
+}
+
 export default {
  async fetch(request,env,ctx){
   const u=new URL(request.url);
@@ -137,21 +236,16 @@ export default {
    const cache=globalThis.caches?.default;
    const hit=cache&&await cache.match(key);if(hit)return hit;
    try{
-    const get=async url=>{const r=await fetch(url,{signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error('source_unavailable');return r;};
-    const leagueUrl='https://vole.one.co.il/league/1277',cupUrl='https://vole.one.co.il/league/1304';
-    const [html,L,C]=await Promise.all([get(leagueUrl).then(r=>r.text()),get('https://vole.one.co.il/api/leagues/rounds?league_id=1277&round='+round).then(r=>r.json()),get('https://vole.one.co.il/api/leagues/rounds?league_id=1304&round='+cupRound).then(r=>r.json())]);
-    if(!html.includes('season_id\\":28')&&!html.includes('season_id":28'))throw Error('season_mismatch');
-    const table=html.match(/<table[^>]*>([\s\S]*?)<\/table>/)?.[1]||'';
-    const standings=[];
-    for(const row of table.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/g)){
-     const cells=[...row[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map(x=>text(x[1]));
-     if(cells.length<10)continue;
-     const goals=cells[7].match(/(\d+)\s*-\s*(\d+)/);if(!goals)throw Error('invalid_standings');
-     standings.push({rank:Number(cells[1]),team:cells[2],p:Number(cells[3]),w:Number(cells[4]),d:Number(cells[5]),l:Number(cells[6]),gf:Number(goals[1]),ga:Number(goals[2]),pts:Number(cells.at(-1))});
-    }
-    if(!standings.length||!standings.some(r=>r.team.includes('מרמורק')&&r.team.includes('רחובות')))throw Error('team_not_found');
-    const games=j=>{if(!Array.isArray(j.games))throw Error('invalid_games');return j.games.map(g=>{if(g.season_id!==28)throw Error('season_mismatch');const team=t=>({id:t.provider?.id,name:t.provider?.name||t.one?.name||''});const home=team(g.home.team),away=team(g.away.team);return {id:g._id,date:g.date,round:g.round?.name,home,away,score:g.is_finished&&g.home.goals>=0&&g.away.goals>=0?[g.home.goals,g.away.goals]:null};});};
-    const data={season:28,teamId:2902,leagueId:1277,leagueName:"ליגת ילדים ג' מרכז",round,cupRound,standings,leagueGames:games(L),cupGames:games(C),updatedAt:new Date().toISOString(),leagueUrl,cupUrl};
+    let leaguePart,sourceLeague,cupPart,sourceCup;
+    try{leaguePart=await jlLeaguePart(round);sourceLeague='juniorleague';}
+    catch{leaguePart=await voleLeaguePart(round);sourceLeague='vole';}
+    try{cupPart=await jlCupPart(cupRound);sourceCup='juniorleague';}
+    catch{try{cupPart=await voleCupPart(cupRound);sourceCup='vole';}catch{cupPart={cupGames:[]};sourceCup='unavailable';}}
+    const data={season:28,teamId:2902,leagueId:1277,leagueName:"ליגת ילדים ג' מרכז",round,cupRound,
+     standings:leaguePart.standings,leagueGames:leaguePart.leagueGames,cupGames:cupPart.cupGames,
+     sourceLeague,sourceCup,updatedAt:new Date().toISOString(),
+     leagueUrl:sourceLeague==='juniorleague'?JL_LEAGUE_PAGE:VOLE_LEAGUE_PAGE,
+     cupUrl:sourceCup==='juniorleague'?JL_CUP_PAGE:IFA_CUP_PAGE};
     const response=json(data);response.headers.set('Cache-Control','public, max-age=3600');if(cache)ctx.waitUntil(cache.put(key,response.clone()));return response;
    }catch{return json({error:'football_source_unavailable'},502);}
   }
@@ -160,4 +254,3 @@ export default {
   const upstream=await env.SERVICE.fetch(request);const headers=new Headers(upstream.headers);headers.set('Cache-Control','no-store');return new Response(upstream.body,{status:upstream.status,statusText:upstream.statusText,headers});
  }
 };
-

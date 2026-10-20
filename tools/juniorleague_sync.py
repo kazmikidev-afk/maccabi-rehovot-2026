@@ -25,11 +25,22 @@ Usage:
   python3 tools/juniorleague_sync.py --repo . --sample posts.json  # offline posts dump
 
 Daily flow (for the monitoring agent): clone repo -> run with --apply ->
-if report.fills is non-empty: commit + push. Never call /push/notify for
-these fills.
+if report.fills is non-empty or report.table.changed: commit + push.
+Never call /push/notify for these fills.
+
+League table sync (approved by Miki 20.10.2026): the same daily run also makes
+ONE read of JuniorLeague's public matches API (the feed behind
+juniorleague.co.il's own league page; match IDs embed IFA season 28 /
+league 173 / team IDs, i.e. it mirrors official IFA data). It computes the
+standings exactly like JuniorLeague's own page (3/1/0, excludeFromLeagueTable
+skipped, pointsAdjustments applied, sort points -> GD -> GF) and rewrites the
+feed-owned DATA.leagueTable / leagueUpdated fields (leagueUrl filled only if
+empty). The table is feed-owned: no manual table edits exist to protect, but
+the backup-before-write rule still applies. On fetch failure nothing is
+touched and the last baked table stays.
 """
 
-import argparse, json, re, sys, time, urllib.request, urllib.error
+import argparse, json, re, sys, time, urllib.request, urllib.error, urllib.parse
 from datetime import datetime, timedelta, timezone
 from html import unescape
 from pathlib import Path
@@ -39,6 +50,13 @@ CATEGORY_ID = 57  # ילדים ג' (resolved once via /categories?search= on 202
 UA = ("MaccabiRehovotTeamSite/1.0 (+https://kazmikidev-afk.github.io/maccabi-rehovot-2026/; "
       "polite daily results fallback, one request per day)")
 IL = timezone(timedelta(hours=3))  # Asia/Jerusalem standard; reports use dates only
+
+# JuniorLeague public matches API (powers their league/cup pages; IFA-mirrored).
+JL_API = "https://junior-league-api-server-928016183646.us-central1.run.app"
+JL_LEAGUE = "ליגת ילדים ג' מרכז"
+JL_SEASON = 28
+JL_LEAGUE_PAGE = ("https://www.juniorleague.co.il/"
+                  "%d7%99%d7%9c%d7%93%d7%99%d7%9d-%d7%92-%d7%9e%d7%a8%d7%9b%d7%96-26-27/")
 
 OUR_HARD_ALIASES = ["מרמורק"]  # distinctive anchor for our club at this age group
 
@@ -523,6 +541,56 @@ def selftest():
     return 1 if failed else 0
 
 
+def fetch_league_payload():
+    """One polite read of the JuniorLeague matches API for our league."""
+    url = (f"{JL_API}/api/public/leagues/{urllib.parse.quote(JL_LEAGUE)}"
+           f"/matches?season={JL_SEASON}")
+    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})
+    with urllib.request.urlopen(req, timeout=25) as r:
+        return json.loads(r.read().decode("utf-8")), url
+
+
+def compute_standings(payload):
+    """Mirror juniorleague league.js: teams from matches, excludeFromLeagueTable
+    skipped, 3/1/0, additive pointsAdjustments, sort points -> GD -> GF."""
+    matches = payload.get("matches")
+    if not isinstance(matches, list):
+        raise ValueError("invalid_standings_source")
+    t = {}
+    for m in matches:
+        for tid, tn in ((m.get("homeTeamId"), m.get("homeTeam")),
+                        (m.get("awayTeamId"), m.get("awayTeam"))):
+            if tid is None:
+                continue
+            t.setdefault(tid, {"team": tn or "", "p": 0, "w": 0, "d": 0, "l": 0,
+                               "gf": 0, "ga": 0, "pts": 0})
+    for m in matches:
+        if m.get("excludeFromLeagueTable") or m.get("homeScore") is None or m.get("awayScore") is None:
+            continue
+        h, a = t.get(m["homeTeamId"]), t.get(m["awayTeamId"])
+        if not h or not a:
+            continue
+        hs, as_ = m["homeScore"], m["awayScore"]
+        h["p"] += 1; a["p"] += 1
+        h["gf"] += hs; h["ga"] += as_; a["gf"] += as_; a["ga"] += hs
+        if hs > as_:
+            h["w"] += 1; a["l"] += 1; h["pts"] += 3
+        elif hs < as_:
+            a["w"] += 1; h["l"] += 1; a["pts"] += 3
+        else:
+            h["d"] += 1; a["d"] += 1; h["pts"] += 1; a["pts"] += 1
+    for adj in ((payload.get("league") or {}).get("pointsAdjustments") or []):
+        r = t.get(str(adj.get("teamId"))) or t.get(adj.get("teamId"))
+        if r and isinstance(adj.get("points"), (int, float)):
+            r["pts"] += adj["points"]
+    rows = sorted(t.values(), key=lambda r: (-r["pts"], -(r["gf"] - r["ga"]), -r["gf"]))
+    for i, r in enumerate(rows, 1):
+        r["rank"] = i
+    if not rows or not any("מרמורק" in r["team"] for r in rows):
+        raise ValueError("team_not_found")
+    return rows
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--repo", default=".")
@@ -553,7 +621,30 @@ def main():
     report = {"status": "ok", "source": fetched_url, "articles_scanned": scanned,
               "fills": fills, "skips": skips, "conflicts": conflicts}
 
-    if args.apply and fills:
+    # League table from JuniorLeague's matches API (approved 20.10.2026).
+    table_changed = False
+    table_report = {"status": "skipped" if args.sample else "pending"}
+    if not args.sample:
+        try:
+            payload, table_url = fetch_league_payload()
+            rows = compute_standings(payload)
+            table_report = {"status": "ok", "source": table_url, "teams": len(rows),
+                            "played": sum(r["p"] for r in rows) // 2}
+            current = data.get("leagueTable") or []
+            if current != rows:
+                data["leagueTable"] = rows
+                data["leagueUpdated"] = (f"ליגת ילדים ג' מרכז 2026/27 · טבלה: ג'וניורליג · "
+                                         f"עודכן {today}")
+                if not data.get("leagueUrl"):
+                    data["leagueUrl"] = JL_LEAGUE_PAGE
+                table_changed = True
+            table_report["changed"] = table_changed
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, ValueError) as e:
+            # Fail closed: keep the last baked table, just report.
+            table_report = {"status": "fetch_failed", "error": str(e), "changed": False}
+    report["table"] = table_report
+
+    if args.apply and (fills or table_changed):
         bdir = Path(args.repo) / "data" / "backups"
         bdir.mkdir(parents=True, exist_ok=True)
         stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%SZ")
