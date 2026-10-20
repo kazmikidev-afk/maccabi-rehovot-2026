@@ -214,7 +214,7 @@ th,td{padding:9px 7px}
    =================================================================== */
 /*DATA_START*/
 const DATA = {
- "rev": 1792493876771,
+ "rev": 1792499232726,
  "club": "הפועל מרמורק רחובות",
  "season": "עונת 2026/27",
  "adminHash": "31d4f5f8af22211e6387f51657eecf5ee8b37d55d13bae3c6266ff2909369ad9",
@@ -1108,14 +1108,18 @@ const DATA = {
    "id": 35,
    "uid": "cup-2026-27-round-2-game-32",
    "type": "cup",
-   "date": "2026-10-24",
-   "time": "",
+   "date": "2026-10-25",
+   "time": "17:00",
    "opponent": "מכבי אשקלון צפון",
    "home": false,
-   "venue": "",
+   "venue": "אשקלון, מיקום מדויק יישלח בהמשך",
    "score": null,
    "events": [],
-   "note": "גביע ילדים ג' ע\"ש יעקב גרונדמן ז\"ל, סיבוב ב', משחק 32"
+   "note": "גביע ילדים ג' ע\"ש יעקב גרונדמן ז\"ל, סיבוב ב', משחק 32. נדחה מ-24.10",
+   "scheduleOverride": {
+    "previousDate": "2026-10-24",
+    "source": "juniorleague"
+   }
   }
  ],
  "squad": [
@@ -1412,10 +1416,10 @@ function feedGames(gs,kind){
   const date=new Date(g.date),valid=Number.isFinite(date.getTime());
   const dated=valid?date.toLocaleString('he-IL',{timeZone:'Asia/Jerusalem',day:'numeric',month:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}):'מועד טרם פורסם';
   const opponent=g.home.id===FOOTBALL.teamId?g.away.name:g.home.name;
-  const manual=ours?S.games.filter(m=>((m.opponent.includes('ירושלים')&&opponent.includes('ירושלים'))||m.opponent===opponent||(m.type===kind&&m.date===new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jerusalem',year:'numeric',month:'2-digit',day:'2-digit'}).format(date)))).sort((a,b)=>Math.abs(new Date(a.date)-date)-Math.abs(new Date(b.date)-date))[0]:null;
+  const manual=ours?S.games.filter(m=>((m.opponent.includes('ירושלים')&&opponent.includes('ירושלים'))||(m.opponent.includes('אשקלון')&&opponent.includes('אשקלון'))||m.opponent===opponent||(m.type===kind&&m.date===new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jerusalem',year:'numeric',month:'2-digit',day:'2-digit'}).format(date)))).sort((a,b)=>Math.abs(new Date(a.date)-date)-Math.abs(new Date(b.date)-date))[0]:null;
   const relevantManual=manual&&valid&&Math.abs(new Date(manual.date)-date)<7*86400000?manual:null;
   
-  const sourceDay=valid?new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jerusalem',year:'numeric',month:'2-digit',day:'2-digit'}).format(date):'';const sourceTime=valid?new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Jerusalem',hour:'2-digit',minute:'2-digit'}).format(date):'';const clash=relevantManual&&valid&&(manual.date!==sourceDay||(manual.time&&sourceTime!=='00:00'&&manual.time!==sourceTime)||!(manual.opponent===opponent||(manual.opponent.includes('ירושלים')&&opponent.includes('ירושלים'))));
+  const sourceDay=valid?new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jerusalem',year:'numeric',month:'2-digit',day:'2-digit'}).format(date):'';const sourceTime=valid?new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Jerusalem',hour:'2-digit',minute:'2-digit'}).format(date):'';const clash=relevantManual&&valid&&(manual.date!==sourceDay||(manual.time&&sourceTime!=='00:00'&&manual.time!==sourceTime)||!(manual.opponent===opponent||(manual.opponent.includes('ירושלים')&&opponent.includes('ירושלים'))||(manual.opponent.includes('אשקלון')&&opponent.includes('אשקלון'))));
   const unknownTime=valid&&sourceTime==='00:00';
   const postponed=relevantManual?.scheduleOverride?.previousDate===sourceDay;
   const score=Array.isArray(g.score)?`<b>${g.score[0]} : ${g.score[1]}</b>`:'טרם שוחק';
