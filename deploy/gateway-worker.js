@@ -246,7 +246,12 @@ export default {
      sourceLeague,sourceCup,updatedAt:new Date().toISOString(),
      leagueUrl:sourceLeague==='juniorleague'?JL_LEAGUE_PAGE:VOLE_LEAGUE_PAGE,
      cupUrl:sourceCup==='juniorleague'?JL_CUP_PAGE:IFA_CUP_PAGE};
-    const response=json(data);response.headers.set('Cache-Control','public, max-age=3600');if(cache)ctx.waitUntil(cache.put(key,response.clone()));return response;
+    // Browsers/CDN/proxies: 5 min only (json() default max-age=300) - hour-old
+    // copies served by HTTP caches were the 20.10 stale-zeros root cause.
+    // The explicit edge cache keeps a 1h copy under the versioned key above.
+    const response=json(data);
+    const forEdge=response.clone();forEdge.headers.set('Cache-Control','public, max-age=3600');
+    if(cache)ctx.waitUntil(cache.put(key,forEdge));return response;
    }catch{return json({error:'football_source_unavailable'},502);}
   }
   if(u.pathname.startsWith('/push/'))return handlePush(request,env,u);

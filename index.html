@@ -1380,7 +1380,7 @@ function renderStats(){
 const FOOTBALL={paused:false,endpoint:'https://maccabi-rehovot-api.pages.dev/football',leagueUrl:'https://www.juniorleague.co.il/%d7%99%d7%9c%d7%93%d7%99%d7%9d-%d7%92-%d7%9e%d7%a8%d7%9b%d7%96-26-27/',cupUrl:'https://www.juniorleague.co.il/%d7%99%d7%9c%d7%93%d7%99%d7%9d-%d7%92-%d7%92%d7%91%d7%99%d7%a2-%d7%94%d7%9e%d7%93%d7%99%d7%a0%d7%94/',teamId:2902};
 setInterval(()=>{if(document.visibilityState==='visible'&&location.hash==='#league')loadFootball();},3600000);
 let footballRound=0,footballCupRound=0,footballData=null,footballLoading=false,footballError=false;
-const footballCacheKey=()=>`mr_football_jl1_28_1277_${footballRound}_${footballCupRound}`;
+const footballCacheKey=()=>`mr_football_jl2_28_1277_${footballRound}_${footballCupRound}`;
 function footballCached(){try{const x=JSON.parse(localStorage.getItem(footballCacheKey())||'null');if(x?.season===28&&x.teamId===2902&&x.sourceLeague&&Array.isArray(x.standings))return x;}catch{}return null;}
 async function loadFootball(force=false){
  if(FOOTBALL.paused){footballData=null;footballLoading=false;footballError=false;renderLeague();return;}
@@ -1390,8 +1390,17 @@ async function loadFootball(force=false){
  footballLoading=true;renderLeague();
  const c=new AbortController(),timer=setTimeout(()=>c.abort(),20000);
  try{
-  const r=await fetch(FOOTBALL.endpoint+`?round=${footballRound}&cupRound=${footballCupRound}`,{signal:c.signal});if(!r.ok)throw Error('source');
+  const r=await fetch(FOOTBALL.endpoint+`?round=${footballRound}&cupRound=${footballCupRound}`,{signal:c.signal,cache:'no-cache'});if(!r.ok)throw Error('source');
   const d=await r.json();if(d.season!==28||d.teamId!==2902||d.leagueId!==1277||!Array.isArray(d.standings)||!Array.isArray(d.leagueGames)||!Array.isArray(d.cupGames))throw Error('schema');
+  // 20.10 stale-zeros fix: never replace good data with worse. Reject a payload
+  // older than what we already show, and reject an all-zero table when it
+  // contradicts reality (scored games in the same payload, or a stored table
+  // with played games). Rejected payloads are never stored.
+  const prev=footballData;
+  if(prev&&Date.parse(d.updatedAt)<Date.parse(prev.updatedAt))throw Error('stale_payload');
+  const zeroTable=d.standings.length>0&&d.standings.every(x=>x.p===0);
+  const anyScored=(d.leagueGames||[]).some(g=>Array.isArray(g.score));
+  if(zeroTable&&(anyScored||prev?.standings?.some(x=>x.p>0)))throw Error('zeroed_table');
   footballData=d;try{localStorage.setItem(footballCacheKey(),JSON.stringify(d));}catch{}
  }catch{footballError=true;}finally{clearTimeout(timer);footballLoading=false;renderLeague();}
 }
