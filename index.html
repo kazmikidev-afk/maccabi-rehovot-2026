@@ -44,6 +44,7 @@ th{color:var(--mut);font-weight:600}td:first-child,th:first-child{text-align:rig
 h2{font-size:1.05rem;margin:14px 0 8px}
 .empty{text-align:center;color:var(--mut);padding:18px}
 .note{background:#fff8e1;border:1px solid #f0d98a;border-radius:10px;padding:10px;font-size:.85rem;margin-bottom:10px}
+.note-compact{padding:6px 10px}.note-compact summary{cursor:pointer;font-weight:700;list-style-position:inside}.note-compact[open] summary{margin-bottom:6px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
 .num{display:inline-block;min-width:28px;height:28px;line-height:28px;text-align:center;border-radius:50%;background:var(--c);color:#fff;font-weight:700;margin-inline-end:8px}
 .badge{display:inline-block;font-size:.75rem;background:#eef3ff;border-radius:99px;padding:1px 8px;margin:2px 0 0 4px}
@@ -1379,8 +1380,8 @@ function renderStats(){
 const FOOTBALL={paused:false,endpoint:'https://maccabi-rehovot-api.pages.dev/football',leagueUrl:'https://www.juniorleague.co.il/%d7%99%d7%9c%d7%93%d7%99%d7%9d-%d7%92-%d7%9e%d7%a8%d7%9b%d7%96-26-27/',cupUrl:'https://www.juniorleague.co.il/%d7%99%d7%9c%d7%93%d7%99%d7%9d-%d7%92-%d7%92%d7%91%d7%99%d7%a2-%d7%94%d7%9e%d7%93%d7%99%d7%a0%d7%94/',teamId:2902};
 setInterval(()=>{if(document.visibilityState==='visible'&&location.hash==='#league')loadFootball();},3600000);
 let footballRound=0,footballCupRound=0,footballData=null,footballLoading=false,footballError=false;
-const footballCacheKey=()=>`mr_football_28_1277_${footballRound}_${footballCupRound}`;
-function footballCached(){try{const x=JSON.parse(localStorage.getItem(footballCacheKey())||'null');if(x?.season===28&&x.teamId===2902&&Array.isArray(x.standings))return x;}catch{}return null;}
+const footballCacheKey=()=>`mr_football_jl1_28_1277_${footballRound}_${footballCupRound}`;
+function footballCached(){try{const x=JSON.parse(localStorage.getItem(footballCacheKey())||'null');if(x?.season===28&&x.teamId===2902&&x.sourceLeague&&Array.isArray(x.standings))return x;}catch{}return null;}
 async function loadFootball(force=false){
  if(FOOTBALL.paused){footballData=null;footballLoading=false;footballError=false;renderLeague();return;}
  if(footballLoading)return;
@@ -1419,7 +1420,7 @@ function renderLeague(){
   return;
  }
  const d=footballData,L=d?.standings||[];
- let h=`<div class="note">ליגת ילדים ג' מרכז · 2026/27<br>הקבוצה רשומה בהתאחדות בשם הפועל מרמורק רחובות "צו פיוס".<br>טבלה ומשחקי ליגה וגביע נמשכים אוטומטית מאתר ג׳וניורליג, מקור לא רשמי המשקף את נתוני ההתאחדות. פרטי המשחקים של הקבוצה נשארים ידניים; תוצאה שלא הוזנה ידנית עשויה להשלם מדיווח באתר ג׳וניורליג, עם קישור מקור ליד התוצאה.</div>`;
+ let h=`<details class="note note-compact"><summary>ליגת ילדים ג' מרכז · 2026/27 · מקור הנתונים: ג׳וניורליג ⓘ</summary>הקבוצה רשומה בהתאחדות בשם הפועל מרמורק רחובות "צו פיוס". טבלה ומשחקי ליגה וגביע נמשכים אוטומטית מאתר ג׳וניורליג, מקור לא רשמי המשקף את נתוני ההתאחדות. פרטי המשחקים של הקבוצה נשארים ידניים; תוצאה שלא הוזנה ידנית עשויה להשלם מדיווח באתר ג׳וניורליג, עם קישור מקור ליד התוצאה.</details>`;
  h+=`<div class="bar"><button class="btn" onclick="loadFootball(true)" ${footballLoading?'disabled':''}>${footballLoading?'טוען…':'רענון נתונים'}</button><span class="mut">${d?'משיכה אחרונה: '+esc(new Date(d.updatedAt).toLocaleString('he-IL',{timeZone:'Asia/Jerusalem'})):'טרם התקבלו נתונים'}</span></div>`;
  if(footballError)h+=`<div class="note">המקור לא זמין כרגע. ${d?'מוצגים הנתונים האחרונים שנשמרו; ייתכן שאינם עדכניים.':'אפשר לנסות שוב או לפתוח את המקור.'}</div>`;
  h+=`<div class="card"><a target="_blank" rel="noopener" href="${FOOTBALL.leagueUrl}">טבלה ומשחקים בג׳וניורליג</a><br><a target="_blank" rel="noopener" href="${FOOTBALL.cupUrl}">גביע ילדים ג׳ בג׳וניורליג</a></div>`;

@@ -232,7 +232,7 @@ export default {
    if(request.method!=='GET')return json({error:'method_not_allowed'},405);
    const round=Number(u.searchParams.get('round')||0),cupRound=Number(u.searchParams.get('cupRound')||0);
    if(!Number.isInteger(round)||round<0||round>29||!Number.isInteger(cupRound)||cupRound<0||cupRound>9)return json({error:'invalid_round'},400);
-   const key=new Request(u.origin+'/football?round='+round+'&cupRound='+cupRound);
+   const key=new Request(u.origin+'/football?round='+round+'&cupRound='+cupRound+'&v=jl1'); // v=jl1: 20.10 source switch; bumps the edge cache past pre-switch entries
    const cache=globalThis.caches?.default;
    const hit=cache&&await cache.match(key);if(hit)return hit;
    try{
