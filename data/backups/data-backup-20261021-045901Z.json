@@ -1,0 +1,1042 @@
+{
+ "rev": 1792499232726,
+ "club": "הפועל מרמורק רחובות",
+ "season": "עונת 2026/27",
+ "adminHash": "31d4f5f8af22211e6387f51657eecf5ee8b37d55d13bae3c6266ff2909369ad9",
+ "leagueUrl": "https://www.juniorleague.co.il/%d7%99%d7%9c%d7%93%d7%99%d7%9d-%d7%92-%d7%9e%d7%a8%d7%9b%d7%96-26-27/",
+ "leagueUpdated": "ליגת ילדים ג' מרכז 2026/27 · טבלה: ג'וניורליג · עודכן 2026-10-20",
+ "leagueTable": [
+  {
+   "team": "מכבי ת\"א עוז",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 10,
+   "ga": 1,
+   "pts": 3,
+   "rank": 1
+  },
+  {
+   "team": "הפועל ראשל\"צ",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 8,
+   "ga": 1,
+   "pts": 3,
+   "rank": 2
+  },
+  {
+   "team": "הפועל ת\"א",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 6,
+   "ga": 2,
+   "pts": 3,
+   "rank": 3
+  },
+  {
+   "team": "מ.ס אשדוד",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 5,
+   "ga": 1,
+   "pts": 3,
+   "rank": 4
+  },
+  {
+   "team": "הפועל רעננה",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 4,
+   "ga": 0,
+   "pts": 3,
+   "rank": 5
+  },
+  {
+   "team": "הפועל ב\"ש",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 6,
+   "ga": 3,
+   "pts": 3,
+   "rank": 6
+  },
+  {
+   "team": "קדימה צורן",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 5,
+   "ga": 2,
+   "pts": 3,
+   "rank": 7
+  },
+  {
+   "team": "ס. נס ציונה",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 3,
+   "ga": 0,
+   "pts": 3,
+   "rank": 8
+  },
+  {
+   "team": "עמישב פ\"ת",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 3,
+   "ga": 2,
+   "pts": 3,
+   "rank": 9
+  },
+  {
+   "team": "מכבי נתניה",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 3,
+   "ga": 2,
+   "pts": 3,
+   "rank": 10
+  },
+  {
+   "team": "מכבי פ\"ת",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 2,
+   "ga": 1,
+   "pts": 3,
+   "rank": 11
+  },
+  {
+   "team": "מכבי ב\"ש",
+   "p": 1,
+   "w": 0,
+   "d": 1,
+   "l": 0,
+   "gf": 0,
+   "ga": 0,
+   "pts": 1,
+   "rank": 12
+  },
+  {
+   "team": "הפועל כפ\"ס",
+   "p": 1,
+   "w": 0,
+   "d": 1,
+   "l": 0,
+   "gf": 0,
+   "ga": 0,
+   "pts": 1,
+   "rank": 13
+  },
+  {
+   "team": "מ.ס ב\"ש",
+   "p": 0,
+   "w": 0,
+   "d": 0,
+   "l": 0,
+   "gf": 0,
+   "ga": 0,
+   "pts": 0,
+   "rank": 14
+  },
+  {
+   "team": "הפ' רמה\"ש מרכז",
+   "p": 0,
+   "w": 0,
+   "d": 0,
+   "l": 0,
+   "gf": 0,
+   "ga": 0,
+   "pts": 0,
+   "rank": 15
+  },
+  {
+   "team": "גני תקווה",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 2,
+   "ga": 3,
+   "pts": 0,
+   "rank": 16
+  },
+  {
+   "team": "מכבי חיפה עודד",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 2,
+   "ga": 3,
+   "pts": 0,
+   "rank": 17
+  },
+  {
+   "team": "הפועל ר\"ג",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 1,
+   "ga": 2,
+   "pts": 0,
+   "rank": 18
+  },
+  {
+   "team": "בני יהודה",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 3,
+   "ga": 6,
+   "pts": 0,
+   "rank": 19
+  },
+  {
+   "team": "מחנה יהודה דרום",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 2,
+   "ga": 5,
+   "pts": 0,
+   "rank": 20
+  },
+  {
+   "team": "הפועל י-ם מזרח",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 0,
+   "ga": 3,
+   "pts": 0,
+   "rank": 21
+  },
+  {
+   "team": "מכבי קרית גת",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 2,
+   "ga": 6,
+   "pts": 0,
+   "rank": 22
+  },
+  {
+   "team": "בית\"ר י-ם",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 1,
+   "ga": 5,
+   "pts": 0,
+   "rank": 23
+  },
+  {
+   "team": "הפ' מרמורק",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 0,
+   "ga": 4,
+   "pts": 0,
+   "rank": 24
+  },
+  {
+   "team": "מכבי אשקלון",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 1,
+   "ga": 8,
+   "pts": 0,
+   "rank": 25
+  },
+  {
+   "team": "הפועל פ\"ת",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 1,
+   "ga": 10,
+   "pts": 0,
+   "rank": 26
+  }
+ ],
+ "leagueScorers": [],
+ "games": [
+  {
+   "id": 1,
+   "type": "friendly",
+   "date": "2026-09-11",
+   "time": "09:00",
+   "opponent": "הפועל לוד",
+   "home": false,
+   "venue": "אצטדיון עירוני לוד",
+   "score": [
+    14,
+    2
+   ],
+   "events": [
+    {
+     "min": 65,
+     "kind": "goal",
+     "player": "לא ידוע",
+     "text": ""
+    }
+   ],
+   "note": "",
+   "uid": "game-2026-1"
+  },
+  {
+   "id": 2,
+   "type": "friendly",
+   "date": "2026-09-24",
+   "time": "14:00",
+   "opponent": "הפועל ירושלים",
+   "home": true,
+   "venue": "",
+   "score": [
+    3,
+    1
+   ],
+   "events": [
+    {
+     "min": 55,
+     "kind": "goal",
+     "player": "דניאל זריהון",
+     "text": ""
+    },
+    {
+     "min": 60,
+     "kind": "goal",
+     "player": "ליאב ביידה",
+     "text": ""
+    },
+    {
+     "min": 70,
+     "kind": "goal",
+     "player": "מתניה עדן",
+     "text": ""
+    }
+   ],
+   "note": "",
+   "uid": "game-2026-2"
+  },
+  {
+   "id": 3,
+   "type": "friendly",
+   "date": "2026-10-02",
+   "time": "11:00",
+   "opponent": "מכבי קריית גת",
+   "home": true,
+   "venue": "",
+   "score": [
+    3,
+    0
+   ],
+   "events": [
+    {
+     "min": 32,
+     "kind": "goal",
+     "player": "רז דיין",
+     "text": ""
+    },
+    {
+     "min": 65,
+     "kind": "goal",
+     "player": "עידן בסר",
+     "text": ""
+    },
+    {
+     "min": 73,
+     "kind": "goal",
+     "player": "דניאל זריהון",
+     "text": ""
+    }
+   ],
+   "note": "",
+   "uid": "game-2026-3"
+  },
+  {
+   "id": 4,
+   "type": "cup",
+   "date": "2026-10-11",
+   "time": "19:50",
+   "opponent": "הפועל ירושלים מזרח",
+   "home": false,
+   "venue": "ירושלים, עמק הארזים 1 (סינטטי)",
+   "score": [
+    3,
+    2
+   ],
+   "events": [
+    {
+     "min": 11,
+     "kind": "goal",
+     "player": "לא ידוע",
+     "text": ""
+    },
+    {
+     "min": 20,
+     "kind": "goal",
+     "player": "מתניה עדן",
+     "text": ""
+    },
+    {
+     "min": 22,
+     "kind": "goal",
+     "player": "דניאל זריהון",
+     "text": ""
+    },
+    {
+     "min": 65,
+     "kind": "goal",
+     "player": "לא ידוע",
+     "text": ""
+    },
+    {
+     "min": 70,
+     "kind": "goal",
+     "player": "דניאל זריהון",
+     "text": ""
+    }
+   ],
+   "note": "גביע המדינה ע\"ש יעקב גרונדמן ז\"ל, סיבוב 1. נדחה מ-10.10",
+   "uid": "game-2026-4",
+   "scheduleOverride": {
+    "previousDate": "2026-10-10",
+    "source": ""
+   },
+   "matchId": "s28-l592-r1-2902-vs-2931"
+  },
+  {
+   "id": 5,
+   "uid": "ifa-2026-27-round-1",
+   "type": "league",
+   "date": "2026-10-16",
+   "time": "13:30",
+   "arrive": "12:30",
+   "opponent": "הפועל רעננה",
+   "home": false,
+   "venue": "רעננה, רחוב מרטין דרוקר 1",
+   "score": [
+    0,
+    4
+   ],
+   "events": [
+    {
+     "min": 11,
+     "kind": "goal",
+     "player": "לא ידוע",
+     "text": ""
+    },
+    {
+     "min": 27,
+     "kind": "goal",
+     "player": "לא ידוע",
+     "text": ""
+    },
+    {
+     "min": null,
+     "kind": "goal",
+     "player": "לא ידוע",
+     "text": ""
+    },
+    {
+     "min": null,
+     "kind": "goal",
+     "player": "לא ידוע",
+     "text": ""
+    }
+   ],
+   "note": "מחזור 1 ",
+   "round": 1
+  },
+  {
+   "id": 6,
+   "uid": "ifa-2026-27-round-2",
+   "type": "league",
+   "date": "2026-10-28",
+   "time": "",
+   "opponent": "הפועל ראשל\"צ",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 2",
+   "round": 2
+  },
+  {
+   "id": 7,
+   "uid": "ifa-2026-27-round-3",
+   "type": "league",
+   "date": "2026-10-31",
+   "time": "",
+   "opponent": "הפועל ירושלים מזרח",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 3",
+   "round": 3
+  },
+  {
+   "id": 8,
+   "uid": "ifa-2026-27-round-4",
+   "type": "league",
+   "date": "2026-11-14",
+   "time": "",
+   "opponent": "ה.מ יהודה ד. תומר ברק",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 4",
+   "round": 4
+  },
+  {
+   "id": 9,
+   "uid": "ifa-2026-27-round-5",
+   "type": "league",
+   "date": "2026-11-28",
+   "time": "",
+   "opponent": "מ.ס. קדימה צורן",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 5",
+   "round": 5
+  },
+  {
+   "id": 10,
+   "uid": "ifa-2026-27-round-6",
+   "type": "league",
+   "date": "2026-12-05",
+   "time": "",
+   "opponent": "ס. נס ציונה",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 6",
+   "round": 6
+  },
+  {
+   "id": 11,
+   "uid": "ifa-2026-27-round-7",
+   "type": "league",
+   "date": "2026-12-19",
+   "time": "",
+   "opponent": "מכבי אשקלון צפון",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 7",
+   "round": 7
+  },
+  {
+   "id": 12,
+   "uid": "ifa-2026-27-round-8",
+   "type": "league",
+   "date": "2026-12-26",
+   "time": "",
+   "opponent": "מ.כ. גני תקווה מרכז",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 8",
+   "round": 8
+  },
+  {
+   "id": 13,
+   "uid": "ifa-2026-27-round-9",
+   "type": "league",
+   "date": "2027-01-09",
+   "time": "",
+   "opponent": "הפ' ת\"א יאיר לרמן",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 9",
+   "round": 9
+  },
+  {
+   "id": 14,
+   "uid": "ifa-2026-27-round-10",
+   "type": "league",
+   "date": "2027-01-16",
+   "time": "",
+   "opponent": "הפ' פ\"ת שמואל בייגל",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 10",
+   "round": 10
+  },
+  {
+   "id": 15,
+   "uid": "ifa-2026-27-round-11",
+   "type": "league",
+   "date": "2027-01-23",
+   "time": "",
+   "opponent": "בית\"ר י-ם 1",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 11",
+   "round": 11
+  },
+  {
+   "id": 16,
+   "uid": "ifa-2026-27-round-12",
+   "type": "league",
+   "date": "2027-01-30",
+   "time": "",
+   "opponent": "הפ' כפ\"ס שמעון",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 12",
+   "round": 12
+  },
+  {
+   "id": 17,
+   "uid": "ifa-2026-27-round-13",
+   "type": "league",
+   "date": "2027-02-06",
+   "time": "",
+   "opponent": "מכבי חיפה עודד",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 13",
+   "round": 13
+  },
+  {
+   "id": 18,
+   "uid": "ifa-2026-27-round-14",
+   "type": "league",
+   "date": "2027-02-13",
+   "time": "",
+   "opponent": "הפועל ב\"ש \"לבן\"",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 14",
+   "round": 14
+  },
+  {
+   "id": 19,
+   "uid": "ifa-2026-27-round-15",
+   "type": "league",
+   "date": "2027-02-20",
+   "time": "",
+   "opponent": "מכבי פ\"ת \"חיים הנדלר\"",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 15",
+   "round": 15
+  },
+  {
+   "id": 20,
+   "uid": "ifa-2026-27-round-16",
+   "type": "league",
+   "date": "2027-03-06",
+   "time": "",
+   "opponent": "הפ' ניר רמת השרון מרכז",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 16",
+   "round": 16
+  },
+  {
+   "id": 21,
+   "uid": "ifa-2026-27-round-17",
+   "type": "league",
+   "date": "2027-03-13",
+   "time": "",
+   "opponent": "מכבי עמישב פ\"ת",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 17",
+   "round": 17
+  },
+  {
+   "id": 22,
+   "uid": "ifa-2026-27-round-18",
+   "type": "league",
+   "date": "2027-03-20",
+   "time": "",
+   "opponent": "מ.ס. ב\"ש 2",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 18",
+   "round": 18
+  },
+  {
+   "id": 23,
+   "uid": "ifa-2026-27-round-19",
+   "type": "league",
+   "date": "2027-03-27",
+   "time": "",
+   "opponent": "הפועל ר\"ג דרום",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 19",
+   "round": 19
+  },
+  {
+   "id": 24,
+   "uid": "ifa-2026-27-round-20",
+   "type": "league",
+   "date": "2027-04-03",
+   "time": "",
+   "opponent": "בני יהודה ת\"א",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 20",
+   "round": 20
+  },
+  {
+   "id": 25,
+   "uid": "ifa-2026-27-round-21",
+   "type": "league",
+   "date": "2027-04-06",
+   "time": "",
+   "opponent": "מכבי נתניה",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 21",
+   "round": 21
+  },
+  {
+   "id": 26,
+   "uid": "ifa-2026-27-round-22",
+   "type": "league",
+   "date": "2027-04-10",
+   "time": "",
+   "opponent": "מכבי ב\"ש \"צו פיוס\"",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 22",
+   "round": 22
+  },
+  {
+   "id": 27,
+   "uid": "ifa-2026-27-round-23",
+   "type": "league",
+   "date": "2027-04-17",
+   "time": "",
+   "opponent": "מ.ס. אשדוד סולומון",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 23",
+   "round": 23
+  },
+  {
+   "id": 28,
+   "uid": "ifa-2026-27-round-24",
+   "type": "league",
+   "date": "2027-04-24",
+   "time": "",
+   "opponent": "מכבי תל אביב עוז",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 24",
+   "round": 24
+  },
+  {
+   "id": 29,
+   "uid": "ifa-2026-27-round-25",
+   "type": "league",
+   "date": "2027-05-01",
+   "time": "",
+   "opponent": "מכבי תל אביב עוז",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 25",
+   "round": 25
+  },
+  {
+   "id": 30,
+   "uid": "ifa-2026-27-round-26",
+   "type": "league",
+   "date": "2027-05-08",
+   "time": "",
+   "opponent": "הפועל רעננה",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 26",
+   "round": 26
+  },
+  {
+   "id": 31,
+   "uid": "ifa-2026-27-round-27",
+   "type": "league",
+   "date": "2027-05-15",
+   "time": "",
+   "opponent": "הפועל ראשל\"צ",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 27",
+   "round": 27
+  },
+  {
+   "id": 32,
+   "uid": "ifa-2026-27-round-28",
+   "type": "league",
+   "date": "2027-05-18",
+   "time": "",
+   "opponent": "הפועל ירושלים מזרח",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 28",
+   "round": 28
+  },
+  {
+   "id": 33,
+   "uid": "ifa-2026-27-round-29",
+   "type": "league",
+   "date": "2027-05-22",
+   "time": "",
+   "opponent": "ה.מ יהודה ד. תומר ברק",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 29",
+   "round": 29
+  },
+  {
+   "id": 34,
+   "uid": "ifa-2026-27-round-30",
+   "type": "league",
+   "date": "2027-05-29",
+   "time": "",
+   "opponent": "מ.ס. קדימה צורן",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 30",
+   "round": 30
+  },
+  {
+   "id": 35,
+   "uid": "cup-2026-27-round-2-game-32",
+   "type": "cup",
+   "date": "2026-10-25",
+   "time": "17:00",
+   "opponent": "מכבי אשקלון צפון",
+   "home": false,
+   "venue": "אשקלון, מיקום מדויק יישלח בהמשך",
+   "score": null,
+   "events": [],
+   "note": "גביע ילדים ג' ע\"ש יעקב גרונדמן ז\"ל, סיבוב ב', משחק 32. נדחה מ-24.10",
+   "scheduleOverride": {
+    "previousDate": "2026-10-24",
+    "source": "juniorleague"
+   }
+  }
+ ],
+ "squad": [
+  {
+   "num": 1,
+   "name": "תום אברברוך",
+   "pos": "שוער"
+  },
+  {
+   "num": 5,
+   "name": "עומר אליהו",
+   "pos": "בלם"
+  },
+  {
+   "num": 6,
+   "name": "אוראל שמש",
+   "pos": "מגן שמאל"
+  },
+  {
+   "num": 8,
+   "name": "רוי מזרחי",
+   "pos": "כנף ימין"
+  },
+  {
+   "num": 9,
+   "name": "עידן בסר",
+   "pos": "קשר"
+  },
+  {
+   "num": 10,
+   "name": "מתניה עדן",
+   "pos": "כנף שמאל"
+  },
+  {
+   "num": 11,
+   "name": "רז דיין",
+   "pos": "כנף שמאל"
+  },
+  {
+   "num": 13,
+   "name": "איתן מזרחי",
+   "pos": "מגן ימין"
+  },
+  {
+   "num": 14,
+   "name": "אורי סוסן",
+   "pos": "מגן שמאל"
+  },
+  {
+   "num": 15,
+   "name": "דניאל זריהון",
+   "pos": "כנף ימין"
+  },
+  {
+   "num": 16,
+   "name": "ניתאי רחמים",
+   "pos": "קשר"
+  },
+  {
+   "num": 17,
+   "name": "אורי בוקעי",
+   "pos": "קשר"
+  },
+  {
+   "num": 19,
+   "name": "אביעד שיבשי",
+   "pos": "מגן ימין"
+  },
+  {
+   "num": 20,
+   "name": "שחר מעבי",
+   "pos": "חלוץ"
+  },
+  {
+   "num": 22,
+   "name": "גלעד קזולה",
+   "pos": "שוער"
+  },
+  {
+   "num": 23,
+   "name": "ליאב ביידה",
+   "pos": "חלוץ"
+  },
+  {
+   "num": null,
+   "name": "יואב רוזנבלום",
+   "pos": "חלוץ"
+  },
+  {
+   "num": 7,
+   "name": "יהב עזרן",
+   "pos": "חלוץ"
+  }
+ ],
+ "badges": [
+  {
+   "player": "איתן מזרחי",
+   "text": "🏆 שחקן המשחק",
+   "gameId": 2
+  },
+  {
+   "player": "איתן מזרחי",
+   "text": "🏆 שחקן המשחק",
+   "gameId": null
+  },
+  {
+   "player": "גלעד קזולה",
+   "text": "🧤 שער נקי",
+   "gameId": null
+  },
+  {
+   "player": "אורי סוסן",
+   "text": "🔥 מאמץ יוצא דופן",
+   "gameId": null
+  },
+  {
+   "player": "דניאל זריהון",
+   "text": "🏆 שחקן המשחק",
+   "gameId": 4
+  }
+ ],
+ "links": [
+  {
+   "label": "גביע ילדים ג' - משחקים ותוצאות (אתר ההתאחדות)",
+   "url": "https://www.football.org.il/national-cup/?national_cup_id=592&season_id=28"
+  }
+ ],
+ "staff": [
+  {
+   "role": "מאמן",
+   "name": "סהר יצחקי"
+  }
+ ],
+ "fixturesImport": "ifa-2026-27-v1"
+}
