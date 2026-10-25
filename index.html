@@ -1534,7 +1534,7 @@ function schedulePublish(){if(!localStorage.getItem(TOK))return;clearTimeout(pub
 function liveGame(id){return S.games.find(g=>g.id===id)}
 function saveLivePushQueue(q){try{localStorage.setItem(LIVE_PUSH_QUEUE,JSON.stringify(q))}catch{}}
 function readLivePushQueue(){try{const q=JSON.parse(localStorage.getItem(LIVE_PUSH_QUEUE)||"[]");return Array.isArray(q)?q:[]}catch{return[]}}
-function queueLiveNotification(type,g){if(!g||!localStorage.getItem(LIVE_PUSH_CODE))return;const q=readLivePushQueue(),event={id:(crypto.randomUUID?.()||String(Date.now())+Math.random()),type,gameId:Number(g.id),score:[...(g.score||[0,0])],opponent:String(g.opponent||""),home:!!g.home,minute:g.live?.min??null};const i=q.findIndex(x=>x.type===type&&x.gameId===event.gameId);if(i>=0)q[i]=event;else q.push(event);saveLivePushQueue(q)}
+function queueLiveNotification(type,g){if(!g)return;const q=readLivePushQueue(),event={id:(crypto.randomUUID?.()||String(Date.now())+Math.random()),type,gameId:Number(g.id),score:[...(g.score||[0,0])],opponent:String(g.opponent||""),home:!!g.home,minute:g.live?.min??null};const i=q.findIndex(x=>x.type===type&&x.gameId===event.gameId);if(i>=0)q[i]=event;else q.push(event);saveLivePushQueue(q)}
 async function setLivePushCode(){const entered=prompt("קוד הפוש הוא קוד נפרד מקוד הכניסה לניהול (6 תווים). הדביקו את קוד ההתראות הארוך שנשמר בכספת, 24-128 תווים. הוא יישמר רק בדפדפן הזה. אין לשלוח קוד בצ׳אט.");if(entered===null)return;const code=entered.trim();if(code.length<24||code.length>128||/\s/.test(code)){toast("זהו שדה לקוד הפוש הנפרד (24-128 תווים), לא לקוד הכניסה לניהול. לא בוצע שינוי.");return}try{const r=await fetch(PUSH_API+"/push/admin-check",{method:"POST",headers:{"x-admin-push-code":code}});if(!r.ok){toast(r.status===401?"קוד שגוי או שעדיין לא הוגדר בשרת":"לא ניתן לבדוק את הקוד כרגע");return}localStorage.setItem(LIVE_PUSH_CODE,code);renderAll();refreshNextGame();toast(localStorage.getItem(TOK)?"קוד ההתראות אומת ונשמר במכשיר. לא נשלח פוש.":"קוד ההתראות אומת. עדיין צריך להגדיר פרסום לאתר בניהול. לא נשלח פוש.")}catch{toast("לא ניתן להתחבר לשירות ההתראות")}}
 function livePushSettings(){const configured=!!localStorage.getItem(LIVE_PUSH_CODE);return `<div class="ng-live-admin-push"><span>${configured?"🔔 קוד הפוש הנפרד מוגדר במכשיר":"קוד פוש נפרד מקוד הכניסה לניהול"}</span><button type="button" class="btn sm" onclick="setLivePushCode()">${configured?"החלפת קוד פוש":"הגדרת קוד פוש"}</button></div>`}
 function liveTouch(){persist();schedulePublish();refreshNextGame()}
@@ -1546,7 +1546,7 @@ function liveMinute(id,d){const g=liveGame(id);if(!g||!g.live)return;const m=(g.
 function liveSetMin(id){const v=prompt("באיזו דקה המשחק?");if(v===null)return;const g=liveGame(id);if(!g||!g.live)return;if(v.trim()===""){g.live.min=null}else{const n=+v;if(!Number.isInteger(n)||n<0||n>120){toast("דקה בין 0 ל-120");return}g.live.min=n}g.live.at=Date.now();liveTouch()}
 function liveEnd(id){const g=liveGame(id);if(!g||!g.live)return;const sc=g.score||[0,0];if(!confirm(`לסיים את המשחק בתוצאה ${sc[0]}:${sc[1]}? התוצאה תהפוך לסופית ותיכנס לסטטיסטיקות.`))return;queueLiveNotification("final",g);delete g.live;g.liveFinishedAt=Date.now();persist();schedulePublish();refreshNextGame();toast(localStorage.getItem(TOK)?"המשחק הסתיים, מפרסם...":"המשחק הסתיים. לחצו פרסום לאתר.")}
 function livePhase(id){const g=liveGame(id);if(!g||!g.live)return;const prev=g.live.phase||"first";g.live.phase=prev==="first"?"half":prev==="half"?"second":"second";g.live.at=Date.now();if(g.live.phase==="half")queueLiveNotification("halftime",g);liveTouch()}
-function liveCardAdminControls(g){if(!g.live&&!g.final)return g.id!=null?`<div class="ng-live-admin"><button type="button" class="btn pri" style="width:100%;min-height:52px" onclick="requestLiveStart(${Number(g.id)})">▶ התחל משחק</button><div class="mut ng-live-admin-hint">מעבר למסך חי עם עדכון שערים, דקות וכובשים. נדרשת כניסת מנהל.</div></div>`:"";if(!isAdmin())return `<div class="ng-live-locked"><button type="button" aria-label="כניסת מנהל לעדכון המשחק" onclick="unlockLiveAdmin(${Number(g.id)})">🔒 כניסת מנהל לעדכון</button></div>`;if(!g.live)return `<div class="ng-live-admin">${livePushSettings()}</div>`;const id=Number(g.id),sc=g.score||[0,0],p=g.live.phase||"first",phaseLabel=p==="first"?"⏸ מחצית":p==="half"?"▶ מחצית שנייה":"מחצית שנייה";return `<div class="ng-live-admin" aria-label="בקרת מנהל למשחק החי"><b class="ng-live-admin-title">עדכון המשחק - מנהל</b><div class="ng-live-admin-score"><div class="ng-live-admin-side"><div class="ng-live-admin-side-name">הפועל מרמורק רחובות</div><div class="ng-live-admin-side-buttons"><button type="button" class="btn pri" aria-label="הוסף שער להפועל מרמורק רחובות" onclick="liveBump(${id},0,1)">+1 שער</button><button type="button" class="btn" aria-label="הפחת שער מהפועל מרמורק רחובות" onclick="liveBump(${id},0,-1)">-1 שער</button></div></div><div class="ng-live-admin-side"><div class="ng-live-admin-side-name">${esc(g.opponent)}</div><div class="ng-live-admin-side-buttons"><button type="button" class="btn red" aria-label="הוסף שער ל${esc(g.opponent)}" onclick="liveBump(${id},1,1)">+1 שער</button><button type="button" class="btn" aria-label="הפחת שער מ${esc(g.opponent)}" onclick="liveBump(${id},1,-1)">-1 שער</button></div></div></div><div class="ng-live-admin-row"><button type="button" class="btn" onclick="liveMinute(${id},-1)">דקה -1</button><button type="button" class="btn" onclick="liveSetMin(${id})">קבע דקה</button><button type="button" class="btn" onclick="liveMinute(${id},1)">דקה +1</button></div><div class="ng-live-admin-row two"><button type="button" class="btn" onclick="livePhase(${id})" ${p==="second"?"disabled":""}>${phaseLabel}</button><button type="button" class="btn" onclick="openMatch(${id})">⚽ כובשים ודקות</button></div><button type="button" class="ng-live-admin-end" onclick="liveEnd(${id})">🏁 סיום משחק · ${sc[0]}:${sc[1]}</button><div class="mut ng-live-admin-hint">הוסיפו כובש ודקה בעריכת האירועים. כשלא ידוע, בחרו "לא ידוע" והשאירו את הדקה ריקה.</div>${phonePublishControls(id)}${livePushSettings()}</div>`}
+function liveCardAdminControls(g){if(!g.live&&!g.final)return g.id!=null?`<div class="ng-live-admin"><button type="button" class="btn pri" style="width:100%;min-height:52px" onclick="requestLiveStart(${Number(g.id)})">▶ התחל משחק</button><div class="mut ng-live-admin-hint">מעבר למסך חי עם עדכון שערים, דקות וכובשים. נדרשת כניסת מנהל.</div></div>`:"";if(!isAdmin())return `<div class="ng-live-locked"><button type="button" aria-label="כניסת מנהל לעדכון המשחק" onclick="unlockLiveAdmin(${Number(g.id)})">🔒 כניסת מנהל לעדכון</button></div>`;if(!g.live)return `<div class="ng-live-admin">${livePushSettings()}${pushDeliveryStatus()}</div>`;const id=Number(g.id),sc=g.score||[0,0],p=g.live.phase||"first",phaseLabel=p==="first"?"⏸ מחצית":p==="half"?"▶ מחצית שנייה":"מחצית שנייה";return `<div class="ng-live-admin" aria-label="בקרת מנהל למשחק החי"><b class="ng-live-admin-title">עדכון המשחק - מנהל</b><div class="ng-live-admin-score"><div class="ng-live-admin-side"><div class="ng-live-admin-side-name">הפועל מרמורק רחובות</div><div class="ng-live-admin-side-buttons"><button type="button" class="btn pri" aria-label="הוסף שער להפועל מרמורק רחובות" onclick="liveBump(${id},0,1)">+1 שער</button><button type="button" class="btn" aria-label="הפחת שער מהפועל מרמורק רחובות" onclick="liveBump(${id},0,-1)">-1 שער</button></div></div><div class="ng-live-admin-side"><div class="ng-live-admin-side-name">${esc(g.opponent)}</div><div class="ng-live-admin-side-buttons"><button type="button" class="btn red" aria-label="הוסף שער ל${esc(g.opponent)}" onclick="liveBump(${id},1,1)">+1 שער</button><button type="button" class="btn" aria-label="הפחת שער מ${esc(g.opponent)}" onclick="liveBump(${id},1,-1)">-1 שער</button></div></div></div><div class="ng-live-admin-row"><button type="button" class="btn" onclick="liveMinute(${id},-1)">דקה -1</button><button type="button" class="btn" onclick="liveSetMin(${id})">קבע דקה</button><button type="button" class="btn" onclick="liveMinute(${id},1)">דקה +1</button></div><div class="ng-live-admin-row two"><button type="button" class="btn" onclick="livePhase(${id})" ${p==="second"?"disabled":""}>${phaseLabel}</button><button type="button" class="btn" onclick="openMatch(${id})">⚽ כובשים ודקות</button></div><button type="button" class="ng-live-admin-end" onclick="liveEnd(${id})">🏁 סיום משחק · ${sc[0]}:${sc[1]}</button><div class="mut ng-live-admin-hint">הוסיפו כובש ודקה בעריכת האירועים. כשלא ידוע, בחרו "לא ידוע" והשאירו את הדקה ריקה.</div>${phonePublishControls(id)}${livePushSettings()}${pushDeliveryStatus()}</div>`}
 function livePanel(){const L=S.games.filter(g=>g.live);return L.map(g=>{const sc=g.score||[0,0],m=g.live.min,p=g.live.phase||"first",phase=p==="half"?"מחצית":p==="second"?"מחצית שנייה":"מחצית ראשונה";return `<div class="card livep"><b>🔴 משחק חי: הפועל מרמורק רחובות - ${esc(g.opponent)}</b><div class="big" dir="ltr">${sc[0]} : ${sc[1]}</div><div class="mut" style="text-align:center">הפועל מרמורק רחובות: ${sc[0]}, ${esc(g.opponent)}: ${sc[1]} · ${phase}${m!=null&&m!==""?" · דקה "+m:""}</div><div class="row"><button class="btn pri" onclick="liveBump(${g.id},0,1)">⚽ +1 מרמורק</button><button class="btn red" onclick="liveBump(${g.id},1,1)">⚽ +1 יריב</button></div><div class="row"><button class="btn" onclick="liveBump(${g.id},0,-1)">-1 מרמורק</button><button class="btn" onclick="liveBump(${g.id},1,-1)">-1 יריב</button></div><div class="row"><button class="btn" onclick="liveMinute(${g.id},-1)">דקה -1</button><button class="btn" onclick="liveMinute(${g.id},1)">דקה +1</button><button class="btn" onclick="liveSetMin(${g.id})">קבע דקה</button></div><div class="row"><button class="btn" onclick="livePhase(${g.id})" ${p==="second"?"disabled":""}>${p==="first"?"⏸ מחצית":p==="half"?"▶ מחצית שנייה":"מחצית שנייה"}</button><button class="btn" onclick="editGame(${g.id})">אירועים וכובשים</button></div><button class="endbtn" onclick="liveEnd(${g.id})">🏁 סיום משחק</button><div class="mut">${localStorage.getItem(TOK)?"כל שינוי מתפרסם אוטומטית תוך כמה שניות. ההורים יראו אותו בעוד כדקה.":"אין token: השינויים נשמרים רק כאן. לחצו פרסום לאתר כדי שההורים יראו."}</div></div>`}).join("")}
 // פולינג: בדיקה אם פורסמו נתונים חדשים (רק במכשיר בלי שינויים מקומיים)
 async function pollData(){if(document.hidden||dirty||edit)return;try{const t=await (await fetch(location.pathname+"?cb="+Date.now(),{cache:"no-store"})).text();const a=t.indexOf("/*DATA_START*/"),z=t.indexOf("/*DATA_END*/");if(a<0||z<0)return;const m=t.slice(a,z).match(/const DATA = ([\s\S]*);\s*$/);if(!m)return;const d=JSON.parse(m[1]);if(d.rev&&d.rev!==window.__rev){window.__rev=d.rev;if(d.rev!==DATA.rev&&!dirty&&!edit){S=JSON.parse(JSON.stringify(d));renderAll();refreshNextGame()}}}catch(e){}}
@@ -1563,7 +1563,7 @@ function addEv(){const e={min:+$("#em").value||null,kind:$("#ek").value,player:$
 function delEv(i){if(!captureGame())return;edit.g.events.splice(i,1);renderAdmin()}
 function saveGame(withUpdate=false){if(!isAdmin()||!captureGame())return;const g=edit.g;g.opponent=$("#eo").value.trim();if(!g.opponent){toast("חסר שם יריב");return}
   g.date=$("#ed").value;g.time=$("#etm").value;g.venue=$("#ev").value;g.note=$("#en").value;g.type=$("#et2").value;g.home=$("#eh").value==="1";
-  const i=S.games.findIndex(x=>x.id===g.id);if(i<0)S.games.push(g);else S.games[i]=g;
+  const i=S.games.findIndex(x=>x.id===g.id),previous=i<0?null:S.games[i];if(g.live&&previous&&JSON.stringify(previous.score)!==JSON.stringify(g.score))queueLiveNotification("score",g);if(i<0)S.games.push(g);else S.games[i]=g;
   S.badges=S.badges.filter(b=>!(b.gameId===g.id&&b._m));const mv=$("#emvp").value;
   if(mv)S.badges.push({player:mv,text:"🏆 שחקן המשחק",gameId:g.id,_m:1});
   edit=null;persist();if(g.live){schedulePublish();refreshNextGame();}if(withUpdate)showMatchResult(g);}
@@ -1584,16 +1584,26 @@ function recoverDraftEvents(id){let draft=recoverableDraft;try{draft=draft||JSON
 function phonePublishControls(id){let draft=recoverableDraft;try{draft=draft||JSON.parse(localStorage.getItem("mr_draft_recovery")||"null")}catch{}const old=draft?.data?.games?.find(g=>g.id===id),g=liveGame(id),hasRecovery=!!old&&(old.events||[]).some(e=>!(g?.events||[]).some(x=>JSON.stringify(x)===JSON.stringify(e)));return `<div class="ng-publish-controls"><div class="note" role="status">${localStorage.getItem(TOK)?dirty?"יש שינויים במכשיר שטרם פורסמו לכולם.":"פרסום מוגדר במכשיר. אין שינויים מקומיים שלא פורסמו.":"חסרה הגדרת פרסום במכשיר הזה. התוצאה והאירועים נשמרים כאן בלבד."}</div><div class="ng-live-admin-row two"><button type="button" class="btn pri" onclick="${localStorage.getItem(TOK)?"publish()":"setToken()"}">${localStorage.getItem(TOK)?"📣 פרסום לכולם":"🔑 הגדרת פרסום"}</button><button type="button" class="btn" onclick="openMatch(${id})">⚽ עריכת כובשים</button></div>${localStorage.getItem(TOK)?`<button type="button" class="btn sm" style="margin-top:8px" onclick="setToken()">בדיקה / החלפת טוקן פרסום</button>`:""}${hasRecovery?`<div class="note">נמצאה טיוטה קודמת במכשיר עם אירועים נוספים.<button type="button" class="btn" onclick="recoverDraftEvents(${id})">שחזור כובשים מהטיוטה</button></div>`:""}<p class="mut">פרסום מעדכן את האתר לכולם. פוש על שער/מחצית/סיום דורש גם קוד פוש נפרד. אין פוש בדיקה.</p></div>`}
 
 let publishInProgress=false;
+const PUSH_RESULT="mr_last_push_result";
+function recordPushResult(data){try{localStorage.setItem(PUSH_RESULT,JSON.stringify({...data,at:Date.now()}))}catch{}}
+function pushDeliveryStatus(){let r=null;try{r=JSON.parse(localStorage.getItem(PUSH_RESULT)||"null")}catch{}const q=readLivePushQueue();const setup=localStorage.getItem(LIVE_PUSH_CODE)?"קוד פוש שמור במכשיר":"פוש לא מוגדר: נדרש קוד פוש נפרד";return `<div class="note" role="status"><b>מצב שליחת פוש</b><div>${setup}</div>${q.length?`<div>${q.length} עדכונים ממתינים. לא הוכחה שליחה.</div>`:""}${r?`<div>${esc(r.message||"")}</div>`:"<div>אין אישור שליחה עדכני מהמכשיר הזה.</div>"}${q.some(e=>e.revision)?'<button type="button" class="btn sm" onclick="retryPublishedPush()">בדיקה וניסיון חוזר לפוש שלא אושר</button>':""}<div class="mut">פרסום האתר אינו אישור פוש. אישור שירות השליחה אינו הוכחת הצגה בטלפון.</div></div>`}
+function eventMatchesGame(e,g){return !!g&&JSON.stringify(e.score)===JSON.stringify(g.score)&&(e.type==="final"?!g.live:e.type==="halftime"?g.live?.phase==="half":!!g.live)}
 async function notifyCommittedLiveEvents(revision,events){
-  if(!events.length)return {sent:0,failed:0};
-  const code=localStorage.getItem(LIVE_PUSH_CODE);if(!code)return {sent:0,failed:events.length};
-  let sent=0,failed=0;
-  for(const e of events){
-    try{const r=await fetch(PUSH_API+"/push/admin-event",{method:"POST",headers:{"content-type":"application/json","x-admin-push-code":code},body:JSON.stringify({...e,revision})});if(!r.ok){failed++;continue}const d=await r.json();if(d.ok&&!d.duplicate&&d.sent>0)sent++;}
-    catch{failed++;}
-  }
-  return {sent,failed};
+ const code=localStorage.getItem(LIVE_PUSH_CODE),done=[],stale=[];let sent=0,gone=0,failed=0,duplicates=0,blocked=0;
+ for(const e of events){const g=liveGame(e.gameId);if(!eventMatchesGame(e,g)){stale.push(e.id);continue}if(!code){blocked++;continue}
+  try{const r=await fetch(PUSH_API+"/push/admin-event",{method:"POST",headers:{"content-type":"application/json","x-admin-push-code":code},body:JSON.stringify({...e,revision:e.revision||revision})});if(!r.ok){failed++;continue}const d=await r.json();if(!d.ok){failed++;continue}if(d.duplicate){duplicates++;done.push(e.id);continue}sent+=Number(d.sent)||0;gone+=Number(d.gone)||0;failed+=Number(d.failed)||0;done.push(e.id);}
+  catch{failed++}
+ }
+ const remove=new Set([...done,...stale]);saveLivePushQueue(readLivePushQueue().filter(e=>!remove.has(e.id)));
+ const message=blocked?"האתר פורסם, אבל הפוש לא נשלח: חסר קוד פוש נפרד.":failed?`האתר פורסם. פוש: ${sent} התקבלו בשירות השליחה, ${failed} נכשלו. אין אישור הצגה במכשירים.`:duplicates?`האירוע כבר עובד בשרת, ללא שליחה חוזרת. ${sent} אישורי שירות חדשים.`:stale.length&&!done.length?"העדכון הממתין כבר אינו תואם לתוצאה הנוכחית ולא נשלח.":`פוש: ${sent} התקבלו בשירות השליחה, ${gone} מנויים פגו. אין אישור הצגה במכשירים.`;
+ recordPushResult({message,sent,gone,failed,duplicates,blocked});return {sent,gone,failed,duplicates,blocked,message};
 }
+async function retryPublishedPush(){
+ const q=readLivePushQueue().filter(e=>e.revision);if(!q.length)return toast("אין פוש ממתין עם פרסום מאומת");
+ if(!localStorage.getItem(LIVE_PUSH_CODE))return toast("יש להגדיר קודם את קוד הפוש הנפרד");
+ try{const r=await fetch(`https://api.github.com/repos/${REPO}/contents/index.html`,{headers:{Authorization:"Bearer "+localStorage.getItem(TOK),Accept:"application/vnd.github+json"}});if(!r.ok)throw Error();const f=await r.json(),src=unb64(f.content),m=src.match(/const DATA = ([\s\S]*?);\s*\/\*DATA_END\*\//);if(!m)throw Error();const data=JSON.parse(m[1]),valid=q.filter(e=>e.publishedDataRev===data.rev&&eventMatchesGame(e,data.games.find(g=>g.id===e.gameId))&&eventMatchesGame(e,liveGame(e.gameId))),validIds=new Set(valid.map(e=>e.id));saveLivePushQueue(readLivePushQueue().filter(e=>!e.revision||validIds.has(e.id)));if(!valid.length){recordPushResult({message:"התוצאה השתנתה מאז. העדכון הישן לא נשלח."});refreshNextGame();return toast("העדכון הישן כבר לא תואם ולא נשלח")};const result=await notifyCommittedLiveEvents(null,valid);toast(result.message);refreshNextGame();}catch{toast("לא ניתן לוודא שהתוצאה עדיין עדכנית. לא נשלח פוש.")}
+}
+
 async function publish(){
   const tok=localStorage.getItem(TOK);if(!tok){setToken();return}
   if(publishInProgress)return;publishInProgress=true;let published=false;
@@ -1603,17 +1613,17 @@ async function publish(){
     const r=await fetch(api,{headers:h});if(!r.ok)throw new Error("קריאה נכשלה "+r.status);
     const f=await r.json(),src=unb64(f.content);
     const clean=JSON.parse(JSON.stringify(S));clean.rev=Date.now();clean.badges.forEach(b=>delete b._m);
-    const publishVersion=localEditRevision,pending=readLivePushQueue(),pendingIds=new Set(pending.map(e=>e.id));
+    const publishVersion=localEditRevision,pending=readLivePushQueue().filter(e=>!e.revision),pendingIds=new Set(pending.map(e=>e.id));
     const a=src.indexOf("/*DATA_START*/"),z=src.indexOf("/*DATA_END*/");if(a<0||z<0)throw new Error("סימוני נתונים חסרים");
     const out=src.slice(0,a)+"/*DATA_START*/\nconst DATA = "+JSON.stringify(clean,null,1)+";\n"+src.slice(z);
     const p=await fetch(api,{method:"PUT",headers:h,body:JSON.stringify({message:"עדכון נתונים מהאתר",content:b64(out),sha:f.sha})});
     if(!p.ok)throw new Error("שמירה נכשלה "+p.status);
     const saved=await p.json(),revision=saved.commit?.sha;published=true;
-    const remaining=readLivePushQueue().filter(e=>!pendingIds.has(e.id));saveLivePushQueue(remaining);
+    saveLivePushQueue(readLivePushQueue().map(e=>pendingIds.has(e.id)?{...e,revision:e.revision||revision,publishedDataRev:clean.rev}:e));
     if(localEditRevision===publishVersion){localStorage.removeItem(LS);dirty=false}else{dirty=true}
-    if(pending.length&&revision){const result=await notifyCommittedLiveEvents(revision,pending);if(result.failed)toast("פורסם, אבל חלק מהתראות הפוש נכשלו");else if(!result.sent)toast("פורסם. אין מנויים פעילים לקבלת פוש");else toast("פורסם ונשלחו התראות על עדכון המשחק");}
+    if(pending.length&&revision){const result=await notifyCommittedLiveEvents(revision,readLivePushQueue().filter(e=>pendingIds.has(e.id)));toast(result.message);refreshNextGame();}
     else if(pending.length&&!revision)toast("פורסם, אך חסר מזהה לפרסום ולכן לא נשלח פוש");
-    else toast("פורסם. יופיע לכולם בעוד כדקה");
+    else {recordPushResult({message:"האתר פורסם. לא היה אירוע פוש בתור ולכן לא נשלחה התראה."});toast("האתר פורסם. לא נשלחה התראה כי לא היה שינוי שער/מחצית/סיום בתור.");}
   }catch(e){toast("שגיאה: "+e.message)}
   finally{publishInProgress=false;refreshNextGame();if(published&&dirty&&localStorage.getItem(TOK))schedulePublish()}
 }
@@ -1777,14 +1787,16 @@ function gcalUrl(g){
 
 async function pushStatus(){
   if(!('serviceWorker' in navigator)||!('PushManager' in window)||!window.isSecureContext)return 'unsupported';
-  try{const reg=await navigator.serviceWorker.getRegistration();if(!reg)return 'off';const s=await reg.pushManager.getSubscription();return s?'on':'off';}catch{return 'off';}
+  try{const reg=await navigator.serviceWorker.getRegistration();if(!reg)return 'off';const s=await reg.pushManager.getSubscription();if(Notification.permission!=='granted')return 'off';return s?(localStorage.getItem('mr_push_registered_endpoint')===s.endpoint?'on':'unverified'):'off';}catch{return 'off';}
 }
 async function renderBell(btn){
   const st=await pushStatus();
-  if(st==='on'){btn.classList.add('on');btn.innerHTML='🔔 עדכונים כלליים פעילים';}
+  if(st==='on'){btn.classList.add('on');btn.innerHTML='🔔 עדכונים נרשמו במכשיר';}
+  else if(st==='unverified'){btn.classList.remove('on');btn.innerHTML='🔔 השלמת רישום לעדכונים';}
   else{btn.classList.remove('on');btn.innerHTML='🔕 עדכונים כלליים';}
 }
 async function togglePush(btn){
+  const permissionRequest=(!isIOS()||isStandalone())&&("Notification" in window)&&("PushManager" in window)&&("serviceWorker" in navigator)&&Notification.permission==="default"?Notification.requestPermission().catch(()=>"denied"):null;
   const st=await pushStatus();
   if(st==='unsupported'){
     if(isIOS()&&!isStandalone()){toast2('באייפון: קודם הוסיפו למסך הבית (שתף → הוספה למסך הבית), ואז הפעילו עדכונים מהאפליקציה');}
@@ -1792,23 +1804,29 @@ async function togglePush(btn){
     return;
   }
   if(isIOS()&&!isStandalone()){toast2('באייפון: מתקינים קודם את האתר למסך הבית (שתף → הוספה למסך הבית) ופותחים ממנו');return;}
+  let pushStep='הכנת שירות ההתראות';
   try{
-    const reg=await navigator.serviceWorker.register('sw.js');
+    await navigator.serviceWorker.register('sw.js');
+    const reg=await navigator.serviceWorker.ready;
     if(st==='on'){
       const s=await reg.pushManager.getSubscription();
-      if(s){await fetch(PUSH_API+'/push/unsubscribe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({endpoint:s.endpoint})}).catch(()=>{});await s.unsubscribe();}
+      if(s){await fetch(PUSH_API+'/push/unsubscribe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({endpoint:s.endpoint})}).catch(()=>{});await s.unsubscribe();localStorage.removeItem('mr_push_registered_endpoint');}
       toast2('העדכונים הכלליים כובו');
     }else{
-      const perm=await Notification.requestPermission();
-      if(perm!=='granted'){toast2('לא אושרו התראות בדפדפן');return;}
-      const k=await (await fetch(PUSH_API+'/push/key')).json();
-      const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64ToU8(k.key)});
+      const perm=permissionRequest?await permissionRequest:Notification.permission;
+      if(perm!=='granted'){toast2(perm==='denied'?'הרשאת התראות חסומה. באייפון: הגדרות ← עדכונים ← אפליקציית הקבוצה, ואישור התראות.':'לא אושרה בקשת ההתראות. פתחו ממסך הבית ונסו שוב.');return;}
+      pushStep='קבלת מפתח ההתראות';
+      const kr=await fetch(PUSH_API+'/push/key');if(!kr.ok)throw Error('key');const k=await kr.json();
+      pushStep='רישום בשירות ההתראות של המכשיר';
+      const sub=(await reg.pushManager.getSubscription())||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64ToU8(k.key)});
       const j=sub.toJSON();
+      pushStep='שמירת הרישום בשרת';
       const r=await fetch(PUSH_API+'/push/subscribe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({endpoint:sub.endpoint,keys:j.keys,ua:navigator.userAgent.slice(0,180)})});
       if(!r.ok)throw 0;
+      localStorage.setItem('mr_push_registered_endpoint',sub.endpoint);
       toast2('העדכונים הכלליים הופעלו! נעדכן על שינויים בלוח המשחקים, תוצאות ועדכוני תוצאה');
     }
-  }catch(e){toast2('הפעלת העדכונים נכשלה, נסו שוב');}
+  }catch(e){toast2('ההרשמה נכשלה בשלב: '+pushStep+(e?.name?' ('+e.name+')':'')+'. צלמו את ההודעה אם התקלה חוזרת.');}
   renderBell(btn);
 }
 
