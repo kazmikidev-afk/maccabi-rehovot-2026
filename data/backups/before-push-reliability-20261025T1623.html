@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b5ed7">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="הפועל מרמורק רחובות">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>הפועל מרמורק רחובות</title>
+<style>
+:root{--c:#0b5ed7;--bg:#f4f6fa;--tx:#1b2430;--mut:#6b7686;--bd:#e1e6ee}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--tx);line-height:1.45}
+header{background:var(--c);color:#fff;padding:14px;text-align:center}
+header h1{margin:0;font-size:1.35rem}header p{margin:2px 0 0;opacity:.85;font-size:.9rem}
+nav{display:flex;position:sticky;top:0;background:#fff;border-bottom:1px solid var(--bd);overflow-x:auto;z-index:5}
+nav button{flex:1;min-width:max-content;border:0;background:none;padding:12px 12px;font:inherit;font-weight:600;color:var(--mut);border-bottom:3px solid transparent}
+nav button.on{color:var(--c);border-color:var(--c)}
+main{max-width:720px;margin:0 auto;padding:12px}
+section{display:none}section.on{display:block}
+.chips{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.chips button,.btn{border:1px solid var(--bd);background:#fff;border-radius:99px;padding:8px 16px;font:inherit;color:var(--tx)}
+.chips button.on,.btn.pri{background:var(--c);color:#fff;border-color:var(--c)}
+.btn.red{color:#d23;border-color:#d23}.btn.wa{background:#25d366;color:#fff;border-color:#25d366}
+.btn.sm{padding:4px 12px;font-size:.85rem}
+.card{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px}
+.game>div{min-width:0;overflow-wrap:anywhere}
+.game>.mut,.game>.score{flex-shrink:0;white-space:nowrap}
+.game{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tag{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:99px;color:#fff;margin-inline-end:6px}
+.t-league{background:#0b5ed7}.t-cup{background:#c98a00}.t-friendly{background:#2e9e5b}
+.livesc{color:#d11}.livedot{font-weight:700;animation:lv 1.2s infinite}@keyframes lv{50%{opacity:.35}}
+.livep{border:2px solid #d11}.livep .big{font-size:2.4rem;font-weight:800;text-align:center;direction:ltr}.livep .btn{min-height:52px;font-size:1.1rem}
+.endbtn{display:block;width:100%;min-height:64px;margin:14px 0 6px;border:0;border-radius:14px;background:#111;color:#fff;font:inherit;font-size:1.25rem;font-weight:800;cursor:pointer;box-shadow:0 3px 0 #000}.endbtn:active{transform:translateY(2px);box-shadow:none}
+.score{font-size:1.3rem;font-weight:700;white-space:nowrap;text-align:center;direction:ltr}
+.mut{color:var(--mut);font-size:.85rem}
+.W{color:#2e9e5b}.L{color:#d23}.D{color:#888}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{padding:7px 4px;text-align:center;border-bottom:1px solid var(--bd)}
+th{color:var(--mut);font-weight:600}td:first-child,th:first-child{text-align:right}
+h2{font-size:1.05rem;margin:14px 0 8px}
+.empty{text-align:center;color:var(--mut);padding:18px}
+.note{background:#fff8e1;border:1px solid #f0d98a;border-radius:10px;padding:10px;font-size:.85rem;margin-bottom:10px}
+.note-compact{padding:6px 10px}.note-compact summary{cursor:pointer;font-weight:700;list-style-position:inside}.note-compact[open] summary{margin-bottom:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.num{display:inline-block;min-width:28px;height:28px;line-height:28px;text-align:center;border-radius:50%;background:var(--c);color:#fff;font-weight:700;margin-inline-end:8px}
+.badge{display:inline-block;font-size:.75rem;background:#eef3ff;border-radius:99px;padding:1px 8px;margin:2px 0 0 4px}
+input,select,textarea{font:inherit;padding:8px;border:1px solid var(--bd);border-radius:8px;width:100%;background:#fff}
+label{display:block;font-size:.85rem;color:var(--mut);margin:8px 0 3px}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.ev{display:flex;gap:6px;align-items:center;margin:4px 0;font-size:.9rem}
+pre{white-space:pre-wrap;background:#fff;border:1px solid var(--bd);border-radius:10px;padding:12px;font:inherit;direction:rtl}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 18px;border-radius:99px;display:none;z-index:20}
+a{color:var(--c)}
+
+[data-match]{cursor:pointer}[data-match]:focus-visible{outline:3px solid #8cbbff;outline-offset:2px}#match-share{width:min(700px,calc(100vw - 28px));max-height:85vh;overflow:auto;border:1px solid #dbe3ef;border-radius:16px;padding:20px;color:#172337}#match-share::backdrop{background:#17233799}#match-share textarea{width:100%;font:inherit;line-height:1.6}#s-admin{scroll-margin-top:70px}
+
+/* כרטיס המשחק הבא */
+.ngc{max-width:720px;margin:10px auto 0;padding:0 12px}#ngc.ng-taboff{display:none!important}
+.ng{background:#fff;border:1px solid var(--bd);border-radius:16px;padding:14px;box-shadow:0 2px 10px rgba(11,94,215,.07)}
+.ng-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ng-title{font-weight:800;font-size:1.1rem;color:var(--c)}
+.ng-round{background:var(--c);color:#fff;border-radius:99px;padding:2px 12px;font-size:.85rem;font-weight:700}
+.ng-teams{font-size:1.25rem;font-weight:800;margin:8px 0 2px}
+.ng-ha{display:inline-block;border:1px solid var(--bd);border-radius:99px;padding:1px 10px;font-size:.8rem;color:var(--mut);font-weight:600;vertical-align:middle}
+.ng-row{margin:6px 0;color:var(--tx);font-size:.98rem}
+.ng-row b{font-weight:700}
+.ng-result{background:#e8f7ee;border:1px solid #bfe6cd;border-radius:10px;padding:8px 10px;margin:8px 0;font-weight:800;color:#146c2e;text-align:center}
+.ng-btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.ng-btns a,.ng-btns button{flex:1;min-width:100px;text-align:center;text-decoration:none;border-radius:12px;padding:10px 8px;font:inherit;font-weight:700;border:1px solid var(--bd);background:#fff;color:var(--tx);cursor:pointer;font-size:.92rem}
+.ng-btns a.waze{background:#33ccff;color:#05304a;border-color:#33ccff}
+.ng-btns button.bell.on{background:#ffe9a8;border-color:#e6c34a}
+.ng-note{font-size:.82rem;color:var(--mut);margin-top:8px}
+</style>
+<style>
+.v-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0 16px}.v-heading h2{margin:0;font-size:1.3rem}.v-empty{text-align:center;padding:24px 16px}.v-mark{display:grid;place-items:center;margin:0 auto 14px;background:#e9f1ff;color:var(--c);border-radius:50%;width:64px;height:64px;font-size:26px}.v-empty p{max-width:460px;margin:12px auto}.v-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.v-card{padding:0;overflow:hidden}.v-card h3{font-size:1rem;margin:10px 12px 4px;overflow-wrap:anywhere}.v-card .mut,.v-card .badge,.v-card .bar{margin:8px 12px}.v-preview{border:0;width:100%;height:145px;background:linear-gradient(135deg,#143c72,#0b5ed7);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:inherit;cursor:pointer}.v-preview:disabled{opacity:.55;cursor:default}.v-playicon{display:grid;place-items:center;width:46px;height:46px;border:1px solid #ffffff80;border-radius:50%;padding-left:3px}.v-check{display:flex;align-items:flex-start;gap:10px;color:var(--tx);line-height:1.6}.v-check input{width:20px;height:20px;flex:none;margin-top:3px}.v-tags{margin-top:16px}.v-fieldset{border:1px solid var(--bd);border-radius:10px;margin:16px 0;padding:8px 12px}.v-fieldset legend{font-size:.9rem;color:var(--mut)}#v-player{display:block;width:100%;max-height:65vh;background:#111;border-radius:8px}#v-google{display:flex;justify-content:center;margin:20px 0}#v-progress{width:100%;height:18px;margin:12px 0}#s-videos button:focus-visible{outline:3px solid #8cbbff;outline-offset:2px}#s-videos .note{overflow-wrap:anywhere}#v-uploadstatus{overflow-wrap:anywhere}#v-playarea,#v-gal{scroll-margin-top:65px}@media(max-width:400px){.v-grid{gap:8px}.v-preview{height:120px}.v-heading h2{font-size:1.15rem}.v-heading .mut{font-size:.78rem}.v-card h3{font-size:.92rem}.v-tags button{padding:7px 12px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+#v-photo{display:block;width:100%;max-height:70vh;object-fit:contain;background:#111;border-radius:8px}#v-requests b,#v-familylist b{overflow-wrap:anywhere}#v-signuplink{font-size:.8rem}
+</style>
+<style id="ironi-ui-refresh">
+:root{--c:#164b43;--bg:#f1f3ee;--tx:#182d2a;--mut:#687873;--bd:#d9e2dc;--accent:#c89b4b;--soft:#e8efeb;--error:#b43d36}
+html{scroll-behavior:smooth}
+body{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--tx);line-height:1.55}
+header{position:relative;padding:22px 16px 20px;background:linear-gradient(125deg,#123a36 0%,#1d5b50 100%);color:#fff;text-align:center;border-bottom:4px solid var(--accent);box-shadow:0 5px 16px #173d3620}
+header h1{font-size:1.55rem;letter-spacing:.015em;font-weight:800}
+header p{font-size:.92rem;color:#e4eee9;opacity:1}
+nav{gap:4px;padding:8px max(8px,calc((100vw - 900px)/2));background:#fff;border-bottom:1px solid var(--bd);box-shadow:0 3px 10px #1d3b3410;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;min-height:44px;margin:0 1px;padding:9px 15px;border:0;border-radius:12px;color:var(--mut);font-size:.95rem;font-weight:650;white-space:nowrap;transition:background .16s,color .16s}
+nav button.on{background:var(--c);color:#fff;border:0;box-shadow:0 2px 6px #164b4330}
+main{max-width:820px;padding:18px 14px 36px}
+#ngc{max-width:820px;margin:14px auto 0;padding:0 14px}
+.card{background:#fff;border:1px solid var(--bd);border-radius:16px;padding:15px;margin-bottom:12px;box-shadow:0 4px 14px #18332b0c}
+.game{gap:14px;align-items:flex-start}
+.game>div:first-child{line-height:1.5}
+.game b{font-weight:750}
+.tag{font-weight:700;letter-spacing:.01em;padding:3px 9px}
+.t-league{background:#28705f}.t-cup{background:#a8792c}.t-friendly{background:#4b6d82}
+.chips button,.btn{min-height:42px;padding:9px 15px;border:1px solid var(--bd);border-radius:11px;background:#fff;color:var(--tx);font-weight:650;box-shadow:0 1px 2px #142d2708}
+.chips button.on,.btn.pri{background:var(--c);color:#fff;border-color:var(--c);box-shadow:0 2px 6px #164b4325}
+.btn.sm{min-height:40px;padding:7px 12px;border-radius:10px;font-size:.9rem}
+.btn.red{color:var(--error);border-color:#e8c6c3;background:#fffafa}
+.btn.wa{background:#25d366;color:#fff;border-color:#25d366}
+.btn.calendar-btn{background:var(--soft);border-color:#cadbd2;color:var(--c)}
+button,a{touch-action:manipulation}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #c89b4b;outline-offset:2px}
+.note{background:#f8f3e7;border:1px solid #e8d8b4;border-inline-start:4px solid var(--accent);border-radius:12px;padding:12px 14px;color:#37453f}
+.badge{background:var(--soft);color:#285c50;border-radius:8px;padding:3px 9px;font-weight:650}
+.num{background:var(--c);color:#fff}
+h2{font-size:1.12rem;line-height:1.35;margin:18px 0 10px;font-weight:760;letter-spacing:-.01em}
+.empty{padding:24px 16px;color:var(--mut)}
+input,select,textarea{border-color:var(--bd);border-radius:10px;padding:10px 12px;color:var(--tx)}
+label{font-weight:650;color:var(--mut)}
+pre{border-color:var(--bd);border-radius:12px}
+table{font-size:.93rem}
+th{background:#f2f5f1;color:#4f625b;font-weight:700}
+th,td{padding:9px 7px}
+.ng{background:#fff;border:1px solid #d4e0d9;border-inline-start:5px solid var(--accent);border-radius:17px;padding:16px;box-shadow:0 8px 24px #19372f14}
+.ng-title{color:var(--c)}
+.ng-round{background:#dcebe4;color:var(--c);border-radius:9px}
+.ng-teams{font-size:1.2rem}
+.ng-btns a,.ng-btns button{min-height:46px;border-radius:11px;font-weight:700}
+.ng-btns a.waze{background:#f4c34d;color:#40320e;border-color:#e7b83e}
+.ng-btns button.bell.on{background:#f7edd6;border-color:#d9bd76;color:#56441d}
+.ng-note{color:var(--mut);line-height:1.5}
+.v-mark{background:#e5efe9;color:var(--c)}
+.v-preview{background:linear-gradient(135deg,#163e3a,#28705f)}
+.v-fieldset{border-color:var(--bd);border-radius:12px}
+#match-share{border-color:var(--bd);border-radius:18px}
+#s-videos .card{overflow:hidden}
+@media(max-width:560px){
+ header{padding:18px 12px 16px}
+ header h1{font-size:1.4rem}
+ main{padding:14px 10px 28px}
+ #ngc{padding:0 10px;margin-top:10px}
+ .card{padding:13px;border-radius:15px}
+ .game{gap:8px}
+ .game>.mut,.game>.score{white-space:normal;text-align:left}
+ .game .score{font-size:1.15rem}
+ .chips{gap:7px}
+ .chips button{min-height:44px;padding:8px 13px}
+ .bar{gap:7px}
+ .bar .btn{flex:1 1 auto}
+ .ng{padding:14px}
+ .ng-btns a,.ng-btns button{min-width:calc(50% - 6px);font-size:.88rem}
+ .ev{align-items:flex-start;flex-wrap:wrap}
+ #s-league .card[style*="overflow-x"]{max-width:100%}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
+</style>
+<style id="install-ui">
+.install-app{display:block;margin:14px auto 0;min-height:44px;padding:9px 14px;border:1px solid #ffffff80;border-radius:12px;background:#ffffff14;color:#fff;font:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.install-app:hover{background:#ffffff24}
+.install-app[hidden]{display:none!important}
+.install-dialog{width:min(430px,calc(100vw - 28px));border:1px solid var(--bd);border-radius:20px;padding:0;background:#fff;color:var(--tx);box-shadow:0 18px 54px #102d2740}
+.install-dialog::backdrop{background:#132c28a8}
+.install-dialog-inner{padding:24px;text-align:center}
+.install-dialog-icon{display:grid;place-items:center;width:56px;height:56px;margin:0 auto 10px;border-radius:16px;background:var(--soft);font-size:27px}
+.install-dialog h2{margin:8px 0}
+.install-dialog p{margin:10px 0 18px;line-height:1.7;text-align:right}
+.install-dialog .btn{min-width:110px}
+@media(max-width:560px){.install-app{margin-top:12px}.install-dialog-inner{padding:20px}}
+</style>
+<style id="live-score-card">
+.ng-live-score{margin:10px 0;padding:12px 10px;background:#f8f4e9;border:1px solid #e4d6b4;border-radius:14px;text-align:center}.ng-score-row{display:flex;align-items:center;justify-content:center;gap:16px;direction:ltr}.ng-score-team{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:86px}.ng-score-team b{font-size:2.35rem;line-height:1.1;color:#b43d36;font-weight:850}.ng-score-team span{font-size:.92rem;font-weight:750;direction:rtl}.ng-score-row>strong{font-size:1.7rem;color:var(--mut)}.ng-live-meta{margin-top:7px;font-weight:750;color:#a52d2d}.ng-live-events{text-align:right;margin:8px 0;padding:8px 10px;border-inline-start:3px solid var(--accent);background:var(--soft);border-radius:8px}.ng-live-events b{display:block;margin-bottom:3px}.ng-live-events div{font-size:.92rem}.ng-live .ng-title{color:#a52d2d}
+.ng-live-admin{margin:10px 0 8px;padding:10px;background:#f5f8fb;border:1px solid var(--bd);border-radius:12px;text-align:right}
+.ng-live-admin-title{display:block;margin-bottom:7px;font-weight:800}
+.ng-live-admin-score{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ng-live-admin-side{min-width:0;padding:8px 6px;border:1px solid var(--bd);border-radius:10px;background:#fff;text-align:center}
+.ng-live-admin-side-name{min-height:2.3em;display:grid;place-items:center;font-size:.82rem;font-weight:750}
+.ng-live-admin-side-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:5px}
+.ng-live-admin .btn{min-height:44px;padding:6px 5px;border-radius:9px;font-size:.88rem;font-weight:750;white-space:normal}
+.ng-live-admin-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:7px}
+.ng-live-admin-row.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ng-live-admin-end{display:block;width:100%;min-height:54px;margin-top:8px;border:0;border-radius:11px;background:#1b2430;color:#fff;font:inherit;font-size:.98rem;font-weight:800;cursor:pointer}
+.ng-live-admin-end:active{transform:translateY(1px)}
+.ng-live-admin-hint{margin-top:6px}
+.ng-live-admin-push{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--bd);font-size:.82rem}
+.ng-live-admin-push .btn{min-height:38px}
+.ng-live-locked{display:flex;justify-content:flex-end;margin:8px 0 2px}
+.ng-live-locked button{min-height:36px;padding:5px 10px;border:1px solid var(--bd);border-radius:99px;background:#f8f8f8;color:var(--mut);font:inherit;font-size:.8rem;cursor:pointer}
+.ng-final .ng-title,.ng-final .ng-live-meta{color:#285b3a}
+.ng-final .ng-live-score{background:#eef7f0;border-color:#c4e2cc}
+@media(max-width:390px){.ng-score-row{gap:9px}.ng-score-team{min-width:74px}.ng-score-team b{font-size:2.05rem}.ng-score-team span{font-size:.82rem}}
+</style>
+</head>
+<body>
+<header><h1 id="club"></h1><p id="season"></p><button id="installApp" class="install-app" type="button">📲 הוספה למסך הבית</button></header>
+<nav id="nav"></nav>
+<div class="ngc" id="ngc" hidden></div>
+<main>
+<section id="s-games"></section>
+<section id="s-squad"></section>
+<section id="s-stats"></section>
+<section id="s-league"></section>
+<section id="s-share"></section>
+<section id="s-videos"></section>
+<section id="s-admin"></section>
+</main>
+<div class="toast" id="toast"></div>
+<dialog id="installHelp" class="install-dialog" aria-labelledby="installHelpTitle"><div class="install-dialog-inner"><div class="install-dialog-icon" aria-hidden="true">📲</div><h2 id="installHelpTitle">הוספה למסך הבית</h2><p id="installSteps"></p><button id="closeInstallHelp" class="btn pri" type="button">הבנתי</button></div></dialog>
+
+<script>
+/* ===================================================================
+   בלוק הנתונים. אפשר לערוך ידנית, או דרך לשונית "ניהול" באתר.
+   אל תשנו את שורות הסימון DATA_START / DATA_END.
+   type: friendly=אימון, league=ליגה, cup=גביע
+   score: [שערים שלנו, שערי היריב] או null אם עוד לא שוחק
+   events kind: goal / assist / yellow / red / note
+   =================================================================== */
+/*DATA_START*/
+const DATA = {
+ "rev": 1792945266992,
+ "club": "הפועל מרמורק רחובות",
+ "season": "עונת 2026/27",
+ "adminHash": "31d4f5f8af22211e6387f51657eecf5ee8b37d55d13bae3c6266ff2909369ad9",
+ "leagueUrl": "https://www.juniorleague.co.il/%d7%99%d7%9c%d7%93%d7%99%d7%9d-%d7%92-%d7%9e%d7%a8%d7%9b%d7%96-26-27/",
+ "leagueUpdated": "ליגת ילדים ג' מרכז 2026/27 · טבלה: ג'וניורליג · עודכן 2026-10-22",
+ "leagueTable": [
+  {
+   "team": "מכבי ת\"א עוז",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 10,
+   "ga": 1,
+   "pts": 3,
+   "rank": 1
+  },
+  {
+   "team": "הפועל ראשל\"צ",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 8,
+   "ga": 1,
+   "pts": 3,
+   "rank": 2
+  },
+  {
+   "team": "הפועל ת\"א",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 6,
+   "ga": 2,
+   "pts": 3,
+   "rank": 3
+  },
+  {
+   "team": "מ.ס אשדוד",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 5,
+   "ga": 1,
+   "pts": 3,
+   "rank": 4
+  },
+  {
+   "team": "הפועל רעננה",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 4,
+   "ga": 0,
+   "pts": 3,
+   "rank": 5
+  },
+  {
+   "team": "הפועל ב\"ש",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 6,
+   "ga": 3,
+   "pts": 3,
+   "rank": 6
+  },
+  {
+   "team": "קדימה צורן",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 5,
+   "ga": 2,
+   "pts": 3,
+   "rank": 7
+  },
+  {
+   "team": "ס. נס ציונה",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 3,
+   "ga": 0,
+   "pts": 3,
+   "rank": 8
+  },
+  {
+   "team": "הפ' רמה\"ש מרכז",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 3,
+   "ga": 1,
+   "pts": 3,
+   "rank": 9
+  },
+  {
+   "team": "עמישב פ\"ת",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 3,
+   "ga": 2,
+   "pts": 3,
+   "rank": 10
+  },
+  {
+   "team": "מכבי נתניה",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 3,
+   "ga": 2,
+   "pts": 3,
+   "rank": 11
+  },
+  {
+   "team": "מכבי פ\"ת",
+   "p": 1,
+   "w": 1,
+   "d": 0,
+   "l": 0,
+   "gf": 2,
+   "ga": 1,
+   "pts": 3,
+   "rank": 12
+  },
+  {
+   "team": "מכבי ב\"ש",
+   "p": 1,
+   "w": 0,
+   "d": 1,
+   "l": 0,
+   "gf": 0,
+   "ga": 0,
+   "pts": 1,
+   "rank": 13
+  },
+  {
+   "team": "הפועל כפ\"ס",
+   "p": 1,
+   "w": 0,
+   "d": 1,
+   "l": 0,
+   "gf": 0,
+   "ga": 0,
+   "pts": 1,
+   "rank": 14
+  },
+  {
+   "team": "גני תקווה",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 2,
+   "ga": 3,
+   "pts": 0,
+   "rank": 15
+  },
+  {
+   "team": "מכבי חיפה עודד",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 2,
+   "ga": 3,
+   "pts": 0,
+   "rank": 16
+  },
+  {
+   "team": "הפועל ר\"ג",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 1,
+   "ga": 2,
+   "pts": 0,
+   "rank": 17
+  },
+  {
+   "team": "מ.ס ב\"ש",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 1,
+   "ga": 3,
+   "pts": 0,
+   "rank": 18
+  },
+  {
+   "team": "בני יהודה",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 3,
+   "ga": 6,
+   "pts": 0,
+   "rank": 19
+  },
+  {
+   "team": "מחנה יהודה דרום",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 2,
+   "ga": 5,
+   "pts": 0,
+   "rank": 20
+  },
+  {
+   "team": "הפועל י-ם מזרח",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 0,
+   "ga": 3,
+   "pts": 0,
+   "rank": 21
+  },
+  {
+   "team": "מכבי קרית גת",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 2,
+   "ga": 6,
+   "pts": 0,
+   "rank": 22
+  },
+  {
+   "team": "בית\"ר י-ם",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 1,
+   "ga": 5,
+   "pts": 0,
+   "rank": 23
+  },
+  {
+   "team": "הפ' מרמורק",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 0,
+   "ga": 4,
+   "pts": 0,
+   "rank": 24
+  },
+  {
+   "team": "מכבי אשקלון",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 1,
+   "ga": 8,
+   "pts": 0,
+   "rank": 25
+  },
+  {
+   "team": "הפועל פ\"ת",
+   "p": 1,
+   "w": 0,
+   "d": 0,
+   "l": 1,
+   "gf": 1,
+   "ga": 10,
+   "pts": 0,
+   "rank": 26
+  }
+ ],
+ "leagueScorers": [],
+ "games": [
+  {
+   "id": 1,
+   "type": "friendly",
+   "date": "2026-09-11",
+   "time": "09:00",
+   "opponent": "הפועל לוד",
+   "home": false,
+   "venue": "אצטדיון עירוני לוד",
+   "score": [
+    14,
+    2
+   ],
+   "events": [
+    {
+     "min": 65,
+     "kind": "goal",
+     "player": "לא ידוע",
+     "text": ""
+    }
+   ],
+   "note": "",
+   "uid": "game-2026-1"
+  },
+  {
+   "id": 2,
+   "type": "friendly",
+   "date": "2026-09-24",
+   "time": "14:00",
+   "opponent": "הפועל ירושלים",
+   "home": true,
+   "venue": "",
+   "score": [
+    3,
+    1
+   ],
+   "events": [
+    {
+     "min": 55,
+     "kind": "goal",
+     "player": "דניאל זריהון",
+     "text": ""
+    },
+    {
+     "min": 60,
+     "kind": "goal",
+     "player": "ליאב ביידה",
+     "text": ""
+    },
+    {
+     "min": 70,
+     "kind": "goal",
+     "player": "מתניה עדן",
+     "text": ""
+    }
+   ],
+   "note": "",
+   "uid": "game-2026-2"
+  },
+  {
+   "id": 3,
+   "type": "friendly",
+   "date": "2026-10-02",
+   "time": "11:00",
+   "opponent": "מכבי קריית גת",
+   "home": true,
+   "venue": "",
+   "score": [
+    3,
+    0
+   ],
+   "events": [
+    {
+     "min": 32,
+     "kind": "goal",
+     "player": "רז דיין",
+     "text": ""
+    },
+    {
+     "min": 65,
+     "kind": "goal",
+     "player": "עידן בסר",
+     "text": ""
+    },
+    {
+     "min": 73,
+     "kind": "goal",
+     "player": "דניאל זריהון",
+     "text": ""
+    }
+   ],
+   "note": "",
+   "uid": "game-2026-3"
+  },
+  {
+   "id": 4,
+   "type": "cup",
+   "date": "2026-10-11",
+   "time": "19:50",
+   "opponent": "הפועל ירושלים מזרח",
+   "home": false,
+   "venue": "ירושלים, עמק הארזים 1 (סינטטי)",
+   "score": [
+    3,
+    2
+   ],
+   "events": [
+    {
+     "min": 11,
+     "kind": "goal",
+     "player": "לא ידוע",
+     "text": ""
+    },
+    {
+     "min": 20,
+     "kind": "goal",
+     "player": "מתניה עדן",
+     "text": ""
+    },
+    {
+     "min": 22,
+     "kind": "goal",
+     "player": "דניאל זריהון",
+     "text": ""
+    },
+    {
+     "min": 65,
+     "kind": "goal",
+     "player": "לא ידוע",
+     "text": ""
+    },
+    {
+     "min": 70,
+     "kind": "goal",
+     "player": "דניאל זריהון",
+     "text": ""
+    }
+   ],
+   "note": "גביע המדינה ע\"ש יעקב גרונדמן ז\"ל, סיבוב 1. נדחה מ-10.10",
+   "uid": "game-2026-4",
+   "scheduleOverride": {
+    "previousDate": "2026-10-10",
+    "source": ""
+   },
+   "matchId": "s28-l592-r1-2902-vs-2931"
+  },
+  {
+   "id": 5,
+   "uid": "ifa-2026-27-round-1",
+   "type": "league",
+   "date": "2026-10-16",
+   "time": "13:30",
+   "arrive": "12:30",
+   "opponent": "הפועל רעננה",
+   "home": false,
+   "venue": "רעננה, רחוב מרטין דרוקר 1",
+   "score": [
+    0,
+    4
+   ],
+   "events": [
+    {
+     "min": 11,
+     "kind": "goal",
+     "player": "לא ידוע",
+     "text": ""
+    },
+    {
+     "min": 27,
+     "kind": "goal",
+     "player": "לא ידוע",
+     "text": ""
+    },
+    {
+     "min": null,
+     "kind": "goal",
+     "player": "לא ידוע",
+     "text": ""
+    },
+    {
+     "min": null,
+     "kind": "goal",
+     "player": "לא ידוע",
+     "text": ""
+    }
+   ],
+   "note": "מחזור 1 ",
+   "round": 1
+  },
+  {
+   "id": 6,
+   "uid": "ifa-2026-27-round-2",
+   "type": "league",
+   "date": "2026-10-28",
+   "time": "",
+   "opponent": "הפועל ראשל\"צ",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 2",
+   "round": 2
+  },
+  {
+   "id": 7,
+   "uid": "ifa-2026-27-round-3",
+   "type": "league",
+   "date": "2026-10-31",
+   "time": "",
+   "opponent": "הפועל ירושלים מזרח",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 3",
+   "round": 3
+  },
+  {
+   "id": 8,
+   "uid": "ifa-2026-27-round-4",
+   "type": "league",
+   "date": "2026-11-14",
+   "time": "",
+   "opponent": "ה.מ יהודה ד. תומר ברק",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 4",
+   "round": 4
+  },
+  {
+   "id": 9,
+   "uid": "ifa-2026-27-round-5",
+   "type": "league",
+   "date": "2026-11-28",
+   "time": "",
+   "opponent": "מ.ס. קדימה צורן",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 5",
+   "round": 5
+  },
+  {
+   "id": 10,
+   "uid": "ifa-2026-27-round-6",
+   "type": "league",
+   "date": "2026-12-05",
+   "time": "",
+   "opponent": "ס. נס ציונה",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 6",
+   "round": 6
+  },
+  {
+   "id": 11,
+   "uid": "ifa-2026-27-round-7",
+   "type": "league",
+   "date": "2026-12-19",
+   "time": "",
+   "opponent": "מכבי אשקלון צפון",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 7",
+   "round": 7
+  },
+  {
+   "id": 12,
+   "uid": "ifa-2026-27-round-8",
+   "type": "league",
+   "date": "2026-12-26",
+   "time": "",
+   "opponent": "מ.כ. גני תקווה מרכז",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 8",
+   "round": 8
+  },
+  {
+   "id": 13,
+   "uid": "ifa-2026-27-round-9",
+   "type": "league",
+   "date": "2027-01-09",
+   "time": "",
+   "opponent": "הפ' ת\"א יאיר לרמן",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 9",
+   "round": 9
+  },
+  {
+   "id": 14,
+   "uid": "ifa-2026-27-round-10",
+   "type": "league",
+   "date": "2027-01-16",
+   "time": "",
+   "opponent": "הפ' פ\"ת שמואל בייגל",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 10",
+   "round": 10
+  },
+  {
+   "id": 15,
+   "uid": "ifa-2026-27-round-11",
+   "type": "league",
+   "date": "2027-01-23",
+   "time": "",
+   "opponent": "בית\"ר י-ם 1",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 11",
+   "round": 11
+  },
+  {
+   "id": 16,
+   "uid": "ifa-2026-27-round-12",
+   "type": "league",
+   "date": "2027-01-30",
+   "time": "",
+   "opponent": "הפ' כפ\"ס שמעון",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 12",
+   "round": 12
+  },
+  {
+   "id": 17,
+   "uid": "ifa-2026-27-round-13",
+   "type": "league",
+   "date": "2027-02-06",
+   "time": "",
+   "opponent": "מכבי חיפה עודד",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 13",
+   "round": 13
+  },
+  {
+   "id": 18,
+   "uid": "ifa-2026-27-round-14",
+   "type": "league",
+   "date": "2027-02-13",
+   "time": "",
+   "opponent": "הפועל ב\"ש \"לבן\"",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 14",
+   "round": 14
+  },
+  {
+   "id": 19,
+   "uid": "ifa-2026-27-round-15",
+   "type": "league",
+   "date": "2027-02-20",
+   "time": "",
+   "opponent": "מכבי פ\"ת \"חיים הנדלר\"",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 15",
+   "round": 15
+  },
+  {
+   "id": 20,
+   "uid": "ifa-2026-27-round-16",
+   "type": "league",
+   "date": "2027-03-06",
+   "time": "",
+   "opponent": "הפ' ניר רמת השרון מרכז",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 16",
+   "round": 16
+  },
+  {
+   "id": 21,
+   "uid": "ifa-2026-27-round-17",
+   "type": "league",
+   "date": "2027-03-13",
+   "time": "",
+   "opponent": "מכבי עמישב פ\"ת",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 17",
+   "round": 17
+  },
+  {
+   "id": 22,
+   "uid": "ifa-2026-27-round-18",
+   "type": "league",
+   "date": "2027-03-20",
+   "time": "",
+   "opponent": "מ.ס. ב\"ש 2",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 18",
+   "round": 18
+  },
+  {
+   "id": 23,
+   "uid": "ifa-2026-27-round-19",
+   "type": "league",
+   "date": "2027-03-27",
+   "time": "",
+   "opponent": "הפועל ר\"ג דרום",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 19",
+   "round": 19
+  },
+  {
+   "id": 24,
+   "uid": "ifa-2026-27-round-20",
+   "type": "league",
+   "date": "2027-04-03",
+   "time": "",
+   "opponent": "בני יהודה ת\"א",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 20",
+   "round": 20
+  },
+  {
+   "id": 25,
+   "uid": "ifa-2026-27-round-21",
+   "type": "league",
+   "date": "2027-04-06",
+   "time": "",
+   "opponent": "מכבי נתניה",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 21",
+   "round": 21
+  },
+  {
+   "id": 26,
+   "uid": "ifa-2026-27-round-22",
+   "type": "league",
+   "date": "2027-04-10",
+   "time": "",
+   "opponent": "מכבי ב\"ש \"צו פיוס\"",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 22",
+   "round": 22
+  },
+  {
+   "id": 27,
+   "uid": "ifa-2026-27-round-23",
+   "type": "league",
+   "date": "2027-04-17",
+   "time": "",
+   "opponent": "מ.ס. אשדוד סולומון",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 23",
+   "round": 23
+  },
+  {
+   "id": 28,
+   "uid": "ifa-2026-27-round-24",
+   "type": "league",
+   "date": "2027-04-24",
+   "time": "",
+   "opponent": "מכבי תל אביב עוז",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 24",
+   "round": 24
+  },
+  {
+   "id": 29,
+   "uid": "ifa-2026-27-round-25",
+   "type": "league",
+   "date": "2027-05-01",
+   "time": "",
+   "opponent": "מכבי תל אביב עוז",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 25",
+   "round": 25
+  },
+  {
+   "id": 30,
+   "uid": "ifa-2026-27-round-26",
+   "type": "league",
+   "date": "2027-05-08",
+   "time": "",
+   "opponent": "הפועל רעננה",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 26",
+   "round": 26
+  },
+  {
+   "id": 31,
+   "uid": "ifa-2026-27-round-27",
+   "type": "league",
+   "date": "2027-05-15",
+   "time": "",
+   "opponent": "הפועל ראשל\"צ",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 27",
+   "round": 27
+  },
+  {
+   "id": 32,
+   "uid": "ifa-2026-27-round-28",
+   "type": "league",
+   "date": "2027-05-18",
+   "time": "",
+   "opponent": "הפועל ירושלים מזרח",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 28",
+   "round": 28
+  },
+  {
+   "id": 33,
+   "uid": "ifa-2026-27-round-29",
+   "type": "league",
+   "date": "2027-05-22",
+   "time": "",
+   "opponent": "ה.מ יהודה ד. תומר ברק",
+   "home": false,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 29",
+   "round": 29
+  },
+  {
+   "id": 34,
+   "uid": "ifa-2026-27-round-30",
+   "type": "league",
+   "date": "2027-05-29",
+   "time": "",
+   "opponent": "מ.ס. קדימה צורן",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "מחזור 30",
+   "round": 30
+  },
+  {
+   "id": 35,
+   "uid": "cup-2026-27-round-2-game-32",
+   "type": "cup",
+   "date": "2026-10-25",
+   "time": "17:00",
+   "opponent": "מכבי אשקלון צפון",
+   "home": false,
+   "venue": "אצטדיון סלה אשקלון",
+   "score": [
+    4,
+    1
+   ],
+   "events": [
+    {
+     "min": 10,
+     "kind": "goal",
+     "player": "שחר מעבי",
+     "text": ""
+    },
+    {
+     "min": 40,
+     "kind": "goal",
+     "player": "דניאל זריהון",
+     "text": ""
+    },
+    {
+     "min": 35,
+     "kind": "goal",
+     "player": "רז דיין",
+     "text": ""
+    },
+    {
+     "min": 62,
+     "kind": "goal",
+     "player": "מתניה עדן",
+     "text": ""
+    }
+   ],
+   "note": "גביע ילדים ג' ע\"ש יעקב גרונדמן ז\"ל, סיבוב ב', משחק 32. נדחה מ-24.10. התכנסות 16:00",
+   "scheduleOverride": {
+    "previousDate": "2026-10-24",
+    "source": "juniorleague"
+   },
+   "live": {
+    "min": null,
+    "phase": "first",
+    "at": 1792945252852
+   }
+  }
+ ],
+ "squad": [
+  {
+   "num": 1,
+   "name": "תום אברברוך",
+   "pos": "שוער"
+  },
+  {
+   "num": 5,
+   "name": "עומר אליהו",
+   "pos": "בלם"
+  },
+  {
+   "num": 6,
+   "name": "אוראל שמש",
+   "pos": "מגן שמאל"
+  },
+  {
+   "num": 8,
+   "name": "רוי מזרחי",
+   "pos": "כנף ימין"
+  },
+  {
+   "num": 9,
+   "name": "עידן בסר",
+   "pos": "קשר"
+  },
+  {
+   "num": 10,
+   "name": "מתניה עדן",
+   "pos": "כנף שמאל"
+  },
+  {
+   "num": 11,
+   "name": "רז דיין",
+   "pos": "כנף שמאל"
+  },
+  {
+   "num": 13,
+   "name": "איתן מזרחי",
+   "pos": "מגן ימין"
+  },
+  {
+   "num": 14,
+   "name": "אורי סוסן",
+   "pos": "מגן שמאל"
+  },
+  {
+   "num": 15,
+   "name": "דניאל זריהון",
+   "pos": "כנף ימין"
+  },
+  {
+   "num": 16,
+   "name": "ניתאי רחמים",
+   "pos": "קשר"
+  },
+  {
+   "num": 17,
+   "name": "אורי בוקעי",
+   "pos": "קשר"
+  },
+  {
+   "num": 19,
+   "name": "אביעד שיבשי",
+   "pos": "מגן ימין"
+  },
+  {
+   "num": 20,
+   "name": "שחר מעבי",
+   "pos": "חלוץ"
+  },
+  {
+   "num": 22,
+   "name": "גלעד קזולה",
+   "pos": "שוער"
+  },
+  {
+   "num": 23,
+   "name": "ליאב ביידה",
+   "pos": "חלוץ"
+  },
+  {
+   "num": null,
+   "name": "יואב רוזנבלום",
+   "pos": "חלוץ"
+  },
+  {
+   "num": 7,
+   "name": "יהב עזרן",
+   "pos": "חלוץ"
+  }
+ ],
+ "badges": [
+  {
+   "player": "איתן מזרחי",
+   "text": "🏆 שחקן המשחק",
+   "gameId": 2
+  },
+  {
+   "player": "איתן מזרחי",
+   "text": "🏆 שחקן המשחק",
+   "gameId": null
+  },
+  {
+   "player": "גלעד קזולה",
+   "text": "🧤 שער נקי",
+   "gameId": null
+  },
+  {
+   "player": "אורי סוסן",
+   "text": "🔥 מאמץ יוצא דופן",
+   "gameId": null
+  },
+  {
+   "player": "דניאל זריהון",
+   "text": "🏆 שחקן המשחק",
+   "gameId": 4
+  }
+ ],
+ "links": [
+  {
+   "label": "גביע ילדים ג' - משחקים ותוצאות (אתר ההתאחדות)",
+   "url": "https://www.football.org.il/national-cup/?national_cup_id=592&season_id=28"
+  }
+ ],
+ "staff": [
+  {
+   "role": "מאמן",
+   "name": "סהר יצחקי"
+  }
+ ],
+ "fixturesImport": "ifa-2026-27-v1"
+};
+/*DATA_END*/
+
+const TYPES={friendly:"אימון",league:"ליגה",cup:"גביע"};
+const POS=["שוער","בלם","מגן ימין","מגן שמאל","קשר","כנף ימין","כנף שמאל","חלוץ"];
+const KINDS={goal:"⚽ שער",assist:"👟 בישול",yellow:"🟨 צהוב",red:"🟥 אדום",note:"📝 הערה"};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const toast=m=>{const t=$("#toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",2500)};
+const PUSH_API="https://maccabi-rehovot-api.pages.dev";
+const LS="mr_local",TOK="mr_token",ADM="mr_admin",REPO="kazmikidev-afk/maccabi-rehovot-2026",LIVE_PUSH_CODE="mr_live_push_admin_code",LIVE_PUSH_QUEUE="mr_live_push_queue";
+
+/* state = נתוני האתר, או שינויים מקומיים שטרם פורסמו מהמכשיר הזה */
+let S=JSON.parse(JSON.stringify(DATA)),dirty=false,localEditRevision=0,recoverableDraft=null;
+try{const l=JSON.parse(localStorage.getItem(LS)||"null");if(l&&l.base===DATA.rev){S=l.data;dirty=true}else if(l?.data?.games){recoverableDraft=l;try{localStorage.setItem("mr_draft_recovery",JSON.stringify(l));}catch{}}}catch(e){}
+// Approved correction for the known imported cup fixture, without dropping local game events.
+const oldCup=S.games.find(g=>g.id===4&&g.date==='2026-10-10'&&g.opponent==='בית\"ר ע. מעלה אדומים'&&!g.time&&!g.venue);
+if(oldCup){const corrected=DATA.games.find(g=>g.id===4);for(const k of ['date','opponent','time','venue','home','note','scheduleOverride'])oldCup[k]=corrected[k];if(dirty)try{localStorage.setItem(LS,JSON.stringify({base:DATA.rev,data:S}));}catch{}}
+const postponedCup=S.games.find(g=>g.id===4&&g.date==='2026-10-10'&&g.opponent==='הפועל ירושלים מזרח'&&g.time==='20:15');
+if(postponedCup){const corrected=DATA.games.find(g=>g.id===4);for(const k of ['date','time','note','scheduleOverride'])postponedCup[k]=corrected[k];if(dirty)try{localStorage.setItem(LS,JSON.stringify({base:DATA.rev,data:S}));}catch{}}
+// Merge the approved season fixtures once into unsaved local data, preserving edits and IDs.
+if(dirty&&S.fixturesImport!==DATA.fixturesImport){
+  for(const fixture of DATA.games.filter(g=>g.uid?.startsWith('ifa-2026-27-round-'))){
+    if(S.games.some(g=>g.uid===fixture.uid))continue;
+    const copy=JSON.parse(JSON.stringify(fixture));
+    if(S.games.some(g=>g.id===copy.id))copy.id=Math.max(0,...S.games.map(g=>g.id))+1;
+    S.games.push(copy);
+  }
+  S.fixturesImport=DATA.fixturesImport;
+  try{localStorage.setItem(LS,JSON.stringify({base:DATA.rev,data:S}));}catch{}
+}
+// Preserve the user-confirmed Raanana venue across existing local data and future fixture imports.
+const VENUE_OVERRIDES=Object.freeze({"ifa-2026-27-round-1":{fixtureVenue:"רעננה, רחוב מרטין דרוקר 1",nextGameAddress:"מרטין דרוקר 1, רעננה"}});
+let venueOverrideChanged=false;
+for(const g of S.games){const venue=VENUE_OVERRIDES[g.uid]?.fixtureVenue;if(venue&&g.venue!==venue){g.venue=venue;venueOverrideChanged=true;}}
+if(dirty&&venueOverrideChanged)try{localStorage.setItem(LS,JSON.stringify({base:DATA.rev,data:S}));}catch{}
+function persist(){if(recoverableDraft)try{localStorage.setItem("mr_draft_recovery",JSON.stringify(recoverableDraft));}catch{}dirty=true;localEditRevision++;localStorage.setItem(LS,JSON.stringify({base:DATA.rev,data:S}));renderAll()}
+
+const played=g=>!g.bye&&Array.isArray(g.score)&&!g.live;
+const fd=d=>new Date(d+"T00:00").toLocaleDateString("he-IL",{weekday:"short",day:"numeric",month:"numeric"});
+const fdl=d=>new Date(d+"T00:00").toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"});
+const res=g=>{if(!played(g))return"";const[a,b]=g.score;return a>b?"W":a<b?"L":"D"};
+const gname=g=>g.bye?"ללא משחק (מחזור חופשי)":`${g.home?"בית":"חוץ"} נגד ${g.opponent}`;
+let filter="all",statFilter="all";
+
+function calendarButton(g){
+  if(!g||g.bye||g.live||played(g))return "";
+  return `<button class="btn sm calendar-btn" aria-label="הוספת המשחק מול ${esc(g.opponent)} ליומן" onclick="addGameToCalendar(${Number(g.id)})">📅 הוספה ליומן</button>`;
+}
+function calendarDay(date){
+  const d=new Date((date||'')+'T00:00:00Z');
+  if(!Number.isFinite(d.getTime()))return '';
+  return d.toISOString().slice(0,10).replace(/-/g,'');
+}
+function calendarShiftDay(date,days){
+  const d=new Date((date||'')+'T00:00:00Z');
+  if(!Number.isFinite(d.getTime()))return '';
+  d.setUTCDate(d.getUTCDate()+days);
+  return d.toISOString().slice(0,10).replace(/-/g,'');
+}
+function calendarEnd(date,time){
+  const [hh,mm]=String(time||'09:00').split(':').map(Number);
+  const total=(hh*60+mm+120), dayShift=Math.floor(total/1440), endMinutes=total%1440;
+  return {day:calendarShiftDay(date,dayShift),time:String(Math.floor(endMinutes/60)).padStart(2,'0')+String(endMinutes%60).padStart(2,'0')};
+}
+function addGameToCalendar(id){
+  const g=S.games.find(x=>Number(x.id)===Number(id));
+  if(!g||g.bye||g.live||played(g))return;
+  const blob=new Blob([ics(g)],{type:'text/calendar'}),url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='ironi-rehovot-game.ics';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1200);
+  setTimeout(()=>window.open(gcalUrl(g),'_blank','noopener,noreferrer'),350);
+}
+function gameCard(g,showCalendar=false){
+  if(g.bye)return `<div class="card" data-bye="${g.round}"><span class="tag t-league">ליגה</span><b>מחזור ${g.round} · ללא משחק</b><div class="mut">${fd(g.date)} · מחזור חופשי</div></div>`;
+  const r=res(g),rl={W:"ניצחון",L:"הפסד",D:"תיקו"}[r]||"";
+  const sc=g.live?`<div class="score livesc">${(g.score||[0,0])[0]} : ${(g.score||[0,0])[1]}<div class="mut" style="font-size:.75rem"><span class="livedot">🔴 חי</span>${g.live.min!=null&&g.live.min!==""?" · דקה "+g.live.min:""}</div></div>`:played(g)?`<div class="score ${r}">${g.score[0]} : ${g.score[1]}<div class="mut" style="font-size:.75rem">${rl}</div></div>`:`<div class="mut">${esc(g.time||(g.arrive?"הגעה עד "+g.arrive:"שעה תפורסם"))}</div>`;
+  
+  const evs=(g.events||[]).filter(e=>e.kind!=="assist").sort((a,b)=>(a.min||0)-(b.min||0));
+  const ex=evs.length?`<div class="mut" style="margin-top:6px">`+evs.map(e=>`${KINDS[e.kind].split(" ")[0]} ${e.min?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}`).join("<br>")+`</div>`:"";
+  const mv=S.badges.filter(b=>b.gameId===g.id).map(b=>`<div class="mut">${esc(b.text)}: ${esc(b.player)}</div>`).join("");
+  const calendar=showCalendar?calendarButton(g):"";
+  return `<div class="card" data-match="${g.id}" role="button" tabindex="0" aria-label="פתיחת משחק: ${esc(g.opponent)}" onclick="if(!event.target.closest('button,a'))openMatch(${g.id})" onkeydown="if(event.key==='Enter'&&event.target===this)openMatch(${g.id})"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span><b>הפועל מרמורק רחובות - ${esc(g.opponent)}</b><div class="mut">${fd(g.date)} · ${g.home?"בית":"חוץ"}${g.venue?" · "+esc(g.venue):""}${g.note?" · "+esc(g.note):""}${g.resultSource&&g.resultSource.url&&JSON.stringify(g.resultSource.score)===JSON.stringify(g.score)?` · תוצאה: <a target="_blank" rel="noopener" href="${esc(g.resultSource.url)}">ג׳וניורליג</a>`:""}</div></div>${sc}</div>${ex}${mv}<div class="bar"><button class="btn sm" onclick="TeamVideos.open('${esc(g.uid||("legacy-"+g.id))}')">▶ סרטוני המשחק</button>${calendar}</div></div>`;
+}
+const chips=(cur,fn)=>`<div class="chips">`+[["all","הכול"],["league","ליגה"],["cup","גביע"],["friendly","אימון"]].map(([k,l])=>`<button class="${cur===k?"on":""}" onclick="${fn}('${k}')">${l}</button>`).join("")+`</div>`;
+function setF(k){filter=k;renderGames()}
+function setS(k){statFilter=k;renderStats()}
+
+let topLiveUid=null;
+function renderGames(){
+  const gs=S.games.filter(g=>filter==="all"||g.type===filter);
+  const lv=gs.filter(g=>g.live&&g.uid!==topLiveUid);
+  const up=gs.filter(g=>!played(g)&&!g.live).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  const pl=gs.filter(played).sort((a,b)=>b.date.localeCompare(a.date));
+  $("#s-games").innerHTML=chips(filter,"setF")+
+   (lv.length?`<h2>🔴 משחק חי</h2>`+lv.map(gameCard).join(""):"")+`<h2>משחקים קרובים</h2>`+(up.length?up.map(gameCard).join(""):`<div class="empty">אין כרגע משחק מתוכנן.</div>`)+
+   `<h2>תוצאות אחרונות</h2>`+(pl.length?pl.map(gameCard).join(""):`<div class="empty">עדיין אין תוצאות.</div>`);
+}
+
+function playerStats(f){
+  const m={};S.squad.forEach(p=>m[p.name]={g:0,a:0,y:0,r:0});
+  S.games.filter(g=>played(g)&&(f==="all"||g.type===f)).forEach(g=>(g.events||[]).forEach(e=>{
+    const x=m[e.player]=m[e.player]||{g:0,a:0,y:0,r:0};
+    if(e.kind==="goal")x.g++;if(e.kind==="assist")x.a++;if(e.kind==="yellow")x.y++;if(e.kind==="red")x.r++}));
+  delete m["לא ידוע"];return m;
+}
+function teamStats(f){
+  const t={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};
+  S.games.filter(g=>played(g)&&(f==="all"||g.type===f)).forEach(g=>{const[a,b]=g.score;t.p++;t.gf+=a;t.ga+=b;if(a>b){t.w++;t.pts+=3}else if(a<b)t.l++;else{t.d++;t.pts++}});
+  return t;
+}
+const OFFICIAL_PLAYER_LINKS={"גלעד קזולה": "https://www.football.org.il/players/player/?player_id=322700&season_id=28", "תום אברברוך": "https://www.football.org.il/players/player/?player_id=291955&season_id=28", "עומר אליהו": "https://www.football.org.il/players/player/?player_id=286682&season_id=28", "אורי בוקעי": "https://www.football.org.il/players/player/?player_id=273548&season_id=28", "ליאב ביידה": "https://www.football.org.il/players/player/?player_id=276664&season_id=28", "עידן בסר": "https://www.football.org.il/players/player/?player_id=290024&season_id=28", "רז דיין": "https://www.football.org.il/players/player/?player_id=294465&season_id=28", "דניאל זריהון": "https://www.football.org.il/players/player/?player_id=278764&season_id=28", "איתן מזרחי": "https://www.football.org.il/players/player/?player_id=289746&season_id=28", "רוי מזרחי": "https://www.football.org.il/players/player/?player_id=290025&season_id=28", "שחר מעבי": "https://www.football.org.il/players/player/?player_id=293436&season_id=28", "אורי סוסן": "https://www.football.org.il/players/player/?player_id=278744&season_id=28", "מתניה עדן": "https://www.football.org.il/players/player/?player_id=270195&season_id=28", "יואב רוזנבלום": "https://www.football.org.il/players/player/?player_id=289740&season_id=28", "ניתאי רחמים": "https://www.football.org.il/players/player/?player_id=278555&season_id=28", "אביעד שיבשי": "https://www.football.org.il/players/player/?player_id=259702&season_id=28", "אוראל שמש": "https://www.football.org.il/players/player/?player_id=290384&season_id=28"};
+function renderSquad(){
+  const ps=[...S.squad].sort((a,b)=>(a.num??999)-(b.num??999));
+  const st=playerStats("all");
+  $("#s-squad").innerHTML=`<h2>סגל (${ps.length})</h2><p class="mut">לחיצה על שם שחקן פותחת את דף השחקן הרשמי בהתאחדות בלשונית חדשה. הנתונים באתר שלנו נשארים נפרדים.</p><div class="grid">`+ps.map(p=>{
+    const bs=S.badges.filter(b=>b.player===p.name).map(b=>`<span class="badge">${esc(b.text)}</span>`).join("");
+    const s=st[p.name]||{g:0};
+    return `<div class="card" style="margin:0"><span class="num">${p.num??"-"}</span><b>${OFFICIAL_PLAYER_LINKS[p.name]?`<a href="${esc(OFFICIAL_PLAYER_LINKS[p.name])}" target="_blank" rel="noopener noreferrer" aria-label="${esc(p.name)} - דף השחקן בהתאחדות, נפתח בלשונית חדשה">${esc(p.name)}</a>`:esc(p.name)}</b><div class="mut">${esc(p.pos)} · ${s.g} שערים</div>${bs}</div>`}).join("")+`</div>`+((S.staff||[]).length?`<h2>צוות</h2>`+S.staff.map(s=>`<div class="card"><b>${esc(s.role)}</b>: ${esc(s.name)}</div>`).join(""):"");
+}
+function renderStats(){
+  const t=teamStats(statFilter),m=playerStats(statFilter);
+  const rows=Object.entries(m).filter(([n,v])=>v.g||v.a||v.y||v.r).sort((x,y)=>y[1].g-x[1].g||y[1].a-x[1].a);
+  $("#s-stats").innerHTML=chips(statFilter,"setS")+
+   `<div class="card"><table><tr><th>מש'</th><th>נצ'</th><th>ת'</th><th>הפ'</th><th>זכות</th><th>חובה</th><th>נק'</th></tr><tr><td>${t.p}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td><td>${t.gf}</td><td>${t.ga}</td><td><b>${t.pts}</b></td></tr></table></div>`+
+   `<h2>שחקנים</h2><div class="card">`+(rows.length?`<table><tr><th>שחקן</th><th>שערים</th><th>בישולים</th><th>🟨</th><th>🟥</th></tr>`+rows.map(([n,v])=>`<tr><td>${esc(n)}</td><td>${v.g}</td><td>${v.a}</td><td>${v.y}</td><td>${v.r}</td></tr>`).join("")+`</table>`:`<div class="empty">אין עדיין נתונים.</div>`)+`</div>`+
+   `<div class="mut">שערים ללא שם שחקן נספרים בתוצאה אך לא בטבלת השחקנים.</div>`+
+   `<h2>🏅 תגי הצטיינות</h2><div class="card">`+(S.badges.length?S.badges.map(b=>`<div>${esc(b.text)} · ${esc(b.player)}</div>`).join(""):`<div class="empty">עדיין לא הוענקו תגים.</div>`)+`</div>`;
+}
+const FOOTBALL={paused:false,endpoint:'https://maccabi-rehovot-api.pages.dev/football',leagueUrl:'https://www.juniorleague.co.il/%d7%99%d7%9c%d7%93%d7%99%d7%9d-%d7%92-%d7%9e%d7%a8%d7%9b%d7%96-26-27/',cupUrl:'https://www.juniorleague.co.il/%d7%99%d7%9c%d7%93%d7%99%d7%9d-%d7%92-%d7%92%d7%91%d7%99%d7%a2-%d7%94%d7%9e%d7%93%d7%99%d7%a0%d7%94/',teamId:2902};
+setInterval(()=>{if(document.visibilityState==='visible'&&location.hash==='#league')loadFootball();},3600000);
+let footballRound=0,footballCupRound=0,footballData=null,footballLoading=false,footballError=false;
+const footballCacheKey=()=>`mr_football_jl2_28_1277_${footballRound}_${footballCupRound}`;
+function footballCached(){try{const x=JSON.parse(localStorage.getItem(footballCacheKey())||'null');if(x?.season===28&&x.teamId===2902&&x.sourceLeague&&Array.isArray(x.standings))return x;}catch{}return null;}
+async function loadFootball(force=false){
+ if(FOOTBALL.paused){footballData=null;footballLoading=false;footballError=false;renderLeague();return;}
+ if(footballLoading)return;
+ footballData=footballCached();footballError=false;
+ if(!force&&footballData&&Date.now()-Date.parse(footballData.updatedAt)<3600000){renderLeague();return;}
+ footballLoading=true;renderLeague();
+ const c=new AbortController(),timer=setTimeout(()=>c.abort(),20000);
+ try{
+  const r=await fetch(FOOTBALL.endpoint+`?round=${footballRound}&cupRound=${footballCupRound}`,{signal:c.signal,cache:'no-cache'});if(!r.ok)throw Error('source');
+  const d=await r.json();if(d.season!==28||d.teamId!==2902||d.leagueId!==1277||!Array.isArray(d.standings)||!Array.isArray(d.leagueGames)||!Array.isArray(d.cupGames))throw Error('schema');
+  // 20.10 stale-zeros fix: never replace good data with worse. Reject a payload
+  // older than what we already show, and reject an all-zero table when it
+  // contradicts reality (scored games in the same payload, or a stored table
+  // with played games). Rejected payloads are never stored.
+  const prev=footballData;
+  if(prev&&Date.parse(d.updatedAt)<Date.parse(prev.updatedAt))throw Error('stale_payload');
+  const zeroTable=d.standings.length>0&&d.standings.every(x=>x.p===0);
+  const anyScored=(d.leagueGames||[]).some(g=>Array.isArray(g.score));
+  if(zeroTable&&(anyScored||prev?.standings?.some(x=>x.p>0)))throw Error('zeroed_table');
+  footballData=d;try{localStorage.setItem(footballCacheKey(),JSON.stringify(d));}catch{}
+ }catch{footballError=true;}finally{clearTimeout(timer);footballLoading=false;renderLeague();}
+}
+function selectFootballRound(value,cup=false){if(footballLoading)return;if(cup)footballCupRound=Number(value);else footballRound=Number(value);footballData=null;loadFootball();}
+function feedGames(gs,kind){
+ if(!gs?.length)return `<div class="empty">${kind==='cup'?'טרם פורסמו משחקי הקבוצה בסיבוב זה.':'טרם פורסם לוח משחקים למחזור זה.'}</div>`;
+ return gs.map(g=>{
+  const ours=g.home.id===FOOTBALL.teamId||g.away.id===FOOTBALL.teamId;
+  const date=new Date(g.date),valid=Number.isFinite(date.getTime());
+  const dated=valid?date.toLocaleString('he-IL',{timeZone:'Asia/Jerusalem',day:'numeric',month:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}):'מועד טרם פורסם';
+  const opponent=g.home.id===FOOTBALL.teamId?g.away.name:g.home.name;
+  const manual=ours?S.games.filter(m=>((m.opponent.includes('ירושלים')&&opponent.includes('ירושלים'))||(m.opponent.includes('אשקלון')&&opponent.includes('אשקלון'))||m.opponent===opponent||(m.type===kind&&m.date===new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jerusalem',year:'numeric',month:'2-digit',day:'2-digit'}).format(date)))).sort((a,b)=>Math.abs(new Date(a.date)-date)-Math.abs(new Date(b.date)-date))[0]:null;
+  const relevantManual=manual&&valid&&Math.abs(new Date(manual.date)-date)<7*86400000?manual:null;
+  
+  const sourceDay=valid?new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jerusalem',year:'numeric',month:'2-digit',day:'2-digit'}).format(date):'';const sourceTime=valid?new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Jerusalem',hour:'2-digit',minute:'2-digit'}).format(date):'';const clash=relevantManual&&valid&&(manual.date!==sourceDay||(manual.time&&sourceTime!=='00:00'&&manual.time!==sourceTime)||!(manual.opponent===opponent||(manual.opponent.includes('ירושלים')&&opponent.includes('ירושלים'))||(manual.opponent.includes('אשקלון')&&opponent.includes('אשקלון'))));
+  const unknownTime=valid&&sourceTime==='00:00';
+  const postponed=relevantManual?.scheduleOverride?.previousDate===sourceDay;
+  const score=Array.isArray(g.score)?`<b>${g.score[0]} : ${g.score[1]}</b>`:'טרם שוחק';
+  const calendar=ours&&relevantManual&&!clash&&!postponed?calendarButton(relevantManual):'';
+  return `<div class="card" ${ours?'style="border-color:#42c979"':''}><strong>${esc(g.home.name)} - ${esc(g.away.name)}</strong><div class="mut">${esc(g.round||'')} · ${esc(dated)} · ${score}</div>${postponed?`<div class="note">המשחק נדחה: ${esc(fd(manual.date))}, ${esc(manual.time)} · ${esc(manual.venue||'')}. בפיד עדיין מופיע המועד הקודם.</div>`:''}${!postponed&&relevantManual&&manual.time&&sourceTime==='00:00'?`<div class="note">לפי עדכון הקבוצה: ${esc(manual.time)} · ${esc(manual.venue||'')}. השעה בפיד אינה מאומתת.</div>`:''}${unknownTime?'<div class="mut">00:00 בפיד עשוי להיות זמן ברירת מחדל, לא שעת בעיטה מאומתת.</div>':''}${clash&&!postponed?`<div class="note">פרטי הפיד שונים מעדכון הקבוצה: ${esc(manual.opponent)} · ${esc(manual.date)} ${esc(manual.time||'')} ${esc(manual.venue||'')}. פרטי המשחק בלשונית משחקים נשארו ללא שינוי.</div>`:''}${relevantManual&&Array.isArray(manual.score)&&g.score&&JSON.stringify(manual.score)!==JSON.stringify(g.home.id===FOOTBALL.teamId?g.score:[g.score[1],g.score[0]])?'<div class="note">התוצאה בפיד שונה מהתוצאה הידנית של הקבוצה. התוצאה שלנו לא שונתה.</div>':''}${calendar?`<div class="bar">${calendar}</div>`:''}</div>`;
+ }).join('');
+}
+function renderLeague(){
+ if(FOOTBALL.paused){
+  $('#s-league').innerHTML=`<div class="note">ליגת ילדים ג' מרכז · 2026/27<br>הקבוצה רשומה בהתאחדות בשם הפועל מרמורק רחובות "צו פיוס".</div><h2>טבלת הליגה</h2><div class="card"><p>המשיכה האוטומטית הושהתה: המקור הקודם הציג ליגה אחרת, ובמקור מרכז עדיין לא מופיעה הקבוצה. טבלת הליגה תוצג רק אחרי אימות מקור מתאים.</p><p class="mut">לוח 30 המחזורים נמצא בלשונית משחקים. מועדים, תוצאות ואירועים ממשיכים להתעדכן דרך ניהול; שינויים ידניים לא נדרסים.</p></div><h2>משחקי הליגה</h2>`+S.games.filter(g=>g.type==='league').sort((a,b)=>a.date.localeCompare(b.date)).map(g=>gameCard(g,true)).join('')+`<h2>גביע - משחקי הקבוצה</h2>`+S.games.filter(g=>g.type==='cup').sort((a,b)=>a.date.localeCompare(b.date)).map(g=>gameCard(g,true)).join('');
+  return;
+ }
+ const d=footballData,L=d?.standings||[];
+ let h=`<details class="note note-compact"><summary>ליגת ילדים ג' מרכז · 2026/27 · מקור הנתונים: ג׳וניורליג ⓘ</summary>הקבוצה רשומה בהתאחדות בשם הפועל מרמורק רחובות "צו פיוס". טבלה ומשחקי ליגה וגביע נמשכים אוטומטית מאתר ג׳וניורליג, מקור לא רשמי המשקף את נתוני ההתאחדות. פרטי המשחקים של הקבוצה נשארים ידניים; תוצאה שלא הוזנה ידנית עשויה להשלם מדיווח באתר ג׳וניורליג, עם קישור מקור ליד התוצאה.</details>`;
+ h+=`<div class="bar"><button class="btn" onclick="loadFootball(true)" ${footballLoading?'disabled':''}>${footballLoading?'טוען…':'רענון נתונים'}</button><span class="mut">${d?'משיכה אחרונה: '+esc(new Date(d.updatedAt).toLocaleString('he-IL',{timeZone:'Asia/Jerusalem'})):'טרם התקבלו נתונים'}</span></div>`;
+ if(footballError)h+=`<div class="note">המקור לא זמין כרגע. ${d?'מוצגים הנתונים האחרונים שנשמרו; ייתכן שאינם עדכניים.':'אפשר לנסות שוב או לפתוח את המקור.'}</div>`;
+ h+=`<div class="card"><a target="_blank" rel="noopener" href="${FOOTBALL.leagueUrl}">טבלה ומשחקים בג׳וניורליג</a><br><a target="_blank" rel="noopener" href="${FOOTBALL.cupUrl}">גביע ילדים ג׳ בג׳וניורליג</a></div>`;
+ h+='<h2>טבלת הליגה</h2>';
+ if(L.length){
+  if(L.every(r=>r.p===0))h+='<div class="note">כל הקבוצות עם 0 משחקים בפיד. הסדר בטבלה אינו דירוג מקצועי.</div>';
+  h+=`<div class="card" style="overflow-x:auto"><table><tr><th>קבוצה</th><th>מש'</th><th>נצ'</th><th>ת'</th><th>הפ'</th><th>הפרש</th><th>נק'</th></tr>${L.map(r=>`<tr ${r.team.includes('מרמורק')?'style="background:#e6f4e9"':''}><td>${esc(r.team)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gf-r.ga}</td><td><b>${r.pts}</b></td></tr>`).join('')}</table></div>`;
+ }else h+=`<div class="empty">${footballLoading?'הטבלה נטענת…':'טרם התקבלה טבלה מהמקור.'}</div>`;
+ h+=`<h2>משחקי הליגה</h2><label>מחזור</label><select onchange="selectFootballRound(this.value)" ${footballLoading?'disabled':''}>${Array.from({length:30},(_,i)=>`<option value="${i}" ${i===footballRound?'selected':''}>מחזור ${i+1}</option>`).join('')}</select>`+feedGames(d?.leagueGames,'league');
+ h+=`<h2>גביע - משחקי הקבוצה</h2><label>סיבוב בפיד</label><select onchange="selectFootballRound(this.value,true)" ${footballLoading?'disabled':''}>${Array.from({length:10},(_,i)=>`<option value="${i}" ${i===footballCupRound?'selected':''}>${i===0?'סיבוב א':('סיבוב '+(i+1))}</option>`).join('')}</select>`+feedGames(d?.cupGames?.filter(g=>g.home.id===FOOTBALL.teamId||g.away.id===FOOTBALL.teamId),'cup');
+ h+='<div class="mut">השעות בפיד מוצגות לפי שעון ישראל. מועד ושעה עשויים להשתנות; אם יש סתירה לעדכון הקבוצה, מוצגת אזהרה. אין משיכה אוטומטית של כובשים או מצטיינים.</div>';
+ $('#s-league').innerHTML=h;
+}
+
+/* ---------- עדכון לקבוצת ההורים ---------- */
+let sh={last:true,next:true,stats:true,badges:true,type:"all"};
+function shareText(){
+  const gs=S.games.filter(g=>sh.type==="all"||g.type===sh.type);
+  const pl=gs.filter(played).sort((a,b)=>b.date.localeCompare(a.date));
+  const up=gs.filter(g=>!played(g)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  let o=`⚽ *${S.club} - ${S.season}*\n`;
+  if(sh.last&&pl[0]){const g=pl[0];
+    o+=`\n*תוצאה אחרונה* (${TYPES[g.type]})\n${g.home?"בית":"חוץ"}, ${fdl(g.date)}\nהפועל מרמורק רחובות ${g.score[0]} : ${g.score[1]} ${g.opponent}\n`;
+    const goals=(g.events||[]).filter(e=>e.kind==="goal"&&e.player&&e.player!=="לא ידוע").sort((a,b)=>(a.min||0)-(b.min||0));
+    if(goals.length)o+=`שערים: `+goals.map(e=>e.player+(e.min?` (${e.min}')`:"")).join(", ")+`\n`;
+    S.badges.filter(b=>b.gameId===g.id).forEach(b=>o+=`${b.text}: ${b.player}\n`);
+    (g.events||[]).filter(e=>e.kind==="note").forEach(e=>o+=`📝 ${e.min?e.min+"' ":""}${e.text}\n`);
+  }
+  if(sh.stats){const t=teamStats(sh.type);const m=Object.entries(playerStats(sh.type)).filter(([n,v])=>v.g).sort((a,b)=>b[1].g-a[1].g).slice(0,5);
+    o+=`\n*סטטיסטיקה*\n${t.p} משחקים: ${t.w} ניצחונות, ${t.d} תיקו, ${t.l} הפסדים. שערים ${t.gf}:${t.ga}\n`;
+    if(m.length)o+=`מלכי שערים: `+m.map(([n,v])=>`${n} ${v.g}`).join(", ")+`\n`;}
+  if(sh.badges&&S.badges.length)o+=`\n*תגי הצטיינות*\n`+S.badges.map(b=>`${b.text} ${b.player}`).join("\n")+`\n`;
+  if(sh.next){o+=`\n*המשחקים הקרובים*\n`+(up.length?up.slice(0,3).map(g=>g.bye?`${fdl(g.date)} - ליגה, מחזור ${g.round}: ללא משחק (מחזור חופשי)`:`${fdl(g.date)} ${g.time||""} - ${TYPES[g.type]}, ${g.home?"בית":"חוץ"} נגד ${g.opponent}${g.venue?" ("+g.venue+")":""}`).join("\n"):"אין משחק מתוכנן כרגע")+`\n`;}
+  o+=`\n📲 כל התוצאות והמשחקים באתר:\n${SITE_URL}`;
+  return o.trim();
+}
+function renderShare(){
+  const cb=(k,l)=>`<label style="display:flex;gap:8px;align-items:center;color:var(--tx);font-size:1rem"><input type="checkbox" style="width:auto" ${sh[k]?"checked":""} onchange="sh.${k}=this.checked;renderShare()">${l}</label>`;
+  const txt=shareText();
+  $("#s-share").innerHTML=`<div class="note">טקסט מוכן להדבקה בקבוצת הוואטסאפ של ההורים. בוחרים מה לכלול, ולוחצים שיתוף.</div>`+
+   `<div class="card">${cb("last","תוצאה אחרונה")}${cb("stats","סטטיסטיקות")}${cb("badges","תגי הצטיינות")}${cb("next","משחקים קרובים")}
+   <label>סוג משחקים</label><select onchange="sh.type=this.value;renderShare()">${[["all","הכול"],["league","ליגה"],["cup","גביע"],["friendly","אימון"]].map(([k,l])=>`<option value="${k}" ${sh.type===k?"selected":""}>${l}</option>`).join("")}</select></div>`+
+   `<pre id="sharetxt">${esc(txt)}</pre><div class="bar"><a class="btn wa" style="text-decoration:none" target="_blank" href="${waLink(txt)}">שיתוף בוואטסאפ</a><button class="btn" onclick="copyShare()">העתקה</button></div>`;
+}
+function copyShare(){const t=shareText();(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("הועתק"),()=>{const r=document.createRange();r.selectNodeContents($("#sharetxt"));getSelection().removeAllRanges();getSelection().addRange(r);toast("סמנו והעתיקו")})}
+
+/* ---------- ניהול ---------- */
+const sha=async s=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,"0")).join("");
+let edit=null,pendingMatch=null,pendingLiveReturn=null,pendingLiveStart=null;
+const ADMIN_SESSION=ADM+"_session",ADMIN_DAYS=30;
+function isAdmin(){try{const a=JSON.parse(localStorage.getItem(ADMIN_SESSION)||"null");if(a&&a.hash===DATA.adminHash&&a.expires>Date.now())return true;if(a)localStorage.removeItem(ADMIN_SESSION);}catch{localStorage.removeItem(ADMIN_SESSION);}return sessionStorage.getItem(ADM)==="1";}
+async function login(){const v=$("#pw").value.trim();if(await sha(v)===DATA.adminHash){if($("#remember-admin").checked){sessionStorage.removeItem(ADM);}else{sessionStorage.setItem(ADM,"1");}if($("#remember-admin").checked)localStorage.setItem(ADMIN_SESSION,JSON.stringify({hash:DATA.adminHash,expires:Date.now()+ADMIN_DAYS*86400000}));else localStorage.removeItem(ADMIN_SESSION);const returnToLive=pendingLiveReturn,startId=pendingLiveStart;pendingLiveReturn=null;pendingLiveStart=null;if(startId!=null)liveStart(startId);if(pendingMatch!=null){const id=pendingMatch;pendingMatch=null;editGame(id);}renderAll();if(edit)$("#s-admin").scrollIntoView({block:"start"});else if(returnToLive!=null){tab("games");await refreshNextGame();$("#ngc").scrollIntoView({block:"start",behavior:"smooth"});}}else toast("קוד שגוי");}
+function logout(){sessionStorage.removeItem(ADM);localStorage.removeItem(ADMIN_SESSION);pendingMatch=null;pendingLiveReturn=null;pendingLiveStart=null;edit=null;renderAll();refreshNextGame();}
+function openMatch(id){pendingLiveStart=null;pendingLiveReturn=null;pendingMatch=id;tab("admin");if(isAdmin()){pendingMatch=null;editGame(id);}else renderAdmin();$("#s-admin").scrollIntoView({block:"start",behavior:"smooth"});}
+function unlockLiveAdmin(id){pendingLiveStart=null;if(isAdmin()){tab("games");refreshNextGame();return;}pendingMatch=null;pendingLiveReturn=id;tab("admin");renderAdmin();$("#s-admin").scrollIntoView({block:"start",behavior:"smooth"});}
+const SITE_URL="https://kazmikidev-afk.github.io/maccabi-rehovot-2026/";
+function waLink(t){return "https://api.whatsapp.com/send?text="+encodeURIComponent(t)}
+function matchResultText(g){let t=`⚽ *${S.club} - עדכון תוצאה*\n${TYPES[g.type]} · ${fdl(g.date)} · ${g.home?"בית":"חוץ"}\n`;t+=g.live?`🔴 *משחק חי*${g.live.min!=null&&g.live.min!==""?" · דקה "+g.live.min:""}\n${S.club} ${(g.score||[0,0])[0]} : ${(g.score||[0,0])[1]} ${g.opponent}\n`:played(g)?`${S.club} ${g.score[0]} : ${g.score[1]} ${g.opponent}\n`:`נגד ${g.opponent} - טרם עודכנה תוצאה\n`;const evs=[...(g.events||[])].sort((a,b)=>(a.min||0)-(b.min||0));for(const e of evs)t+=`${KINDS[e.kind]||"אירוע"}${e.min?" · דקה "+e.min:""}${e.player&&e.player!=="לא ידוע"?" · "+e.player:""}${e.text?" · "+e.text:""}\n`;S.badges.filter(b=>b.gameId===g.id).forEach(b=>t+=`${b.text}: ${b.player}\n`);if(g.note)t+=`📝 ${g.note}\n`;t+=`\n📲 כל התוצאות והמשחקים באתר:\n${SITE_URL}`;return t.trim();}
+function showMatchResult(g){$("#match-share")?.remove();const dialog=document.createElement("dialog");dialog.id="match-share";dialog.innerHTML=`<h2>עדכון תוצאה לקבוצת הוואטסאפ</h2><p class="mut">טקסט למשחק שבחרת. לוחצים ״שליחה בוואטסאפ״ ובוחרים את הקבוצה. השמירה מקומית; לפרסום באתר השתמשו בכפתור הפרסום.</p><textarea id="match-share-text" rows="12" dir="rtl"></textarea><div class="bar"><a id="match-wa" class="btn wa" style="text-decoration:none" target="_blank" rel="noopener">שליחה בוואטסאפ</a><button id="match-copy" class="btn pri">העתקת עדכון</button><button id="match-share-device" class="btn">שיתוף דרך המכשיר</button><button id="match-share-close" class="btn">סגירה</button></div>`;document.body.append(dialog);$("#match-share-text").value=matchResultText(g);$("#match-wa").href=waLink($("#match-share-text").value);$("#match-share-text").oninput=()=>{$("#match-wa").href=waLink($("#match-share-text").value)};$("#match-copy").onclick=async()=>{try{await navigator.clipboard.writeText($("#match-share-text").value);toast("העדכון הועתק להדבקה בוואטסאפ");}catch{$("#match-share-text").select();toast("סמנו והעתיקו את הטקסט");}};$("#match-share-device").onclick=async()=>{if(!navigator.share){$("#match-share-text").select();return toast("העתיקו והדביקו בוואטסאפ");}try{await navigator.share({text:$("#match-share-text").value});}catch{}};$("#match-share-close").onclick=()=>{dialog.close();dialog.remove();};dialog.showModal();}
+
+
+let pubTimer=null;
+function schedulePublish(){if(!localStorage.getItem(TOK))return;clearTimeout(pubTimer);pubTimer=setTimeout(()=>publish(),2500)}
+function liveGame(id){return S.games.find(g=>g.id===id)}
+function saveLivePushQueue(q){try{localStorage.setItem(LIVE_PUSH_QUEUE,JSON.stringify(q))}catch{}}
+function readLivePushQueue(){try{const q=JSON.parse(localStorage.getItem(LIVE_PUSH_QUEUE)||"[]");return Array.isArray(q)?q:[]}catch{return[]}}
+function queueLiveNotification(type,g){if(!g||!localStorage.getItem(LIVE_PUSH_CODE))return;const q=readLivePushQueue(),event={id:(crypto.randomUUID?.()||String(Date.now())+Math.random()),type,gameId:Number(g.id),score:[...(g.score||[0,0])],opponent:String(g.opponent||""),home:!!g.home,minute:g.live?.min??null};const i=q.findIndex(x=>x.type===type&&x.gameId===event.gameId);if(i>=0)q[i]=event;else q.push(event);saveLivePushQueue(q)}
+async function setLivePushCode(){const entered=prompt("קוד הפוש הוא קוד נפרד מקוד הכניסה לניהול (6 תווים). הדביקו את קוד ההתראות הארוך שנשמר בכספת, 24-128 תווים. הוא יישמר רק בדפדפן הזה. אין לשלוח קוד בצ׳אט.");if(entered===null)return;const code=entered.trim();if(code.length<24||code.length>128||/\s/.test(code)){toast("זהו שדה לקוד הפוש הנפרד (24-128 תווים), לא לקוד הכניסה לניהול. לא בוצע שינוי.");return}try{const r=await fetch(PUSH_API+"/push/admin-check",{method:"POST",headers:{"x-admin-push-code":code}});if(!r.ok){toast(r.status===401?"קוד שגוי או שעדיין לא הוגדר בשרת":"לא ניתן לבדוק את הקוד כרגע");return}localStorage.setItem(LIVE_PUSH_CODE,code);renderAll();refreshNextGame();toast(localStorage.getItem(TOK)?"קוד ההתראות אומת ונשמר במכשיר. לא נשלח פוש.":"קוד ההתראות אומת. עדיין צריך להגדיר פרסום לאתר בניהול. לא נשלח פוש.")}catch{toast("לא ניתן להתחבר לשירות ההתראות")}}
+function livePushSettings(){const configured=!!localStorage.getItem(LIVE_PUSH_CODE);return `<div class="ng-live-admin-push"><span>${configured?"🔔 קוד הפוש הנפרד מוגדר במכשיר":"קוד פוש נפרד מקוד הכניסה לניהול"}</span><button type="button" class="btn sm" onclick="setLivePushCode()">${configured?"החלפת קוד פוש":"הגדרת קוד פוש"}</button></div>`}
+function liveTouch(){persist();schedulePublish();refreshNextGame()}
+function refreshNextGame(){return window.refreshTeamNextGame?.()}
+function requestLiveStart(id){const g=liveGame(id);if(!g||g.bye||played(g))return;if(!isAdmin()){pendingMatch=null;pendingLiveStart=id;pendingLiveReturn=id;tab("admin");renderAdmin();$("#s-admin").scrollIntoView({block:"start",behavior:"smooth"});return;}liveStart(id);tab("games");}
+function liveStart(id){if(!isAdmin())return requestLiveStart(id);const g=liveGame(id);if(!g||g.bye||played(g))return;if(g.live){refreshNextGame();return;}g.score=g.score||[0,0];g.live={min:null,phase:"first",at:Date.now()};liveTouch()}
+function liveBump(id,i,d){const g=liveGame(id);if(!g||!g.live)return;g.score=g.score||[0,0];g.score[i]=Math.max(0,Math.min(99,g.score[i]+d));g.live.at=Date.now();queueLiveNotification("score",g);liveTouch()}
+function liveMinute(id,d){const g=liveGame(id);if(!g||!g.live)return;const m=(g.live.min==null||g.live.min==="")?0:+g.live.min;g.live.min=Math.max(0,Math.min(120,m+d));g.live.at=Date.now();liveTouch()}
+function liveSetMin(id){const v=prompt("באיזו דקה המשחק?");if(v===null)return;const g=liveGame(id);if(!g||!g.live)return;if(v.trim()===""){g.live.min=null}else{const n=+v;if(!Number.isInteger(n)||n<0||n>120){toast("דקה בין 0 ל-120");return}g.live.min=n}g.live.at=Date.now();liveTouch()}
+function liveEnd(id){const g=liveGame(id);if(!g||!g.live)return;const sc=g.score||[0,0];if(!confirm(`לסיים את המשחק בתוצאה ${sc[0]}:${sc[1]}? התוצאה תהפוך לסופית ותיכנס לסטטיסטיקות.`))return;queueLiveNotification("final",g);delete g.live;g.liveFinishedAt=Date.now();persist();schedulePublish();refreshNextGame();toast(localStorage.getItem(TOK)?"המשחק הסתיים, מפרסם...":"המשחק הסתיים. לחצו פרסום לאתר.")}
+function livePhase(id){const g=liveGame(id);if(!g||!g.live)return;const prev=g.live.phase||"first";g.live.phase=prev==="first"?"half":prev==="half"?"second":"second";g.live.at=Date.now();if(g.live.phase==="half")queueLiveNotification("halftime",g);liveTouch()}
+function liveCardAdminControls(g){if(!g.live&&!g.final)return g.id!=null?`<div class="ng-live-admin"><button type="button" class="btn pri" style="width:100%;min-height:52px" onclick="requestLiveStart(${Number(g.id)})">▶ התחל משחק</button><div class="mut ng-live-admin-hint">מעבר למסך חי עם עדכון שערים, דקות וכובשים. נדרשת כניסת מנהל.</div></div>`:"";if(!isAdmin())return `<div class="ng-live-locked"><button type="button" aria-label="כניסת מנהל לעדכון המשחק" onclick="unlockLiveAdmin(${Number(g.id)})">🔒 כניסת מנהל לעדכון</button></div>`;if(!g.live)return `<div class="ng-live-admin">${livePushSettings()}</div>`;const id=Number(g.id),sc=g.score||[0,0],p=g.live.phase||"first",phaseLabel=p==="first"?"⏸ מחצית":p==="half"?"▶ מחצית שנייה":"מחצית שנייה";return `<div class="ng-live-admin" aria-label="בקרת מנהל למשחק החי"><b class="ng-live-admin-title">עדכון המשחק - מנהל</b><div class="ng-live-admin-score"><div class="ng-live-admin-side"><div class="ng-live-admin-side-name">הפועל מרמורק רחובות</div><div class="ng-live-admin-side-buttons"><button type="button" class="btn pri" aria-label="הוסף שער להפועל מרמורק רחובות" onclick="liveBump(${id},0,1)">+1 שער</button><button type="button" class="btn" aria-label="הפחת שער מהפועל מרמורק רחובות" onclick="liveBump(${id},0,-1)">-1 שער</button></div></div><div class="ng-live-admin-side"><div class="ng-live-admin-side-name">${esc(g.opponent)}</div><div class="ng-live-admin-side-buttons"><button type="button" class="btn red" aria-label="הוסף שער ל${esc(g.opponent)}" onclick="liveBump(${id},1,1)">+1 שער</button><button type="button" class="btn" aria-label="הפחת שער מ${esc(g.opponent)}" onclick="liveBump(${id},1,-1)">-1 שער</button></div></div></div><div class="ng-live-admin-row"><button type="button" class="btn" onclick="liveMinute(${id},-1)">דקה -1</button><button type="button" class="btn" onclick="liveSetMin(${id})">קבע דקה</button><button type="button" class="btn" onclick="liveMinute(${id},1)">דקה +1</button></div><div class="ng-live-admin-row two"><button type="button" class="btn" onclick="livePhase(${id})" ${p==="second"?"disabled":""}>${phaseLabel}</button><button type="button" class="btn" onclick="openMatch(${id})">⚽ כובשים ודקות</button></div><button type="button" class="ng-live-admin-end" onclick="liveEnd(${id})">🏁 סיום משחק · ${sc[0]}:${sc[1]}</button><div class="mut ng-live-admin-hint">הוסיפו כובש ודקה בעריכת האירועים. כשלא ידוע, בחרו "לא ידוע" והשאירו את הדקה ריקה.</div>${phonePublishControls(id)}${livePushSettings()}</div>`}
+function livePanel(){const L=S.games.filter(g=>g.live);return L.map(g=>{const sc=g.score||[0,0],m=g.live.min,p=g.live.phase||"first",phase=p==="half"?"מחצית":p==="second"?"מחצית שנייה":"מחצית ראשונה";return `<div class="card livep"><b>🔴 משחק חי: הפועל מרמורק רחובות - ${esc(g.opponent)}</b><div class="big" dir="ltr">${sc[0]} : ${sc[1]}</div><div class="mut" style="text-align:center">הפועל מרמורק רחובות: ${sc[0]}, ${esc(g.opponent)}: ${sc[1]} · ${phase}${m!=null&&m!==""?" · דקה "+m:""}</div><div class="row"><button class="btn pri" onclick="liveBump(${g.id},0,1)">⚽ +1 מרמורק</button><button class="btn red" onclick="liveBump(${g.id},1,1)">⚽ +1 יריב</button></div><div class="row"><button class="btn" onclick="liveBump(${g.id},0,-1)">-1 מרמורק</button><button class="btn" onclick="liveBump(${g.id},1,-1)">-1 יריב</button></div><div class="row"><button class="btn" onclick="liveMinute(${g.id},-1)">דקה -1</button><button class="btn" onclick="liveMinute(${g.id},1)">דקה +1</button><button class="btn" onclick="liveSetMin(${g.id})">קבע דקה</button></div><div class="row"><button class="btn" onclick="livePhase(${g.id})" ${p==="second"?"disabled":""}>${p==="first"?"⏸ מחצית":p==="half"?"▶ מחצית שנייה":"מחצית שנייה"}</button><button class="btn" onclick="editGame(${g.id})">אירועים וכובשים</button></div><button class="endbtn" onclick="liveEnd(${g.id})">🏁 סיום משחק</button><div class="mut">${localStorage.getItem(TOK)?"כל שינוי מתפרסם אוטומטית תוך כמה שניות. ההורים יראו אותו בעוד כדקה.":"אין token: השינויים נשמרים רק כאן. לחצו פרסום לאתר כדי שההורים יראו."}</div></div>`}).join("")}
+// פולינג: בדיקה אם פורסמו נתונים חדשים (רק במכשיר בלי שינויים מקומיים)
+async function pollData(){if(document.hidden||dirty||edit)return;try{const t=await (await fetch(location.pathname+"?cb="+Date.now(),{cache:"no-store"})).text();const a=t.indexOf("/*DATA_START*/"),z=t.indexOf("/*DATA_END*/");if(a<0||z<0)return;const m=t.slice(a,z).match(/const DATA = ([\s\S]*);\s*$/);if(!m)return;const d=JSON.parse(m[1]);if(d.rev&&d.rev!==window.__rev){window.__rev=d.rev;if(d.rev!==DATA.rev&&!dirty&&!edit){S=JSON.parse(JSON.stringify(d));renderAll();refreshNextGame()}}}catch(e){}}
+setInterval(pollData,30000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)pollData()});
+const nextId=()=>Math.max(0,...S.games.map(g=>g.id))+1;
+function newGame(){edit={g:{id:nextId(),uid:"game-"+crypto.randomUUID(),type:"friendly",date:new Date().toISOString().slice(0,10),time:"18:00",opponent:"",home:true,venue:"",score:null,events:[],note:""}};renderAdmin()}
+function editGame(id){if(!isAdmin())return;edit={g:JSON.parse(JSON.stringify(S.games.find(g=>g.id===id)))};renderAdmin()}
+function delGame(id){if(confirm("למחוק את המשחק?")){S.games=S.games.filter(g=>g.id!==id);S.badges=S.badges.filter(b=>b.gameId!==id);persist()}}
+function fld(k,v){edit.g[k]=v}
+function setScore(){const a=$("#sa").value,b=$("#sb").value;if([a,b].some(x=>x!==""&&(!Number.isInteger(+x)||+x<0||+x>99))){toast("תוצאה צריכה להיות מספר שלם בין 0 ל-99");return false;}edit.g.score=(a===""||b==="")?null:[+a,+b];return true;}
+function captureGame(){if(!setScore())return false;for(const [key,id] of [["opponent","eo"],["date","ed"],["time","etm"],["venue","ev"],["note","en"],["type","et2"]])edit.g[key]=$("#"+id).value;edit.g.home=$("#eh").value==="1";edit.mvp=$("#emvp").value;return true;}
+function addEv(){const e={min:+$("#em").value||null,kind:$("#ek").value,player:$("#ep").value,text:$("#et").value};if(e.kind!=="note"&&!e.player){toast("בחרו שחקן");return}
+  if(!captureGame())return;if(e.min!=null&&(!Number.isInteger(e.min)||e.min<0||e.min>120)){toast("דקה צריכה להיות בין 0 ל-120");return;}if(e.kind==="note"&&!e.text.trim()){toast("כתבו את האירוע המיוחד");return;}edit.g.events.push(e);renderAdmin()}
+function delEv(i){if(!captureGame())return;edit.g.events.splice(i,1);renderAdmin()}
+function saveGame(withUpdate=false){if(!isAdmin()||!captureGame())return;const g=edit.g;g.opponent=$("#eo").value.trim();if(!g.opponent){toast("חסר שם יריב");return}
+  g.date=$("#ed").value;g.time=$("#etm").value;g.venue=$("#ev").value;g.note=$("#en").value;g.type=$("#et2").value;g.home=$("#eh").value==="1";
+  const i=S.games.findIndex(x=>x.id===g.id);if(i<0)S.games.push(g);else S.games[i]=g;
+  S.badges=S.badges.filter(b=>!(b.gameId===g.id&&b._m));const mv=$("#emvp").value;
+  if(mv)S.badges.push({player:mv,text:"🏆 שחקן המשחק",gameId:g.id,_m:1});
+  edit=null;persist();if(g.live){schedulePublish();refreshNextGame();}if(withUpdate)showMatchResult(g);}
+function addPlayer(){const n=prompt("שם השחקן");if(!n)return;const num=prompt("מספר חולצה (אפשר להשאיר ריק)");const pos=prompt("תפקיד ("+POS.join(", ")+")","קשר");S.squad.push({num:num?+num:null,name:n,pos:pos||""});persist()}
+function editPlayer(i){const p=S.squad[i];const n=prompt("שם",p.name);if(n===null)return;const num=prompt("מספר חולצה",p.num??"");const pos=prompt("תפקיד",p.pos);
+  if(n!==p.name){S.games.forEach(g=>g.events.forEach(e=>{if(e.player===p.name)e.player=n}));S.badges.forEach(b=>{if(b.player===p.name)b.player=n})}
+  S.squad[i]={num:num===""?null:+num,name:n,pos:pos||""};persist()}
+function delPlayer(i){if(confirm("להסיר מהסגל?")){S.squad.splice(i,1);persist()}}
+function addBadge(){const p=$("#bp").value,t=$("#bt").value.trim();if(!p||!t)return;S.badges.push({player:p,text:t,gameId:null});persist()}
+function delBadge(i){S.badges.splice(i,1);persist()}
+function resetLocal(){if(confirm("לבטל שינויים שלא פורסמו ולחזור לנתוני האתר?")){localStorage.removeItem(LS);S=JSON.parse(JSON.stringify(DATA));dirty=false;renderAll()}}
+function saveSettings(){const u=$("#lu").value.trim();S.leagueUrl=u;S.leagueUpdated=$("#lupd").value.trim();persist()}
+function b64(s){const bytes=new TextEncoder().encode(s),parts=[];for(let i=0;i<bytes.length;i+=8192)parts.push(String.fromCharCode.apply(null,bytes.subarray(i,i+8192)));return btoa(parts.join(""))}
+function unb64(s){const b=atob(s.replace(/\n/g,""));return new TextDecoder().decode(Uint8Array.from(b,c=>c.charCodeAt(0)))}
+function setToken(){
+ $("#phone-publish-setup")?.remove();const d=document.createElement("dialog");d.id="phone-publish-setup";d.innerHTML=`<h2>הגדרת פרסום מהמכשיר הזה</h2><p>הקוד הקצר פותח את הניהול. לפרסום לכל ההורים צריך גם טוקן GitHub נפרד.</p><p>הטוקן נשמר רק בדפדפן הזה ונשלח ישירות ל-GitHub, לא לשרת ההתראות ולא בצ׳אט.</p><ol><li>אם כבר שמרתם טוקן לפרסום, הדביקו אותו כאן.</li><li>אם אין טוקן, פתחו את GitHub וצרו Fine-grained token: בחרו רק את המאגר maccabi-rehovot-2026, וב-Repository permissions הגדירו Contents: Read and write.</li><li>חזרו לכאן, הדביקו ולחצו בדיקה ושמירה. אחר כך לחצו פרסום לכולם.</li></ol><a class="btn" target="_blank" rel="noopener noreferrer" href="https://github.com/settings/personal-access-tokens/new">פתיחת הגדרת טוקן ב-GitHub</a><label for="phone-token">טוקן פרסום (לא קוד הכניסה ולא קוד הפוש)</label><input id="phone-token" type="password" autocomplete="off" spellcheck="false" style="direction:ltr"><p id="phone-token-status" role="status"></p><div class="bar"><button type="button" id="phone-token-save" class="btn pri">בדיקה ושמירה במכשיר</button><button type="button" id="phone-token-close" class="btn">סגירה</button></div>`;document.body.append(d);$("#phone-token-close").onclick=()=>{d.close();d.remove()};$("#phone-token-save").onclick=async()=>{const t=$("#phone-token").value.trim(),status=$("#phone-token-status"),btn=$("#phone-token-save");if(!t){status.textContent="הדביקו את טוקן הפרסום. אין לשלוח אותו בצ׳אט.";return}btn.disabled=true;status.textContent="בודק גישה למאגר ב-GitHub...";try{const r=await fetch(`https://api.github.com/repos/${REPO}/contents/index.html`,{headers:{Authorization:"Bearer "+t,Accept:"application/vnd.github+json"}});if(!r.ok)throw Error(r.status===401?"הטוקן לא התקבל ב-GitHub. בדקו תוקף והעתקה.":"אין גישה למאגר. בדקו שהטוקן מוגבל למאגר הנכון וכולל Contents: Read and write.");localStorage.setItem(TOK,t);$("#phone-token").value="";d.close();d.remove();renderAdmin();refreshNextGame();toast("הטוקן נשמר במכשיר. הגישה לקריאה נבדקה; הרשאת כתיבה תיבדק בפרסום. לא פורסם ולא נשלח פוש.");}catch(e){status.textContent=e.message||"הבדיקה נכשלה. לא שינינו את הטוקן השמור."}finally{btn.disabled=false}};d.showModal();}
+function recoverDraftEvents(id){let draft=recoverableDraft;try{draft=draft||JSON.parse(localStorage.getItem("mr_draft_recovery")||"null")}catch{}const old=draft?.data?.games?.find(g=>g.id===id),g=liveGame(id);if(!old||!g)return toast("לא נמצא גיבוי אירועים למשחק הזה");const extra=(old.events||[]).filter(e=>!(g.events||[]).some(x=>JSON.stringify(x)===JSON.stringify(e)));if(!extra.length)return toast("כל האירועים מהטיוטה כבר נמצאים במשחק");if(!confirm(`נמצאו ${extra.length} אירועים מהטיוטה במכשיר. להוסיף אותם בלי לשנות תוצאה, שעה או מגרש? עדיין לא יפורסמו.`))return;g.events=[...(g.events||[]),...extra];persist();refreshNextGame();toast("האירועים שוחזרו במכשיר בלבד. בדקו ולחצו פרסום לכולם.");}
+function phonePublishControls(id){let draft=recoverableDraft;try{draft=draft||JSON.parse(localStorage.getItem("mr_draft_recovery")||"null")}catch{}const old=draft?.data?.games?.find(g=>g.id===id),g=liveGame(id),hasRecovery=!!old&&(old.events||[]).some(e=>!(g?.events||[]).some(x=>JSON.stringify(x)===JSON.stringify(e)));return `<div class="ng-publish-controls"><div class="note" role="status">${localStorage.getItem(TOK)?dirty?"יש שינויים במכשיר שטרם פורסמו לכולם.":"פרסום מוגדר במכשיר. אין שינויים מקומיים שלא פורסמו.":"חסרה הגדרת פרסום במכשיר הזה. התוצאה והאירועים נשמרים כאן בלבד."}</div><div class="ng-live-admin-row two"><button type="button" class="btn pri" onclick="${localStorage.getItem(TOK)?"publish()":"setToken()"}">${localStorage.getItem(TOK)?"📣 פרסום לכולם":"🔑 הגדרת פרסום"}</button><button type="button" class="btn" onclick="openMatch(${id})">⚽ עריכת כובשים</button></div>${localStorage.getItem(TOK)?`<button type="button" class="btn sm" style="margin-top:8px" onclick="setToken()">בדיקה / החלפת טוקן פרסום</button>`:""}${hasRecovery?`<div class="note">נמצאה טיוטה קודמת במכשיר עם אירועים נוספים.<button type="button" class="btn" onclick="recoverDraftEvents(${id})">שחזור כובשים מהטיוטה</button></div>`:""}<p class="mut">פרסום מעדכן את האתר לכולם. פוש על שער/מחצית/סיום דורש גם קוד פוש נפרד. אין פוש בדיקה.</p></div>`}
+
+let publishInProgress=false;
+async function notifyCommittedLiveEvents(revision,events){
+  if(!events.length)return {sent:0,failed:0};
+  const code=localStorage.getItem(LIVE_PUSH_CODE);if(!code)return {sent:0,failed:events.length};
+  let sent=0,failed=0;
+  for(const e of events){
+    try{const r=await fetch(PUSH_API+"/push/admin-event",{method:"POST",headers:{"content-type":"application/json","x-admin-push-code":code},body:JSON.stringify({...e,revision})});if(!r.ok){failed++;continue}const d=await r.json();if(d.ok&&!d.duplicate&&d.sent>0)sent++;}
+    catch{failed++;}
+  }
+  return {sent,failed};
+}
+async function publish(){
+  const tok=localStorage.getItem(TOK);if(!tok){setToken();return}
+  if(publishInProgress)return;publishInProgress=true;let published=false;
+  const api=`https://api.github.com/repos/${REPO}/contents/index.html`,h={Authorization:"Bearer "+tok,Accept:"application/vnd.github+json"};
+  try{
+    toast("מפרסם...");
+    const r=await fetch(api,{headers:h});if(!r.ok)throw new Error("קריאה נכשלה "+r.status);
+    const f=await r.json(),src=unb64(f.content);
+    const clean=JSON.parse(JSON.stringify(S));clean.rev=Date.now();clean.badges.forEach(b=>delete b._m);
+    const publishVersion=localEditRevision,pending=readLivePushQueue(),pendingIds=new Set(pending.map(e=>e.id));
+    const a=src.indexOf("/*DATA_START*/"),z=src.indexOf("/*DATA_END*/");if(a<0||z<0)throw new Error("סימוני נתונים חסרים");
+    const out=src.slice(0,a)+"/*DATA_START*/\nconst DATA = "+JSON.stringify(clean,null,1)+";\n"+src.slice(z);
+    const p=await fetch(api,{method:"PUT",headers:h,body:JSON.stringify({message:"עדכון נתונים מהאתר",content:b64(out),sha:f.sha})});
+    if(!p.ok)throw new Error("שמירה נכשלה "+p.status);
+    const saved=await p.json(),revision=saved.commit?.sha;published=true;
+    const remaining=readLivePushQueue().filter(e=>!pendingIds.has(e.id));saveLivePushQueue(remaining);
+    if(localEditRevision===publishVersion){localStorage.removeItem(LS);dirty=false}else{dirty=true}
+    if(pending.length&&revision){const result=await notifyCommittedLiveEvents(revision,pending);if(result.failed)toast("פורסם, אבל חלק מהתראות הפוש נכשלו");else if(!result.sent)toast("פורסם. אין מנויים פעילים לקבלת פוש");else toast("פורסם ונשלחו התראות על עדכון המשחק");}
+    else if(pending.length&&!revision)toast("פורסם, אך חסר מזהה לפרסום ולכן לא נשלח פוש");
+    else toast("פורסם. יופיע לכולם בעוד כדקה");
+  }catch(e){toast("שגיאה: "+e.message)}
+  finally{publishInProgress=false;refreshNextGame();if(published&&dirty&&localStorage.getItem(TOK))schedulePublish()}
+}
+function exportData(){const clean=JSON.parse(JSON.stringify(S));navigator.clipboard.writeText(JSON.stringify(clean,null,1)).then(()=>toast("הנתונים הועתקו"),()=>toast("ההעתקה נכשלה"))}
+const opts=(arr,sel)=>arr.map(x=>`<option ${x===sel?"selected":""}>${esc(x)}</option>`).join("");
+function renderAdmin(){
+  const el=$("#s-admin");
+  if(!isAdmin()){el.innerHTML=`<div class="card"><b>כניסת מנהל</b><label>קוד גישה</label><p class="mut">${pendingLiveReturn!=null?"כניסה נדרשת כדי להתחיל או לעדכן את המשחק החי.":pendingMatch!=null?"כניסה נדרשת כדי לערוך את המשחק שבחרת.":""}</p><input id="pw" type="password" inputmode="numeric" onkeydown="if(event.key==='Enter')login()"><label class="v-check"><input id="remember-admin" type="checkbox" checked>זכור אותי במכשיר הזה ל-30 יום (לא במכשיר משותף)</label><div class="bar"><button class="btn pri" onclick="login()">כניסה</button></div></div>`;return}
+  const names=S.squad.map(p=>p.name);
+  if(edit){const g=edit.g,mv=edit.mvp!==undefined?{player:edit.mvp}:S.badges.find(b=>b.gameId===g.id&&b.text.includes("שחקן המשחק"));
+    el.innerHTML=`<div class="card"><div class="bar"><b>${S.games.some(x=>x.id===g.id)?"עריכת משחק":"משחק חדש"}</b><button class="btn sm" onclick="edit=null;tab('games');renderAll()">חזרה למשחקים</button></div><p class="mut">עדכון תוצאה, כובשים ואירועים מיוחדים במקום אחד.</p>
+    <label>סוג</label><select id="et2">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}" ${g.type===k?"selected":""}>${v}</option>`).join("")}</select>
+    <label>יריב</label><input id="eo" value="${esc(g.opponent)}">
+    <div class="row"><div><label>תאריך</label><input id="ed" type="date" value="${g.date}"></div><div><label>שעה</label><input id="etm" type="time" value="${g.time||""}"></div></div>
+    <div class="row"><div><label>בית / חוץ</label><select id="eh"><option value="1" ${g.home?"selected":""}>בית</option><option value="0" ${!g.home?"selected":""}>חוץ</option></select></div><div><label>מגרש</label><input id="ev" value="${esc(g.venue)}"></div></div>
+    <label>תוצאה (שלנו : יריב). ריק = עוד לא שוחק</label><div class="row"><input id="sa" min="0" max="99" type="number" inputmode="numeric" value="${g.score?g.score[0]:""}" placeholder="שלנו"><input id="sb" min="0" max="99" type="number" inputmode="numeric" value="${g.score?g.score[1]:""}" placeholder="יריב"></div>
+    <label>שחקן המשחק</label><select id="emvp"><option value="">-</option>${names.map(n=>`<option ${mv&&mv.player===n?"selected":""}>${esc(n)}</option>`).join("")}</select>
+    <label>הערה</label><input id="en" value="${esc(g.note)}">
+    <h2>אירועים מעניינים</h2>${g.events.map((e,i)=>`<div class="ev"><span style="flex:1">${KINDS[e.kind]} ${e.min?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}</span><button class="btn sm red" onclick="delEv(${i})">מחק</button></div>`).join("")||`<div class="mut">אין אירועים</div>`}
+    <div class="card" style="background:#fafbfd"><div class="row"><div><label>דקה</label><input id="em" type="number" inputmode="numeric"></div><div><label>סוג</label><select id="ek">${Object.entries(KINDS).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></div></div>
+    <label>שחקן</label><select id="ep"><option value="">-</option><option>לא ידוע</option>${names.map(n=>`<option>${esc(n)}</option>`).join("")}</select><p class="mut">אפשר להשאיר את הדקה ריקה ולבחור "לא ידוע".</p><label>טקסט (לא חובה)</label><input id="et"><div class="bar"><button class="btn" onclick="addEv()">הוסף אירוע</button></div></div>
+    <div class="bar"><button class="btn pri" onclick="saveGame()">שמירה</button><button class="btn wa" onclick="saveGame(true)">עדכון תוצאה לוואטסאפ</button><button class="btn" onclick="edit=null;renderAdmin()">ביטול</button></div></div>`;
+    return}
+  const gl=[...S.games].sort((a,b)=>b.date.localeCompare(a.date));
+  el.innerHTML=livePanel()+`<div class="bar"><button class="btn pri" onclick="newGame()">+ משחק חדש</button><button class="btn" onclick="logout()">יציאה ושכח אותי</button></div><p class="mut">${localStorage.getItem(ADMIN_SESSION)?"הכניסה זכורה במכשיר הזה עד 30 יום. יציאה מוחקת אותה.":"כניסה למפגש הנוכחי בלבד."}</p>`+
+   `<div class="note" style="${dirty?"":"background:#eefaf1;border-color:#b8e2c4"}">${dirty?"יש שינויים במכשיר הזה שטרם פורסמו לכולם.":"אין שינויים שלא פורסמו."} שינויים נשמרים במכשיר הזה. כדי שההורים יראו אותם צריך לפרסם.</div>`+
+   `<div class="bar"><button class="btn wa" style="background:var(--c);border-color:var(--c)" onclick="publish()">פרסום לאתר</button><button class="btn" onclick="exportData()">העתקת נתונים</button>${dirty?`<button class="btn red" onclick="resetLocal()">ביטול שינויים</button>`:""}</div>`+
+   `<h2>משחקים</h2>`+gl.map(g=>`<div class="card"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span>${esc(g.opponent)}<div class="mut">${fd(g.date)} ${g.time||""} · ${g.bye?"מחזור חופשי":played(g)?g.score[0]+" : "+g.score[1]:"טרם שוחק"} · ${(g.events||[]).length} אירועים</div></div><div>${g.bye?"":`<button class="btn sm" onclick="editGame(${g.id})">עריכה</button> ${g.live?"":`<button class="btn sm" onclick="requestLiveStart(${g.id})">▶ התחל משחק</button>`}`} <button class="btn sm red" onclick="delGame(${g.id})">מחק</button></div></div></div>`).join("")+
+   `<h2>סגל</h2><div class="card">`+S.squad.map((p,i)=>`<div class="ev"><span style="flex:1">${p.num??"-"} · ${esc(p.name)} · ${esc(p.pos)}</span><button class="btn sm" onclick="editPlayer(${i})">עריכה</button><button class="btn sm red" onclick="delPlayer(${i})">מחק</button></div>`).join("")+`<div class="bar"><button class="btn" onclick="addPlayer()">+ שחקן</button></div></div>`+
+   `<h2>תגי הצטיינות</h2><div class="card">`+S.badges.map((b,i)=>`<div class="ev"><span style="flex:1">${esc(b.text)} · ${esc(b.player)}</span><button class="btn sm red" onclick="delBadge(${i})">מחק</button></div>`).join("")+
+   `<div class="row"><select id="bp"><option value="">שחקן</option>${names.map(n=>`<option>${esc(n)}</option>`).join("")}</select><input id="bt" placeholder="למשל 🧤 שער נקי"></div><div class="bar"><button class="btn" onclick="addBadge()">+ תג</button></div></div>`+
+   `<h2>טבלת הליגה</h2><div class="card"><label>קישור לאתר הליגה</label><input id="lu" value="${esc(S.leagueUrl)}"><label>עודכן (טקסט חופשי)</label><input id="lupd" value="${esc(S.leagueUpdated)}"><div class="bar"><button class="btn" onclick="saveSettings()">שמירה</button></div><div class="mut">טבלת ליגה ומלכי שערים: מעדכנים בבלוק הנתונים (leagueTable, leagueScorers) או שולחים לי.</div></div>`+
+   `<h2>פרסום ישיר מהטלפון</h2><div class="card"><div class="mut">פעם אחת: יוצרים ב-GitHub token מסוג Fine-grained עם הרשאת Contents (קריאה וכתיבה) על ה-repo הזה בלבד, ומדביקים כאן. ה-token נשמר רק בטלפון.</div><div class="bar"><button class="btn" onclick="setToken()">${localStorage.getItem(TOK)?"החלפת token":"הגדרת token"}</button>${localStorage.getItem(TOK)?`<button class="btn red" onclick="localStorage.removeItem(TOK);renderAdmin()">הסרת token</button>`:""}</div></div>`;
+}
+
+const TABS=[["games","משחקים"],["squad","סגל"],["stats","סטטיסטיקות"],["league","טבלת הליגה"],["share","עדכון להורים"],["videos","סרטונים"],["admin","ניהול"]];
+function tab(k){TABS.forEach(([x])=>$("#s-"+x).classList.toggle("on",x===k));[...$("#nav").children].forEach((b,i)=>b.classList.toggle("on",TABS[i][0]===k));history.replaceState(null,"","#"+k);const ngc=$("#ngc");if(ngc)ngc.classList.toggle("ng-taboff",k!=="games");if(k==="league")loadFootball();const active=$("#nav button.on");active?.scrollIntoView({block:"nearest",inline:"center"});if(k==="videos"){let tries=0;const go=()=>{const a=document.getElementById("v-gal");if(a){if(Math.abs(a.getBoundingClientRect().top-65)>30){a.scrollIntoView({behavior:"smooth",block:"start"});if(++tries<6)setTimeout(go,400)}}else if(++tries<6)setTimeout(go,250)};requestAnimationFrame(go)}}
+function renderAll(){$("#club").textContent=S.club;$("#season").textContent=S.season;document.title=S.club+" - "+S.season;renderGames();renderSquad();renderStats();renderLeague();renderShare();renderAdmin()}
+$("#nav").innerHTML=TABS.map(([k,l])=>`<button onclick="tab('${k}')">${l}</button>`).join("");
+renderAll();
+tab(TABS.some(t=>t[0]===location.hash.slice(1))?location.hash.slice(1):"games");
+</script>
+<script>
+// Public configuration only. Never put a B2 application key or access token here.
+window.TEAM_VIDEOS_CONFIG = Object.freeze({ apiBase: "https://maccabi-rehovot-api.pages.dev", googleClientId: "981223995717-dhjiem0fqq2ia0d4chgbcj2k42e8b6sq.apps.googleusercontent.com" });
+</script>
+<script>
+/* Private highlights. Public frontend contains no membership list or video URLs. */
+(()=>{
+'use strict';
+const C=window.TEAM_VIDEOS_CONFIG||{}, E=s=>document.querySelector(s), h=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const tags=['שער','הצלה','בישול','מהלך קבוצתי','רגע מהמשחק'];
+const messages={request_cooldown:'אפשר לשלוח בקשה חוזרת לאחר 24 שעות או לפנות למנהל.',photo_required:'יש לבחור תמונת JPEG, PNG או WebP. תמונת HEIC צריך להמיר לפני ההעלאה.',not_configured:'אזור הסרטונים עדיין לא מחובר לאחסון.',login_required:'נדרשת כניסה עם Google.',login_expired:'הכניסה פגה. היכנסו שוב.',family_not_approved:'החשבון הזה עדיין לא ברשימת המשפחות המאושרות. פנו למנהל.',account_changed:'נדרש אישור מחדש לחשבון. פנו למנהל.',consent_required:'יש לאשר את כללי אזור הסרטונים.',storage_full:'האחסון מלא. העלאות חדשות נעצרו; הסרטונים הקיימים נשארים.',provider_quota_reached:'מכסת הספק מוצתה כרגע. נסו שוב מאוחר יותר.',viewing_paused:'הצפייה מושהית כדי לשמור על המכסה החינמית. הסרטונים לא נמחקו.',mp4_required:'נדרש קובץ MP4 שניתן לנגן במכשיר. MOV או קובץ לא תואם צריך להמיר לפני ההעלאה.',file_too_large:'הקליפ צריך להיות עד 100MB.',clip_too_long:'הקליפ צריך להיות עד 90 שניות.',upload_uncertain:'לא ברור אם ההעלאה הסתיימה. אין להעלות שוב כרגע; פנו למנהל לבדיקה.',upload_failed:'נדרש לבדוק את ההעלאה לפני ניסיון נוסף. פנו למנהל.',upload_in_progress:'ההעלאה עדיין בטיפול. נסו שוב מאוחר יותר.',upload_expired:'זמן ההעלאה פג. פנו למנהל.',review_required:'יש לצפות בקליפ לפני האישור.',permission_required:'נדרש לאשר את הרשאת שיתוף הקליפ.',games_unavailable:'רשימת המשחקים אינה זמינה כרגע.',upload_limit:'הגעתם למספר ההעלאות המותר היום.',service_unavailable:'השירות אינו זמין כרגע. נסו שוב מאוחר יותר.'};
+let requestState=null,token='',me=null,list=[],games=[],filter={game:'',tag:'',from:'',to:'',view:'approved'},view='gallery',loading=false,anonTried=false,current=null,reviewed=false,xhr=null;
+const sec=()=>E('#s-videos');
+const ready=()=>C.apiBase&&C.googleClientId;
+const button=(id,label,cls='')=>`<button type="button" id="${id}" class="btn ${cls}">${label}</button>`;
+function errorText(e){return messages[e.message]||'לא ניתן להשלים את הפעולה. נסו שוב או פנו למנהל.';}
+async function api(path,method='GET',body){const controller=new AbortController(),deadline=setTimeout(()=>controller.abort(),15000);let r;try{r=await fetch(C.apiBase.replace(/\/$/,'')+path,{method,headers:{...(token?{Authorization:'Bearer '+token}:{}),...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,cache:'no-store',signal:controller.signal});}catch{const e=Error(controller.signal.aborted?'request_timeout':'network_error');throw e;}finally{clearTimeout(deadline);}let d;try{d=await r.json();}catch{const e=Error('invalid_response');e.httpStatus=r.status;throw e;}if(!r.ok){const e=Error(typeof d.error==='string'&&/^[a-z_]{1,60}$/.test(d.error)?d.error:'service_unavailable');e.httpStatus=r.status;throw e;}return d;}
+let googleWait=null;
+function openingGoogle(){clearTimeout(googleWait);notice('פותחים את כניסת Google... לאחר בחירת החשבון נבדוק את הגישה.');googleWait=setTimeout(()=>notice('לא התקבלה תשובה מכניסת Google. אם סגרתם את החלון או הכניסה נחסמה, נסו שוב בדפדפן רגיל. לא נשלחה עדיין בקשת בדיקת גישה.'),60000);}
+function loginFailure(e){if(e.message==='request_timeout')return 'בדיקת הגישה לשירות הסרטונים לא ענתה בתוך 15 שניות. בדקו את החיבור ולחצו על ניסיון חוזר.';if(e.message==='network_error')return 'לא ניתן להתחבר לשירות הסרטונים. ייתכן חיבור רשת או חסימת דפדפן/CORS. נסו בדפדפן Chrome רגיל ובדקו את החיבור.';const code=/^[a-z_]{1,60}$/.test(e.message)?e.message:'unknown_error';return errorText(e)+(Number.isInteger(e.httpStatus)?' (HTTP '+e.httpStatus+'; '+code+')':' ('+code+')');}
+async function signIn(credential,canRetry=true){clearTimeout(googleWait);if(typeof credential!=='string'||!credential){notice('Google לא החזיר אישור כניסה. נסו שוב.');return;}notice('Google אישר כניסה. בודקים גישה לאזור המשפחות...');token=credential;try{me=await api('/me');render();if(me.consented)await load();}catch(e){if(e.message==='family_not_approved'){try{const q=await api('/access-request');requestState=q.status;renderRequest();return;}catch{}}token='';me=null;render();notice(loginFailure(e));if(canRetry){const retry=document.createElement('button');retry.id='v-login-retry';retry.className='btn pri';retry.textContent='ניסיון חוזר';retry.onclick=()=>{retry.disabled=true;signIn(credential,false);};E('#v-notice').append(document.createElement('br'),retry);}}}
+
+function notice(text){E('#v-notice')?.remove();const n=document.createElement('div');n.id='v-notice';n.className='note';n.setAttribute('role','status');n.textContent=text;sec().prepend(n);}
+const base=()=>`<div class="v-heading"><div><h2>תמונות וסרטוני משחקים</h2><div class="mut">רגעים מהמשחק. הצפייה פתוחה לכולם, ההעלאה למשפחות מאושרות</div></div>${me?button('v-logout','יציאה'):''}</div>`;
+function bindLogout(){E('#v-logout')?.addEventListener('click',()=>{if(xhr)xhr.abort();E('#v-player')?.pause();token='';me=null;requestState=null;list=[];games=[];current=null;anonTried=false;render();});}
+function render(){
+ const el=sec();if(!el)return;
+ if(!ready()){el.innerHTML=base()+`<div class="card v-empty"><div class="v-mark" aria-hidden="true">▶</div><h2>בקרוב: תמונות והייליטס של הקבוצה</h2><p>כאן נצפה ברגעים מהמשחק לפי משחק, תאריך ותיוג.</p><div class="note">האזור עדיין לא מחובר לאחסון הפרטי. אי אפשר להעלות או לצפות בסרטונים עדיין.</div><p class="mut">הצפייה תהיה פתוחה לכולם. העלאה תהיה רק למשפחות מאושרות, עם הסכמת הורה ואישור מנהל לכל פריט לפני הצגתו.</p></div>`;return;}
+ if(!me&&requestState){renderRequest();return;}
+ if(!me){if(!anonTried){anonTried=true;load();return;}renderGallery();return;}
+ if(!me.consented){el.innerHTML=base()+`<div class="card"><h2>לפני שנכנסים</h2><p>הצפייה בתמונות ובסרטוני הקבוצה פתוחה לכולם, ללא הרשמה. ההעלאה מיועדת להורים מאושרים בלבד, וכל פריט שמועלה מתפרסם רק אחרי אישור המנהל.</p><ul><li>הצפייה פתוחה לכל אדם, ולכן מעלים רק תמונה או קליפ שמתאימים לפרסום פתוח. אין להעלות פריט שאינכם מוכנים שיהיה גלוי לכולם.</li><li>מעלים רק תמונה או קליפ שיש לנו רשות לשתף, כולל הסכמות הנדרשות מהורי הילדים המצולמים.</li><li>כל תמונה וקליפ ממתינים לבדיקה ואישור של המנהל לפני שהם נראים לצופים.</li><li>אפשר לבקש הסרה דרך כפתור "בקשת הסרה" ליד הפריט או לפנות למנהל.</li></ul><p class="mut">ההסכמה שלכם אינה מחליפה אישור של הורה אחר. הצפייה פתוחה, ולכן אי אפשר למנוע צילום מסך או שמירת הקלטה בידי צופה.</p><label class="v-check"><input id="v-consent" type="checkbox">אני הורה/אפוטרופוס, קראתי ואני מסכים/ה לכללים</label><div class="bar">${button('v-accept','אישור וכניסה','pri')}</div><div class="mut">גרסת הסכמה: ${h(me.consentVersion)}</div></div>`;bindLogout();E('#v-accept').onclick=async()=>{if(!E('#v-consent').checked)return notice('סמנו את אישור ההורה כדי להיכנס.');try{await api('/consent','POST',{version:me.consentVersion,accepted:true});me.consented=true;await load();}catch(e){notice(errorText(e));}};return;}
+ if(view==='upload'){renderUpload();return;}
+ if(view==='families'){renderFamilies();return;}
+ renderGallery();
+}
+function googleButton(){if(window.google?.accounts?.id){google.accounts.id.initialize({client_id:C.googleClientId,callback:r=>signIn(r.credential)});google.accounts.id.renderButton(E('#v-google'),{theme:'outline',size:'large',text:'signin_with',locale:'he',click_listener:openingGoogle});}else{const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;s.onload=googleButton;s.onerror=()=>notice('לא ניתן לטעון את כניסת Google. בדקו את החיבור.');document.head.appendChild(s);}}
+function renderRequest(){sec().innerHTML=base()+`<div class="card v-empty"><h2>בקשת גישה למשפחות הקבוצה</h2><p>הבקשה נשלחת למנהל לאישור. עד האישור אין גישה לתמונות או לסרטונים.</p><p class="mut">נשמור את כתובת Google ואת מזהה החשבון לצורך אישור הגישה בלבד.</p>${requestState==='pending'?'<div class="note">הבקשה ממתינה לאישור המנהל.</div>':requestState==='rejected'?'<div class="note">הבקשה לא אושרה. אפשר לפנות למנהל.</div>':button('v-request','שליחת בקשת גישה','pri')}${button('v-signout','חזרה לכניסה')}</div>`;E('#v-signout').onclick=()=>{token='';requestState=null;render();};E('#v-request')&&(E('#v-request').onclick=async()=>{try{const q=await api('/access-request','POST',{});requestState=q.status;renderRequest();}catch(e){notice(errorText(e));}});}
+async function load(){loading=true;render();try{const [v,g]=await Promise.all([api('/videos'),api('/games')]);list=v.videos;games=g.games;loading=false;render();if(v.warning)notice('האחסון מתקרב למכסה: יותר מ-6GB בשימוש.');}catch(e){loading=false;render();notice(errorText(e));}}
+function filtered(){return list.filter(v=>(filter.view==='mine'?v.status!=='approved':filter.view==='pending'?v.status==='pending':v.status==='approved')&&(!filter.game||v.gameId===filter.game)&&(!filter.tag||v.tags.includes(filter.tag))&&(!filter.from||v.date>=filter.from)&&(!filter.to||v.date<=filter.to));}
+const duration=d=>`${Math.floor(d/60)}:${String(Math.round(d%60)).padStart(2,'0')}`;
+function renderGallery(){
+ const rows=filtered();current=null;sec().innerHTML=base()+`<div class="bar">${me?button('v-upload','+ העלאת תמונה או הייליט','pri'):''}${button('v-refresh','רענון')}${me?.role==='admin'?button('v-families','ניהול משפחות'):''}</div><div class="card"><label for="v-game">משחק</label><select id="v-game"><option value="">כל המשחקים</option>${games.map(g=>`<option value="${h(g.id)}" ${filter.game===g.id?'selected':''}>${h(g.date)} · ${h(g.opponent)}</option>`).join('')}</select><div class="row"><div><label for="v-from">מתאריך</label><input id="v-from" type="date" value="${h(filter.from)}"></div><div><label for="v-to">עד תאריך</label><input id="v-to" type="date" value="${h(filter.to)}"></div></div><div class="chips v-tags">${['',...tags].map(t=>`<button class="${filter.tag===t?'on':''}" data-tag="${h(t)}">${h(t||'הכול')}</button>`).join('')}</div><div class="chips">${[['approved','לצפייה'],...(me?[['mine','ההעלאות שלי']]:[]),...(me?.role==='admin'?[['pending','ממתינים לאישור']]:[])].map(([k,t])=>`<button data-view="${k}" class="${filter.view===k?'on':''}">${t}</button>`).join('')}</div></div><div id="v-gal"></div><div id="v-playarea"></div>${loading?'<div class="empty" role="status">טוענים את הסרטונים...</div>':rows.length?groupCards(rows):`<div class="card v-empty"><h2>${filter.view==='approved'?'אין עדיין תמונות או קליפים לצפייה':'אין פריטים ברשימה הזו'}</h2><p class="mut">הורים מאושרים יכולים להעלות רגע מהמשחק. הוא יופיע לכולם רק אחרי אישור המנהל.</p></div>`}${me?'':'<div class="card"><p class="mut">צפייה פתוחה לכולם. להעלאת תמונה או סרטון (למשפחות מאושרות בלבד) - התחברות עם Google:</p><div id="v-google"></div></div>'}`;
+ bindLogout();if(!me)googleButton();E('#v-upload')&&(E('#v-upload').onclick=()=>{view='upload';render();});E('#v-refresh').onclick=load;E('#v-families')&&(E('#v-families').onclick=()=>{view='families';render();});
+ ['game','from','to'].forEach(k=>{E('#v-'+k).onchange=e=>{filter[k]=e.target.value;render();};});sec().querySelectorAll('[data-tag]').forEach(b=>b.onclick=()=>{filter.tag=b.dataset.tag;render();});sec().querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{filter.view=b.dataset.view;render();});sec().querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>play(b.dataset.play));sec().querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>remove(b.dataset.remove));
+}
+function groupCards(rows){const groups=new Map();rows.forEach(v=>{if(!groups.has(v.gameId))groups.set(v.gameId,[]);groups.get(v.gameId).push(v);});return [...groups.values()].map(a=>`<h2>${h(a[0].date)} · נגד ${h(a[0].opponent)}</h2><div class="v-grid">${a.map(v=>`<article class="card v-card"><button class="v-preview" data-play="${h(v.id)}" ${['uploading','receiving','deleting'].includes(v.status)?'disabled':''} aria-label="צפייה: ${h(v.title)}"><span class="v-playicon">${v.kind==='photo'?'▧':'▶'}</span><span>${v.kind==='photo'?'תמונה':duration(v.duration)}</span></button><h3>${h(v.title)}</h3><div class="mut">${v.minute!=null?'דקה '+v.minute+' · ':''}${h(v.tags.join(' · '))}</div>${v.status!=='approved'?`<div class="badge">${({pending:'ממתין לאישור',uploading:'העלאה לא הושלמה',receiving:'בטיפול - לא להעלות שוב',deleting:'בתהליך הסרה'})[v.status]||''}</div>`:''}${filter.view==='mine'?`<div class="bar"><button class="btn sm red" data-remove="${v.id}">הסרת ההעלאה</button></div>`:''}</article>`).join('')}</div>`).join('');}
+async function play(id){
+ const v=list.find(v=>v.id===id);if(!v)return;current=v;reviewed=false;const area=E('#v-playarea');area.innerHTML=`<div class="card"><div class="bar"><b>${h(v.title)}</b>${button('v-close','סגירה')}</div><div class="empty" role="status">מכינים את הקליפ...</div></div>`;E('#v-close').onclick=()=>{area.innerHTML='';current=null;};area.scrollIntoView({behavior:'smooth',block:'start'});
+ try{const p=await api('/videos/'+id+'/play','POST');if(current?.id!==id)return;area.innerHTML=`<div class="card"><div class="bar"><b>${h(v.title)}</b>${button('v-close','סגירה')}</div>${v.kind==='photo'?`<img id="v-photo" alt="${h(v.title)}" referrerpolicy="no-referrer" src="${h(p.url)}">`:`<video id="v-player" controls playsinline preload="metadata" referrerpolicy="no-referrer" controlslist="nodownload" src="${h(p.url)}"></video>`}<div class="mut">${h(v.date)} · ${h(v.opponent)} · ${h(v.tags.join(' · '))}</div><div class="bar">${button('v-prev','הקודם')}${button('v-next','הבא')}${button('v-full','מסך מלא')}${button('v-report','בקשת הסרה')}${me?.role==='admin'?button('v-adminremove','הסרה מהאחסון','red'):''}</div><div id="v-player-error" role="status"></div>${me?.role==='admin'&&v.status==='pending'?`<hr><h2>בדיקת קליפ</h2><p class="mut">בדקו שהפריט מתאים לשיתוף ושהצפייה עובדת. בסרטון בדקו גם את האורך. האורך המדווח אינו בדיקה עצמאית.</p><label for="v-title-edit">כותרת</label><input id="v-title-edit" maxlength="80" value="${h(v.title)}"><label class="v-check"><input id="v-reviewed" type="checkbox">צפיתי בפריט ובדקתי אותו</label><div class="bar">${button('v-approve','אישור למשפחות','pri')}${button('v-reject','דחייה והסרה','red')}</div>`:''}</div>`;
+ E('#v-close').onclick=()=>{E('#v-player')?.pause();area.innerHTML='';current=null;};(E('#v-player')||E('#v-photo')).onerror=()=>{E('#v-player-error').textContent='לא ניתן לנגן את הקליפ. ייתכן שהקישור פג, שהמכסה מוצתה או שפורמט הקליפ אינו תואם. פתחו שוב; אם זה חוזר, פנו למנהל.';};
+ E('#v-full').onclick=async()=>{const player=E('#v-player')||E('#v-photo');try{if(player.webkitEnterFullscreen)player.webkitEnterFullscreen();else await player.requestFullscreen();}catch{notice('אפשר להשתמש בכפתור המסך המלא של הנגן.');}};
+ const inGame=filtered().filter(x=>x.gameId===v.gameId&&['approved','pending'].includes(x.status)),i=inGame.findIndex(x=>x.id===id);E('#v-prev').disabled=i<=0;E('#v-next').disabled=i>=inGame.length-1;E('#v-prev').onclick=()=>play(inGame[i-1].id);E('#v-next').onclick=()=>play(inGame[i+1].id);
+ E('#v-adminremove')&&(E('#v-adminremove').onclick=()=>remove(id));
+ E('#v-report').onclick=async()=>{if(!me){location.href='mailto:kazmikidev@gmail.com?subject='+encodeURIComponent('בקשת הסרה - הפועל מרמורק רחובות')+'&body='+encodeURIComponent('מזהה פריט: '+id+'\nכותרת: '+v.title+'\nסיבה: ');notice('לבקשת הסרה שלחו הודעה ל-kazmikidev@gmail.com עם מזהה הפריט '+id+'. אנחנו מטפלים בבקשות הסרה.');return;}const reason=prompt('מה תרצו להסיר או לבדוק? אין לציין מידע אישי שאינו נחוץ.');if(!reason)return;try{await api('/videos/'+id+'/report','POST',{reason});notice('בקשת ההסרה נשלחה למנהל.');}catch(e){notice(errorText(e));}};
+ E('#v-approve')&&(E('#v-approve').onclick=async()=>{try{await api('/videos/'+id+'/moderate','POST',{action:'approve',title:E('#v-title-edit').value,reviewedClip:E('#v-reviewed').checked});current=null;await load();notice('הקליפ אושר למשפחות.');}catch(e){notice(errorText(e));}});
+ E('#v-reject')&&(E('#v-reject').onclick=async()=>{if(!confirm('לדחות ולמחוק את הקליפ מהאחסון?'))return;try{await api('/videos/'+id+'/moderate','POST',{action:'reject'});current=null;await load();}catch(e){notice(errorText(e));}});
+ }catch(e){area.innerHTML=`<div class="note" role="status">${h(errorText(e))}</div>`;}
+}
+async function remove(id){if(!confirm('למחוק את ההעלאה מהאחסון?'))return;try{await api('/videos/'+id,'DELETE');await load();}catch(e){notice(errorText(e));}}
+function renderUpload(){sec().innerHTML=base()+`<div class="card"><div class="bar">${button('v-back','חזרה לסרטונים')}</div><h2>מעלים תמונה או רגע מהמשחק</h2><p class="mut">הייליטס בלבד: עד 90 שניות ועד 100MB. קובץ MP4 שניתן לנגן במכשיר. תמונות JPEG, PNG או WebP עד 20MB: מוקטנות ל-1600 פיקסלים ונשמרות כ-JPEG עד 5MB ללא מטא-נתוני EXIF. תמונות HEIC יש להמיר לפני הבחירה. אין המרת סרטונים אוטומטית.</p><form id="v-form"><label for="v-uploadgame">משחק</label><select id="v-uploadgame" required><option value="">בחירת משחק</option>${games.map(g=>`<option value="${h(g.id)}" ${g.id===filter.game?'selected':''}>${h(g.date)} · ${h(g.opponent)}</option>`).join('')}</select><label for="v-file">בחירת תמונה או קליפ מהטלפון</label><input id="v-file" type="file" accept="video/mp4,.mp4,image/jpeg,image/png,image/webp" required><label for="v-title">כותרת קצרה</label><input id="v-title" required maxlength="80" placeholder="למשל: ההצלה בדקה 24"><label for="v-minute">דקה במשחק (לא חובה)</label><input id="v-minute" type="number" min="0" max="120" inputmode="numeric"><fieldset class="v-fieldset"><legend>תיוג האירוע</legend>${tags.map(t=>`<label class="v-check"><input name="v-tag" type="checkbox" value="${h(t)}">${h(t)}</label>`).join('')}</fieldset><label class="v-check"><input id="v-permission" type="checkbox" required>יש לי רשות לשתף את הפריט עם המשפחות, כולל הסכמות הנדרשות מהורי המצולמים</label><div class="bar">${button('v-submit','העלאה לאישור','pri')}${button('v-cancel','ביטול העלאה')}</div><progress id="v-progress" max="100" value="0" hidden></progress><div id="v-uploadstatus" role="status"></div></form></div>`;bindLogout();E('#v-back').onclick=()=>{if(xhr)return notice('בטלו או סיימו את ההעלאה לפני החזרה.');view='gallery';render();};E('#v-cancel').onclick=()=>{xhr?.abort();};E('#v-submit').onclick=submitUpload;E('#v-form').onsubmit=e=>{e.preventDefault();submitUpload();};}
+async function probe(file){return new Promise((resolve,reject)=>{const v=document.createElement('video'),url=URL.createObjectURL(file);v.preload='metadata';v.onloadedmetadata=()=>{const d=v.duration;URL.revokeObjectURL(url);resolve(d);};v.onerror=()=>{URL.revokeObjectURL(url);reject(Error('mp4_required'));};v.src=url;});}
+async function preparePhoto(file){const bitmap=await createImageBitmap(file);if(bitmap.width*bitmap.height>50000000){bitmap.close();throw Error('file_too_large');}const scale=Math.min(1,1600/Math.max(bitmap.width,bitmap.height));const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();const blob=await new Promise(r=>canvas.toBlob(r,'image/jpeg',.85));if(!blob||blob.size>5000000)throw Error('file_too_large');return new File([blob],'photo.jpg',{type:'image/jpeg'});}
+async function submitUpload(){
+ if(xhr)return;if(!E('#v-form').reportValidity())return;let file=E('#v-file').files[0];const chosen=[...sec().querySelectorAll('input[name="v-tag"]:checked')].map(x=>x.value);if(!chosen.length)return notice('בחרו לפחות תיוג אחד.');
+ let id;E('#v-submit').disabled=true;
+ try{const photo=['image/jpeg','image/png','image/webp'].includes(file.type);if(file.size>(photo?20000000:100000000))throw Error('file_too_large');let d=0;if(photo){file=await preparePhoto(file);}else{if(!/\.mp4$/i.test(file.name))throw Error('photo_required');d=await probe(file);if(!Number.isFinite(d)||d>90||d<=0)throw Error('clip_too_long');}
+  const r=await api('/uploads','POST',{gameId:E('#v-uploadgame').value,title:E('#v-title').value,tags:chosen,minute:E('#v-minute').value===''?null:Number(E('#v-minute').value),bytes:file.size,duration:d,kind:photo?'photo':'video',contentType:photo?'image/jpeg':'video/mp4',permissionConfirmed:E('#v-permission').checked});id=r.id;
+  E('#v-progress').hidden=false;E('#v-uploadstatus').textContent='מעלים... השאירו את המסך פתוח. אין לעלות שוב אם החיבור נקטע.';
+  await new Promise((resolve,reject)=>{xhr=new XMLHttpRequest();xhr.open('PUT',C.apiBase.replace(/\/$/,'')+'/videos/'+id+'/upload');xhr.setRequestHeader('Authorization','Bearer '+token);xhr.setRequestHeader('Content-Type',file.type||'video/mp4');xhr.upload.onprogress=e=>{if(e.lengthComputable)E('#v-progress').value=Math.round(e.loaded/e.total*100);};xhr.onload=()=>{if(xhr.status>=200&&xhr.status<300)resolve();else{let msg='upload_uncertain';try{msg=JSON.parse(xhr.responseText).error||msg;}catch{}reject(Error(msg));}};xhr.onerror=()=>reject(Error('upload_uncertain'));xhr.onabort=()=>reject(Error('upload_uncertain'));xhr.send(file);});
+  xhr=null;view='gallery';filter.view='mine';await load();notice('הפריט נשלח לאישור. רק אתם והמנהל יכולים לצפות בו עד האישור.');
+ }catch(e){xhr=null;notice(errorText(e));E('#v-submit')&&(E('#v-submit').disabled=false);if(id){E('#v-uploadstatus').textContent='מספר בדיקה: '+id+'. פנו למנהל לפני העלאה חוזרת.';E('#v-submit').disabled=true;}}
+}
+async function renderFamilies(){sec().innerHTML=base()+`<div class="card"><div class="bar">${button('v-back','חזרה לסרטונים')}</div><h2>בקשות הצטרפות</h2><p class="mut">הורים פותחים את קישור ההרשמה, מתחברים עם Google ושולחים בקשה. אין אישור אוטומטי.</p><input id="v-signuplink" readonly dir="ltr" value="${h(location.origin+location.pathname+'?signup=1#videos')}"><div id="v-requests"></div><h2>משפחות מאושרות</h2><p class="mut">כתובות נשמרות רק בשירות הפרטי, לא באתר הציבורי. הוספה מאפשרת כניסה; היא אינה שולחת הזמנה.</p><label for="v-email">חשבון Google של ההורה</label><input id="v-email" type="email" dir="ltr" placeholder="parent@example.com"><div class="bar">${button('v-addfamily','הוספת משפחה','pri')}</div><div id="v-familylist"></div><h2>בקשות הסרה</h2><div id="v-reports"></div></div>`;bindLogout();E('#v-back').onclick=()=>{view='gallery';render();};E('#v-addfamily').onclick=async()=>{try{await api('/admin/members','POST',{email:E('#v-email').value});renderFamilies();}catch(e){notice(errorText(e));}};try{const [d,r,q]=await Promise.all([api('/admin/members'),api('/admin/reports'),api('/admin/requests')]);if(view!=='families')return;E('#v-requests').innerHTML=q.requests.length?q.requests.map(q=>`<div class="card"><b dir="ltr">${h(q.email)}</b><div class="bar"><button class="btn pri" data-requestemail="${h(q.email)}" data-action="approve">אישור גישה</button><button class="btn red" data-requestemail="${h(q.email)}" data-action="reject">דחייה</button></div></div>`).join(''):'<p class="mut">אין בקשות ממתינות.</p>';sec().querySelectorAll('[data-requestemail]').forEach(b=>b.onclick=async()=>{try{await api('/admin/requests','POST',{email:b.dataset.requestemail,action:b.dataset.action});renderFamilies();}catch(e){notice(errorText(e));}});E('#v-familylist').innerHTML=d.members.map(m=>`<div class="card"><b dir="ltr">${h(m.email)}</b><div class="mut">${m.role==='admin'?'מנהל':m.enabled?'משפחה מאושרת':'גישה בוטלה'}</div>${m.role!=='admin'&&m.enabled?`<button class="btn sm red" data-revoke="${h(m.email)}">ביטול גישה</button>`:''}</div>`).join('');sec().querySelectorAll('[data-revoke]').forEach(b=>b.onclick=async()=>{if(!confirm('לבטל גישה לחשבון '+b.dataset.revoke+'?'))return;try{await api('/admin/members','POST',{email:b.dataset.revoke,enabled:false});renderFamilies();}catch(e){notice(errorText(e));}});E('#v-reports').innerHTML=r.reports.length?r.reports.map(r=>`<div class="card"><div>${h(r.reason)}</div><div class="mut">${h(r.created_at)}</div><button class="btn sm" data-reportvideo="${h(r.video_id)}">פתיחת הקליפ</button></div>`).join(''):'<div class="mut">אין בקשות הסרה.</div>';sec().querySelectorAll('[data-reportvideo]').forEach(b=>b.onclick=()=>{view='gallery';render();play(b.dataset.reportvideo);});}catch(e){notice(errorText(e));}}
+window.TeamVideos={open(gameId){filter.game=gameId||'';view='gallery';tab('videos');render();},render};
+document.addEventListener('visibilitychange',()=>{if(document.hidden)E('#v-player')?.pause();});
+render();
+})();
+</script>
+
+<script>
+/* ===================================================================
+   כרטיס "המשחק הבא" + התראות Push (PWA)
+   הנתונים מגיעים מ-data/next-game.json שמתעדכן אוטומטית מדי בוקר.
+   =================================================================== */
+(function(){
+const NG = document.getElementById('ngc');
+const PUSH_API = 'https://maccabi-rehovot-api.pages.dev';
+const esc = t => String(t==null?'':t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function b64ToU8(b64){const p='='.repeat((4-b64.length%4)%4);const b=atob((b64+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...b].map(c=>c.charCodeAt(0)));}
+const isIOS = ()=>/iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone = ()=>window.matchMedia('(display-mode: standalone)').matches || navigator.standalone===true;
+function toast2(m){const t=document.getElementById('toast');if(t){t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}}
+
+function fmtDate(d,time,arrive){
+  try{
+    const dt=new Date(d+'T'+(time||'00:00')+':00');
+    const wd=new Intl.DateTimeFormat('he-IL',{weekday:'long'}).format(dt);
+    const dd=new Intl.DateTimeFormat('he-IL',{day:'numeric',month:'numeric'}).format(dt);
+    let s=wd+', '+dd+(time?' · '+time:' · שעה תפורסם');
+    if(arrive)s+=' (הגעה '+arrive+')';
+    return s;
+  }catch{return d+' '+(time||'');}
+}
+function ics(g){
+  const day=calendarDay(g.date),title='הפועל מרמורק רחובות '+(g.home?'-':'מול ')+(g.opponent||'');
+  const loc=[g.venue,g.address].filter(Boolean).join(', ');
+  const start=g.time?`DTSTART;TZID=Asia/Jerusalem:${day}T${g.time.replace(':','')}00`:`DTSTART;VALUE=DATE:${day}`;
+  const end=g.time?'DURATION:PT2H':`DTEND;VALUE=DATE:${calendarShiftDay(g.date,1)}`;
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//ironi-rehovot//he','BEGIN:VEVENT',
+    'UID:game-'+(g.round||'x')+'-'+Date.now()+'@ironi-rehovot','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').split('.')[0]+'Z',
+    start,end,'SUMMARY:'+title,'LOCATION:'+loc,'END:VEVENT','END:VCALENDAR'].join('\r\n');
+}
+function gcalUrl(g){
+  const day=calendarDay(g.date),end=calendarEnd(g.date,g.time||'09:00');
+  const dates=g.time?`${day}T${g.time.replace(':','')}00/${end.day}T${end.time}00`:`${day}/${calendarShiftDay(g.date,1)}`;
+  const p=new URLSearchParams({action:'TEMPLATE',text:'הפועל מרמורק רחובות '+(g.home?'-':'מול ')+(g.opponent||''),dates,location:[g.venue,g.address].filter(Boolean).join(', '),ctz:'Asia/Jerusalem'});
+  return 'https://calendar.google.com/calendar/render?'+p.toString();
+}
+
+async function pushStatus(){
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)||!window.isSecureContext)return 'unsupported';
+  try{const reg=await navigator.serviceWorker.getRegistration();if(!reg)return 'off';const s=await reg.pushManager.getSubscription();return s?'on':'off';}catch{return 'off';}
+}
+async function renderBell(btn){
+  const st=await pushStatus();
+  if(st==='on'){btn.classList.add('on');btn.innerHTML='🔔 עדכונים כלליים פעילים';}
+  else{btn.classList.remove('on');btn.innerHTML='🔕 עדכונים כלליים';}
+}
+async function togglePush(btn){
+  const st=await pushStatus();
+  if(st==='unsupported'){
+    if(isIOS()&&!isStandalone()){toast2('באייפון: קודם הוסיפו למסך הבית (שתף → הוספה למסך הבית), ואז הפעילו עדכונים מהאפליקציה');}
+    else toast2('הדפדפן לא תומך בהתראות');
+    return;
+  }
+  if(isIOS()&&!isStandalone()){toast2('באייפון: מתקינים קודם את האתר למסך הבית (שתף → הוספה למסך הבית) ופותחים ממנו');return;}
+  try{
+    const reg=await navigator.serviceWorker.register('sw.js');
+    if(st==='on'){
+      const s=await reg.pushManager.getSubscription();
+      if(s){await fetch(PUSH_API+'/push/unsubscribe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({endpoint:s.endpoint})}).catch(()=>{});await s.unsubscribe();}
+      toast2('העדכונים הכלליים כובו');
+    }else{
+      const perm=await Notification.requestPermission();
+      if(perm!=='granted'){toast2('לא אושרו התראות בדפדפן');return;}
+      const k=await (await fetch(PUSH_API+'/push/key')).json();
+      const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64ToU8(k.key)});
+      const j=sub.toJSON();
+      const r=await fetch(PUSH_API+'/push/subscribe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({endpoint:sub.endpoint,keys:j.keys,ua:navigator.userAgent.slice(0,180)})});
+      if(!r.ok)throw 0;
+      toast2('העדכונים הכלליים הופעלו! נעדכן על שינויים בלוח המשחקים, תוצאות ועדכוני תוצאה');
+    }
+  }catch(e){toast2('הפעלת העדכונים נכשלה, נסו שוב');}
+  renderBell(btn);
+}
+
+let installEvt=null;
+function syncInstallButton(){
+  const b=document.getElementById('installApp');
+  if(!b)return;
+  const installed=isStandalone();
+  b.hidden=installed;
+  b.disabled=installed;
+  b.setAttribute('aria-hidden',String(installed));
+}
+function installInstructions(){
+  if(isIOS())return 'באייפון או באייפד: פתחו את האתר ב-Safari, הקישו על שיתוף, גללו ובחרו "הוספה למסך הבית", ואז הקישו "הוספה".';
+  if(/android/i.test(navigator.userAgent))return 'ב-Chrome: הקישו על ⋮ ובחרו "התקנת אפליקציה" או "הוספה למסך הבית".';
+  return 'פתחו את תפריט הדפדפן וחפשו "התקנת אפליקציה" או "הוספה למסך הבית". אם מופיע סמל התקנה בשורת הכתובת, אפשר לבחור גם בו.';
+}
+async function installApp(){
+  if(isStandalone()){syncInstallButton();return;}
+  if(installEvt){
+    const promptEvent=installEvt;installEvt=null;
+    try{promptEvent.prompt();const choice=await promptEvent.userChoice;if(choice?.outcome==='accepted'){syncInstallButton();return;}}catch{}
+  }
+  const p=document.getElementById('installSteps');if(p)p.textContent=installInstructions();
+  const dlg=document.getElementById('installHelp');
+  if(dlg?.showModal)dlg.showModal();else alert(installInstructions());
+}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;syncInstallButton();});
+window.addEventListener('appinstalled',()=>{installEvt=null;syncInstallButton();});
+const installMode=window.matchMedia('(display-mode: standalone)');
+if(installMode.addEventListener)installMode.addEventListener('change',syncInstallButton);
+const installButton=document.getElementById('installApp');
+installButton?.addEventListener('click',installApp);
+document.getElementById('closeInstallHelp')?.addEventListener('click',()=>document.getElementById('installHelp')?.close());
+syncInstallButton();
+
+async function load(){
+  let g=null;
+  try{const r=await fetch('data/next-game.json?cb='+Date.now());if(r.ok)g=await r.json();}catch{}
+  if(!g||!g.opponent){NG.hidden=true;topLiveUid=null;renderGames();return;}
+  const match=(g.uid&&S.games.find(x=>x.uid===g.uid))||S.games.find(x=>x.type===g.type&&Number(x.round)===Number(g.round)&&x.opponent===g.opponent);
+  const live=match?.live?match:null,final=match&&!match.live&&played(match)?match:null;
+  topLiveUid=live?.uid||null;
+  if(match)g={...g,id:match.id,uid:match.uid,live:live?.live,score:match.score,events:match.events,home:match.home,venue:match.venue||g.venue,final:!!final};
+  if(g.type==='league'&&Number(g.round)===1&&g.opponent==='הפועל רעננה')g.address=VENUE_OVERRIDES['ifa-2026-27-round-1'].nextGameAddress;
+  const isLive=!!g.live,isFinal=!isLive&&!!g.final,score=g.score||[0,0];
+  const waze='https://waze.com/ul?q='+encodeURIComponent(g.address||g.venue||'')+'&navigate=yes';
+  const placeParts=[g.venue,g.address].filter(Boolean),placeKey=x=>String(x).normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu," ").split(/\s+/).filter(w=>w&&w!=="רחוב"&&w!=="street").sort().join(" "),placeText=placeParts.filter((x,i)=>!i||placeKey(x)!==placeKey(placeParts[0])).join(" · ");
+  const evs=(g.events||[]).filter(e=>e.kind!=="assist").sort((a,b)=>(a.min||0)-(b.min||0));
+  const liveEvents=evs.length?`<div class="ng-live-events"><b>אירועים</b>${evs.map(e=>`<div>${KINDS[e.kind]?.split(" ")[0]||"•"} ${e.min!=null&&e.min!==""?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}</div>`).join("")}</div>`:"";
+  const phase=g.live?.phase==="half"?"מחצית":g.live?.phase==="second"?"מחצית שנייה":g.live?.phase?.startsWith("first")?"מחצית ראשונה":"";
+  const scoreLabel=`הפועל מרמורק רחובות: ${score[0]}, ${g.opponent}: ${score[1]}`;
+  NG.innerHTML=`<div class="ng ${isLive?"ng-live":isFinal?"ng-final":""}">
+    <div class="ng-head"><span class="ng-title">${isLive?"🔴 משחק חי":isFinal?"🏁 תוצאה סופית":g.result?"⚽ המשחק האחרון":"⚽ המשחק הבא"}</span>${g.type==='cup'?`<span class="ng-round">גביע · ${esc(g.roundLabel||'משחק גביע')}</span>`:g.round?`<span class="ng-round">מחזור ${esc(g.round)}</span>`:""}</div>
+    ${isLive||isFinal?`<div class="ng-live-score" aria-label="${esc(scoreLabel)}"><div class="ng-score-row"><div class="ng-score-team"><b dir="ltr">${score[0]}</b><span>הפועל מרמורק רחובות</span></div><strong aria-hidden="true">:</strong><div class="ng-score-team"><b dir="ltr">${score[1]}</b><span>${esc(g.opponent)}</span></div></div><div class="ng-live-meta">${isLive?'<span class="livedot">🔴 חי</span>':'🏁 הסתיים'}${isLive&&phase?" · "+phase:""}${isLive&&g.live.min!=null&&g.live.min!==""?" · דקה "+esc(g.live.min):""}</div></div>`:""}
+    <div class="ng-teams">${isLive||isFinal?`הפועל מרמורק רחובות - ${esc(g.opponent)}`:`${g.home?"הפועל מרמורק רחובות":"מול"} ${esc(g.opponent)} <span class="ng-ha">${g.home?"🏠 בית":"🚌 חוץ"}</span>`}</div>
+    ${isFinal?`<div class="ng-result">תוצאה סופית: ${score[0]} : ${score[1]}</div>`:g.result?`<div class="ng-result">תוצאה: ${esc(g.result)}</div>`:""}
+    ${liveCardAdminControls(g)}
+    ${liveEvents}
+    <div class="ng-row">📅 <b>${esc(fmtDate(g.date,g.time,g.arrive))}</b></div>
+    ${placeText?`<div class="ng-row">📍 ${esc(placeText)}</div>`:`<div class="ng-row">📍 מגרש טרם פורסם</div>`}
+    ${g.note?`<div class="ng-row">${esc(g.note)}</div>`:""}
+    ${placeParts.length?`<div class="ng-btns"><a class="waze" href="${waze}" target="_blank" rel="noopener">🚗 Waze</a></div>`:""}
+    <div class="ng-btns"><button class="bell" id="ngBell">🔕 עדכונים כלליים</button></div>
+    <div class="ng-note">${isLive?"המשחק מתעדכן בזמן אמת על ידי מנהל הקבוצה.":isFinal?"התוצאה הסופית נשמרה.":"המידע מתעדכן אוטומטית מדי בוקר. בלחיצה על הכפתור - עדכונים על שינויים בלוח המשחקים, תוצאות ועדכוני תוצאה. חדשות לא נכללות כרגע."}</div>
+  </div>`;
+  NG.hidden=false;
+  const bell=document.getElementById('ngBell');bell.onclick=()=>togglePush(bell);renderBell(bell);renderGames();
+}
+
+window.refreshTeamNextGame=load;
+load();
+})();
+</script>
+</body>
+ </html>
