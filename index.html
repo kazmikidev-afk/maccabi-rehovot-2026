@@ -222,6 +222,7 @@ const KINDS={goal:"⚽ שער",assist:"👟 בישול",yellow:"🟨 צהוב",r
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const toast=m=>{const t=$("#toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",2500)};
+const PUSH_API="https://maccabi-rehovot-api.pages.dev";
 const LS="mr_local",TOK="mr_token",ADM="mr_admin",REPO="kazmikidev-afk/maccabi-rehovot-2026",LIVE_PUSH_CODE="mr_live_push_admin_code",LIVE_PUSH_QUEUE="mr_live_push_queue";
 
 /* state = נתוני האתר, או שינויים מקומיים שטרם פורסמו מהמכשיר הזה */
