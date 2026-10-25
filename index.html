@@ -502,7 +502,7 @@ function addBadge(){const p=$("#bp").value,t=$("#bt").value.trim();if(!p||!t)ret
 function delBadge(i){S.badges.splice(i,1);persist()}
 function resetLocal(){if(confirm("לבטל שינויים שלא פורסמו ולחזור לנתוני האתר?")){localStorage.removeItem(LS);S=JSON.parse(JSON.stringify(DATA));dirty=false;renderAll()}}
 function saveSettings(){const u=$("#lu").value.trim();S.leagueUrl=u;S.leagueUpdated=$("#lupd").value.trim();persist()}
-function b64(s){return btoa(String.fromCharCode(...new TextEncoder().encode(s)))}
+function b64(s){const bytes=new TextEncoder().encode(s),parts=[];for(let i=0;i<bytes.length;i+=8192)parts.push(String.fromCharCode.apply(null,bytes.subarray(i,i+8192)));return btoa(parts.join(""))}
 function unb64(s){const b=atob(s.replace(/\n/g,""));return new TextDecoder().decode(Uint8Array.from(b,c=>c.charCodeAt(0)))}
 function setToken(){
  $("#phone-publish-setup")?.remove();const d=document.createElement("dialog");d.id="phone-publish-setup";d.innerHTML=`<h2>הגדרת פרסום מהמכשיר הזה</h2><p>הקוד הקצר פותח את הניהול. לפרסום לכל ההורים צריך גם טוקן GitHub נפרד.</p><p>הטוקן נשמר רק בדפדפן הזה ונשלח ישירות ל-GitHub, לא לשרת ההתראות ולא בצ׳אט.</p><ol><li>אם כבר שמרתם טוקן לפרסום, הדביקו אותו כאן.</li><li>אם אין טוקן, פתחו את GitHub וצרו Fine-grained token: בחרו רק את המאגר maccabi-rehovot-2026, וב-Repository permissions הגדירו Contents: Read and write.</li><li>חזרו לכאן, הדביקו ולחצו בדיקה ושמירה. אחר כך לחצו פרסום לכולם.</li></ol><a class="btn" target="_blank" rel="noopener noreferrer" href="https://github.com/settings/personal-access-tokens/new">פתיחת הגדרת טוקן ב-GitHub</a><label for="phone-token">טוקן פרסום (לא קוד הכניסה ולא קוד הפוש)</label><input id="phone-token" type="password" autocomplete="off" spellcheck="false" style="direction:ltr"><p id="phone-token-status" role="status"></p><div class="bar"><button type="button" id="phone-token-save" class="btn pri">בדיקה ושמירה במכשיר</button><button type="button" id="phone-token-close" class="btn">סגירה</button></div>`;document.body.append(d);$("#phone-token-close").onclick=()=>{d.close();d.remove()};$("#phone-token-save").onclick=async()=>{const t=$("#phone-token").value.trim(),status=$("#phone-token-status"),btn=$("#phone-token-save");if(!t){status.textContent="הדביקו את טוקן הפרסום. אין לשלוח אותו בצ׳אט.";return}btn.disabled=true;status.textContent="בודק גישה למאגר ב-GitHub...";try{const r=await fetch(`https://api.github.com/repos/${REPO}/contents/index.html`,{headers:{Authorization:"Bearer "+t,Accept:"application/vnd.github+json"}});if(!r.ok)throw Error(r.status===401?"הטוקן לא התקבל ב-GitHub. בדקו תוקף והעתקה.":"אין גישה למאגר. בדקו שהטוקן מוגבל למאגר הנכון וכולל Contents: Read and write.");localStorage.setItem(TOK,t);$("#phone-token").value="";d.close();d.remove();renderAdmin();refreshNextGame();toast("הטוקן נשמר במכשיר. הגישה לקריאה נבדקה; הרשאת כתיבה תיבדק בפרסום. לא פורסם ולא נשלח פוש.");}catch(e){status.textContent=e.message||"הבדיקה נכשלה. לא שינינו את הטוקן השמור."}finally{btn.disabled=false}};d.showModal();}
@@ -522,7 +522,7 @@ async function notifyCommittedLiveEvents(revision,events){
 }
 async function publish(){
   const tok=localStorage.getItem(TOK);if(!tok){setToken();return}
-  if(publishInProgress)return;publishInProgress=true;
+  if(publishInProgress)return;publishInProgress=true;let published=false;
   const api=`https://api.github.com/repos/${REPO}/contents/index.html`,h={Authorization:"Bearer "+tok,Accept:"application/vnd.github+json"};
   try{
     toast("מפרסם...");
@@ -534,14 +534,14 @@ async function publish(){
     const out=src.slice(0,a)+"/*DATA_START*/\nconst DATA = "+JSON.stringify(clean,null,1)+";\n"+src.slice(z);
     const p=await fetch(api,{method:"PUT",headers:h,body:JSON.stringify({message:"עדכון נתונים מהאתר",content:b64(out),sha:f.sha})});
     if(!p.ok)throw new Error("שמירה נכשלה "+p.status);
-    const saved=await p.json(),revision=saved.commit?.sha;
+    const saved=await p.json(),revision=saved.commit?.sha;published=true;
     const remaining=readLivePushQueue().filter(e=>!pendingIds.has(e.id));saveLivePushQueue(remaining);
     if(localEditRevision===publishVersion){localStorage.removeItem(LS);dirty=false}else{dirty=true}
     if(pending.length&&revision){const result=await notifyCommittedLiveEvents(revision,pending);if(result.failed)toast("פורסם, אבל חלק מהתראות הפוש נכשלו");else if(!result.sent)toast("פורסם. אין מנויים פעילים לקבלת פוש");else toast("פורסם ונשלחו התראות על עדכון המשחק");}
     else if(pending.length&&!revision)toast("פורסם, אך חסר מזהה לפרסום ולכן לא נשלח פוש");
     else toast("פורסם. יופיע לכולם בעוד כדקה");
   }catch(e){toast("שגיאה: "+e.message)}
-  finally{publishInProgress=false;refreshNextGame();if(dirty&&localStorage.getItem(TOK))schedulePublish()}
+  finally{publishInProgress=false;refreshNextGame();if(published&&dirty&&localStorage.getItem(TOK))schedulePublish()}
 }
 function exportData(){const clean=JSON.parse(JSON.stringify(S));navigator.clipboard.writeText(JSON.stringify(clean,null,1)).then(()=>toast("הנתונים הועתקו"),()=>toast("ההעתקה נכשלה"))}
 const opts=(arr,sel)=>arr.map(x=>`<option ${x===sel?"selected":""}>${esc(x)}</option>`).join("");
