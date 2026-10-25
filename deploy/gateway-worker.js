@@ -100,7 +100,7 @@ async function handlePush(request,env,u){
   const types=new Set(['score','halftime','final']);
   if(!b||!types.has(b.type)||typeof b.revision!=='string'||!/^[a-f0-9]{40}$/.test(b.revision)||!Number.isInteger(b.gameId)||b.gameId<0||b.gameId>999999||!Array.isArray(b.score)||b.score.length!==2||b.score.some(n=>!Number.isInteger(n)||n<0||n>99)||typeof b.home!=='boolean'||typeof b.opponent!=='string'||!b.opponent.trim()||b.opponent.length>80||/[\u0000-\u001f\u007f]/.test(b.opponent))return j({error:'invalid_event'},400);
   if(b.minute!=null&&(!Number.isInteger(b.minute)||b.minute<0||b.minute>120))return j({error:'invalid_event'},400);
-  const opponent=b.opponent.trim(),our=`עירוני רחובות ${b.score[0]}`,rival=`${opponent} ${b.score[1]}`;
+  const opponent=b.opponent.trim(),our=`הפועל מרמורק רחובות ${b.score[0]}`,rival=`${opponent} ${b.score[1]}`;
   const scoreText=b.home?`${our}, ${rival}`:`${rival}, ${our}`;
   const prefix=b.type==='final'?'המשחק הסתיים: ':b.type==='halftime'?'מחצית: ':'תוצאה עודכנה: ';
   const eventKey=`${b.revision}:${b.gameId}:${b.type}`;
@@ -117,7 +117,7 @@ async function handlePush(request,env,u){
  if(u.pathname==='/push/notify'&&request.method==='POST'){
   if(!env.NOTIFY_SECRET||request.headers.get('x-notify-secret')!==env.NOTIFY_SECRET)return j({error:'auth'},401);
   let b;try{b=await request.json();}catch{return j({error:'json'},400);}
-  const payload=JSON.stringify({title:String(b.title||'עירוני רחובות').slice(0,80),body:String(b.body||'').slice(0,240),url:String(b.url||'https://kazmikidev-afk.github.io/maccabi-rehovot-2026/').slice(0,300),tag:String(b.tag||'maccabi-game')});
+  const payload=JSON.stringify({title:String(b.title||'הפועל מרמורק רחובות').slice(0,80),body:String(b.body||'').slice(0,240),url:String(b.url||'https://kazmikidev-afk.github.io/maccabi-rehovot-2026/').slice(0,300),tag:String(b.tag||'maccabi-game')});
   return j({ok:true,...await deliverPush(env,payload)});
  }
  return j({error:'path'},404);
