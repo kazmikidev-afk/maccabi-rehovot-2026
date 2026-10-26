@@ -40,7 +40,7 @@ the backup-before-write rule still applies. On fetch failure nothing is
 touched and the last baked table stays.
 """
 
-import argparse, json, re, sys, time, urllib.request, urllib.error, urllib.parse
+import argparse, copy, json, re, sys, time, urllib.request, urllib.error, urllib.parse
 from datetime import datetime, timedelta, timezone
 from html import unescape
 from pathlib import Path
@@ -604,6 +604,7 @@ def main():
         return selftest()
 
     src, a, z, data = load_data(args.repo)
+    original = copy.deepcopy(data)  # pristine pre-run DATA for the mandatory backup
     if args.sample:
         posts = json.loads(Path(args.sample).read_text(encoding="utf-8"))
         fetched_url = "sample:" + args.sample
@@ -649,7 +650,7 @@ def main():
         bdir.mkdir(parents=True, exist_ok=True)
         stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%SZ")
         bpath = bdir / f"data-backup-{stamp}.json"
-        bpath.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
+        bpath.write_text(json.dumps(original, ensure_ascii=False, indent=1), encoding="utf-8")  # pre-change state, never the updated data
         by_uid = {f["uid"]: f for f in fills}
         for g in data["games"]:
             f = by_uid.get(g.get("uid"))
