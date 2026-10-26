@@ -1602,7 +1602,8 @@ async function publishedFinalEvent(id){
  const data=await read(),g=data.games.find(g=>g.id===id),local=liveGame(id);
  if(!g||g.live||!g.liveFinishedAt||!g.score||!local||local.live||JSON.stringify(local.score)!==JSON.stringify(g.score)||local.liveFinishedAt!==g.liveFinishedAt)throw Error("התוצאה המקומית אינה תוצאה סופית תואמת לפרסום. לא נשלח פוש.");
  const r=await fetch(api+"/commits?path=index.html&per_page=20",{headers,cache:"no-store"});if(!r.ok)throw Error("לא ניתן לאמת את מזהה פרסום התוצאה");const commits=await r.json();let revision=null,foundBoundary=false;
- for(const c of commits){const d=await read(c.sha);if(d.rev!==data.rev){foundBoundary=true;break}revision=c.sha}
+ function sameFinal(d){const h=(d.games||[]).find(x=>x.id===id);return !!h&&!h.live&&h.liveFinishedAt===g.liveFinishedAt&&JSON.stringify(h.score)===JSON.stringify(g.score)}
+ for(const c of commits){const d=await read(c.sha);if(!sameFinal(d)){foundBoundary=true;break}revision=c.sha}
  if(!revision||(!foundBoundary&&commits.length===20))throw Error("לא ניתן לזהות בוודאות את פרסום הסיום המקורי. לא נשלח פוש.");
  return {id:crypto.randomUUID(),type:"final",gameId:id,score:[...g.score],opponent:g.opponent,home:!!g.home,minute:null,revision,publishedDataRev:data.rev,finished:g.liveFinishedAt};
 }
