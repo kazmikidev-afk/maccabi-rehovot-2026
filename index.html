@@ -214,7 +214,7 @@ th,td{padding:9px 7px}
    =================================================================== */
 /*DATA_START*/
 const DATA = {
- "rev": 1793086945644,
+ "rev": 1793211323745,
  "club": "הפועל מרמורק רחובות",
  "season": "עונת 2026/27",
  "adminHash": "31d4f5f8af22211e6387f51657eecf5ee8b37d55d13bae3c6266ff2909369ad9",
@@ -1153,6 +1153,30 @@ const DATA = {
     "source": "juniorleague"
    },
    "liveFinishedAt": 1792946303876
+  },
+  {
+   "id": 36,
+   "uid": "cup-2026-27-round-3-game-18",
+   "type": "cup",
+   "date": "2026-11-07",
+   "time": "",
+   "opponent": "הפועל חוף הכרמל / מ״מ",
+   "home": true,
+   "venue": "",
+   "score": null,
+   "events": [],
+   "note": "סיבוב ג׳ · משחק 18. היריבה נרשמה בהגרלה עם הסימון מ״מ, שפירושו טרם הובהר. שעה ומגרש טרם פורסמו.",
+   "drawSource": {
+    "provider": "juniorleague",
+    "url": "http://www.juniorleague.co.il/wp-content/uploads/2026/10/%D7%99%D7%9C%D7%93%D7%99%D7%9D-%D7%92-2.pdf",
+    "published": "2026-10-28",
+    "round": 3,
+    "game": 18
+   },
+   "scheduleOverride": {
+    "source": "juniorleague-draw-2026-10-28",
+    "verifiedDate": "2026-11-07"
+   }
   }
  ],
  "squad": [
@@ -1370,7 +1394,7 @@ function gameCard(g,showCalendar=false){
   const ex=evs.length?`<div class="mut" style="margin-top:6px">`+evs.map(e=>`${KINDS[e.kind].split(" ")[0]} ${e.min?e.min+"' ":""}${esc(e.player||"")} ${esc(e.text||"")}`).join("<br>")+`</div>`:"";
   const mv=S.badges.filter(b=>b.gameId===g.id).map(b=>`<div class="mut">${esc(b.text)}: ${esc(b.player)}</div>`).join("");
   const calendar=showCalendar?calendarButton(g):"";
-  return `<div class="card" data-match="${g.id}" role="button" tabindex="0" aria-label="פתיחת משחק: ${esc(g.opponent)}" onclick="if(!event.target.closest('button,a'))openMatch(${g.id})" onkeydown="if(event.key==='Enter'&&event.target===this)openMatch(${g.id})"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span><b>הפועל מרמורק רחובות - ${esc(g.opponent)}</b><div class="mut">${fd(g.date)} · ${g.home?"בית":"חוץ"}${g.venue?" · "+esc(g.venue):""}${g.note?" · "+esc(g.note):""}${g.resultSource&&g.resultSource.url&&JSON.stringify(g.resultSource.score)===JSON.stringify(g.score)?` · תוצאה: <a target="_blank" rel="noopener" href="${esc(g.resultSource.url)}">ג׳וניורליג</a>`:""}</div></div>${sc}</div>${ex}${mv}<div class="bar"><button class="btn sm" onclick="TeamVideos.open('${esc(g.uid||("legacy-"+g.id))}')">▶ סרטוני המשחק</button>${calendar}</div></div>`;
+  return `<div class="card" data-match="${g.id}" role="button" tabindex="0" aria-label="פתיחת משחק: ${esc(g.opponent)}" onclick="if(!event.target.closest('button,a'))openMatch(${g.id})" onkeydown="if(event.key==='Enter'&&event.target===this)openMatch(${g.id})"><div class="game"><div><span class="tag t-${g.type}">${TYPES[g.type]}</span><b>הפועל מרמורק רחובות - ${esc(g.opponent)}</b><div class="mut">${fd(g.date)} · ${g.home?"בית":"חוץ"}${g.venue?" · "+esc(g.venue):""}${g.note?" · "+esc(g.note):""}${g.resultSource&&g.resultSource.url&&JSON.stringify(g.resultSource.score)===JSON.stringify(g.score)?` · תוצאה: <a target="_blank" rel="noopener" href="${esc(g.resultSource.url)}">ג׳וניורליג</a>`:""}</div></div>${sc}</div>${g.drawSource?.url?`<div class="mut"><a target="_blank" rel="noopener" href="${esc(g.drawSource.url)}">מקור: הגרלת הגביע שפורסמה בג׳וניורליג</a></div>`:""}${ex}${mv}<div class="bar"><button class="btn sm" onclick="TeamVideos.open('${esc(g.uid||("legacy-"+g.id))}')">▶ סרטוני המשחק</button>${calendar}</div></div>`;
 }
 const chips=(cur,fn)=>`<div class="chips">`+[["all","הכול"],["league","ליגה"],["cup","גביע"],["friendly","אימון"]].map(([k,l])=>`<button class="${cur===k?"on":""}" onclick="${fn}('${k}')">${l}</button>`).join("")+`</div>`;
 function setF(k){filter=k;renderGames()}
@@ -1479,7 +1503,7 @@ function renderLeague(){
   h+=`<div class="card" style="overflow-x:auto"><table><tr><th>קבוצה</th><th>מש'</th><th>נצ'</th><th>ת'</th><th>הפ'</th><th>הפרש</th><th>נק'</th></tr>${L.map(r=>`<tr ${r.team.includes('מרמורק')?'style="background:#e6f4e9"':''}><td>${esc(r.team)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gf-r.ga}</td><td><b>${r.pts}</b></td></tr>`).join('')}</table></div>`;
  }else h+=`<div class="empty">${footballLoading?'הטבלה נטענת…':'טרם התקבלה טבלה מהמקור.'}</div>`;
  h+=`<h2>משחקי הליגה</h2><label>מחזור</label><select onchange="selectFootballRound(this.value)" ${footballLoading?'disabled':''}>${Array.from({length:30},(_,i)=>`<option value="${i}" ${i===footballRound?'selected':''}>מחזור ${i+1}</option>`).join('')}</select>`+feedGames(d?.leagueGames,'league');
- h+=`<h2>גביע - משחקי הקבוצה</h2><label>סיבוב בפיד</label><select onchange="selectFootballRound(this.value,true)" ${footballLoading?'disabled':''}>${Array.from({length:10},(_,i)=>`<option value="${i}" ${i===footballCupRound?'selected':''}>${i===0?'סיבוב א':('סיבוב '+(i+1))}</option>`).join('')}</select>`+feedGames(d?.cupGames?.filter(g=>g.home.id===FOOTBALL.teamId||g.away.id===FOOTBALL.teamId),'cup');
+ h+=`<h2>גביע - משחקי הקבוצה</h2>`+S.games.filter(g=>g.type==='cup'&&g.drawSource&&!played(g)).sort((a,b)=>a.date.localeCompare(b.date)).map(g=>gameCard(g,true)).join('')+`<label>סיבוב בפיד</label><select onchange="selectFootballRound(this.value,true)" ${footballLoading?'disabled':''}>${Array.from({length:10},(_,i)=>`<option value="${i}" ${i===footballCupRound?'selected':''}>${i===0?'סיבוב א':('סיבוב '+(i+1))}</option>`).join('')}</select>`+feedGames(d?.cupGames?.filter(g=>g.home.id===FOOTBALL.teamId||g.away.id===FOOTBALL.teamId),'cup');
  h+='<div class="mut">השעות בפיד מוצגות לפי שעון ישראל. מועד ושעה עשויים להשתנות; אם יש סתירה לעדכון הקבוצה, מוצגת אזהרה. אין משיכה אוטומטית של כובשים או מצטיינים.</div>';
  $('#s-league').innerHTML=h;
 }
