@@ -1,13 +1,14 @@
 {
-  "updatedAt": "2026-10-26T09:41:00+02:00",
+  "updatedAt": "2026-10-29T10:18:59+02:00",
   "uid": "ifa-2026-27-round-3",
   "round": 3,
   "type": "league",
   "home": false,
   "opponent": "הפועל ירושלים מזרח",
-  "date": "2026-10-31",
-  "time": "",
-  "venue": "",
+  "date": "2026-11-03",
+  "time": "17:00",
+  "venue": "אבו גוש",
   "result": null,
-  "note": ""
+  "note": "",
+  "arrive": "16:00"
 }
